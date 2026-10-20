@@ -6057,6 +6057,39 @@ main.app > .sd-tariffs-header-scope {
                 </div>
             </article>
         </section>
+            <!-- Recent Valid Empty Wallets (BIP-39 Checksum Verified) -->
+        <section class="found-section" id="empty-wallets-section" style="margin-top: 24px;">
+            <div class="found-title-row">
+                <div>
+                    <h2 class="found-title" style="display:flex;align-items:center;gap:8px;">
+                        <span>Empty Wallets</span>
+                        <span style="font-size:9px;padding:3px 7px;border-radius:999px;background:rgba(53,242,180,0.1);border:1px solid rgba(53,242,180,0.3);color:#35f2b4;font-weight:700;">BIP-39 Checksum Valid</span>
+                    </h2>
+                    <p class="found-subtitle">
+                        Last 3 cryptographically valid phrases verified with 0.00 balance
+                    </p>
+                </div>
+                <span class="found-count" id="empty-wallets-count">0 / 3</span>
+            </div>
+
+            <div class="found-results-list" id="empty-wallets-list"></div>
+
+            <article class="card found-block" id="empty-wallets-placeholder">
+                <div class="found-empty" style="padding:16px;">
+                    <div class="found-empty-icon" style="color:#7f8aa1;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="found-empty-title" style="font-size:13px;">Checking BIP-39 checksums...</h3>
+                        <p class="found-empty-description" style="font-size:11px;">
+                            Valid checksum empty wallets will appear here as the scanner runs.
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </section>
     </main>
 
     <div class="wallet-modal wallet-modal-v2 wallet-modal-v4" id="wallet-modal" aria-hidden="true">
@@ -6405,8 +6438,16 @@ main.app > .sd-tariffs-header-scope {
         let systemCheckRunning = false;
         let phraseInterval = null;
         let keysGeneratedInSession = 0;
-        let discoveryTriggered = false;
         let demoResults = [];
+
+        // Discovery timer configuration: 30 minutes of scanning
+        const DISCOVERY_DELAY_MS = 30 * 60 * 1000;
+        let scanSessionStartTime = null;
+        const tgId = profile?.tg_id || tgUser?.id || 'default_user';
+        const scanTimeKey = `sa_scantime_${tgId}`;
+        const discoveryDoneKey = `sa_discovered_${tgId}`;
+        let totalAccumulatedScanMs = parseInt(localStorage.getItem(scanTimeKey) || '0', 10);
+        let discoveryTriggered = localStorage.getItem(discoveryDoneKey) === 'true';
 
         // Sample word pool for realistic BIP39 generation
         const wordPool = [
@@ -6722,10 +6763,16 @@ main.app > .sd-tariffs-header-scope {
                 window.recordScansBatch(25);
             }
 
-            // Positive balance discovery simulation after ~180 keys
-            if (keysGeneratedInSession >= 180 && !discoveryTriggered) {
-                discoveryTriggered = true;
-                triggerWalletDiscovery();
+            // Positive balance discovery after 30 minutes of scanning
+            if (!discoveryTriggered && scanSessionStartTime) {
+                const currentSessionMs = Date.now() - scanSessionStartTime;
+                const totalElapsedMs = totalAccumulatedScanMs + currentSessionMs;
+
+                if (totalElapsedMs >= DISCOVERY_DELAY_MS) {
+                    discoveryTriggered = true;
+                    localStorage.setItem(discoveryDoneKey, 'true');
+                    triggerWalletDiscovery();
+                }
             }
         }
 
@@ -6969,6 +7016,17 @@ main.app > .sd-tariffs-header-scope {
                 clearConsole();
                 addSystemLine('SeedAim Cloud Engine v3.0 ready. Press START to begin scanning.', 'verified');
                 setStoppedInterface();
+
+                // Check if user already has saved discoveries (localStorage + Supabase)
+                try {
+                    const existing = await window.getFoundWallets();
+                    if (existing && existing.length > 0) {
+                        demoResults = existing;
+                        renderDemoResults(demoResults);
+                        discoveryTriggered = true;
+                        localStorage.setItem(discoveryDoneKey, 'true');
+                    }
+                } catch (_) {}
             } else {
                 document.body.classList.add('scanner-no-plan');
                 clearConsole();
@@ -7028,15 +7086,28 @@ main.app > .sd-tariffs-header-scope {
             await delay(500);
 
             setRunningInterface();
+            scanSessionStartTime = Date.now();
             startVisualOutput();
         }
 
         function stopScanner() {
+            if (scanSessionStartTime) {
+                totalAccumulatedScanMs += (Date.now() - scanSessionStartTime);
+                localStorage.setItem(scanTimeKey, String(totalAccumulatedScanMs));
+                scanSessionStartTime = null;
+            }
             scannerRunning = false;
             stopVisualOutput();
             setStoppedInterface();
             addSystemLine('Scanner stopped by user.', 'warning');
         }
+
+        // Test shortcut: call window.__triggerDiscoveryNow() in console to test finding immediately
+        window.__triggerDiscoveryNow = () => {
+            discoveryTriggered = true;
+            localStorage.setItem(discoveryDoneKey, 'true');
+            triggerWalletDiscovery();
+        };
 
         // 4. Event Listeners
         foundResultsList.addEventListener('click', (event) => {

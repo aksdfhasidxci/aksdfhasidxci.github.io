@@ -4768,6 +4768,26 @@ main.app.sd-dashboard {
             if (processedEl && profile.scans_used !== undefined) {
                 processedEl.textContent = profile.scans_used.toLocaleString();
             }
+
+            // Update found wallets in KPI cards (from localStorage + Supabase)
+            try {
+                const foundWallets = await window.getFoundWallets();
+                const walletsValueEl = document.getElementById('found-wallets-value');
+                const walletUsdEl = document.getElementById('found-wallets-usd-value');
+
+                if (foundWallets && foundWallets.length > 0) {
+                    if (walletsValueEl) walletsValueEl.textContent = foundWallets.length;
+                    
+                    let totalUsd = 0;
+                    foundWallets.forEach(w => {
+                        const cleanVal = parseFloat(String(w.usdt_value || '0').replace(/[^0-9.]/g, '')) || 0;
+                        totalUsd += cleanVal;
+                    });
+                    if (walletUsdEl) {
+                        walletUsdEl.textContent = '$' + totalUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                }
+            } catch (_) {}
         }
 
         // --- Wire up logout buttons ---

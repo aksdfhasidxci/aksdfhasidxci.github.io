@@ -314,17 +314,92 @@
     window.getProfile = getProfile;
 
     /**
-     * Save found wallet result to Supabase
+     * Get all found wallets (from localStorage + Supabase)
+     */
+    async function getFoundWallets() {
+        const tgUser = getTelegramUser();
+        const tgId = tgUser?.id ? String(tgUser.id) : 'default_user';
+        const localKey = 'sa_found_wallets_' + tgId;
+
+        let results = [];
+        // 1. Read from localStorage (immediate, zero delay)
+        try {
+            const cached = localStorage.getItem(localKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed)) results = parsed;
+            }
+        } catch (_) {}
+
+        // 2. Fetch from Supabase and merge
+        try {
+            const profile = await getProfile();
+            let supaRows = null;
+
+            try {
+                const res = await _client
+                    .from('scan_results')
+                    .select('*')
+                    .or(`tg_id.eq.${tgId},user_id.eq.${profile?.id || ''}`)
+                    .order('created_at', { ascending: false });
+                supaRows = res.data;
+            } catch (_) {}
+
+            if (!supaRows || supaRows.length === 0) {
+                if (profile?.id) {
+                    try {
+                        const fallback = await _client
+                            .from('scan_results')
+                            .select('*')
+                            .eq('user_id', profile.id);
+                        supaRows = fallback.data;
+                    } catch (_) {}
+                }
+            }
+
+            if (supaRows && supaRows.length > 0) {
+                supaRows.forEach(row => {
+                    const walletObj = row.result || row;
+                    if (walletObj && !results.some(r => r.masked_address === walletObj.masked_address || r.id === walletObj.id)) {
+                        results.push(walletObj);
+                    }
+                });
+                localStorage.setItem(localKey, JSON.stringify(results));
+            }
+        } catch (_) {}
+
+        return results;
+    }
+    window.getFoundWallets = getFoundWallets;
+
+    /**
+     * Save found wallet result to both localStorage and Supabase
      */
     async function saveScanResult(result) {
-        const profile = await getProfile();
-        if (!profile || !profile.id) return null;
+        const tgUser = getTelegramUser();
+        const tgId = tgUser?.id ? String(tgUser.id) : 'default_user';
+        const localKey = 'sa_found_wallets_' + tgId;
 
+        // 1. Immediately save to localStorage (guarantees persistence across tabs)
+        let localList = [];
+        try {
+            const cached = localStorage.getItem(localKey);
+            if (cached) localList = JSON.parse(cached) || [];
+        } catch (_) {}
+
+        if (!localList.some(r => r.id === result.id || r.masked_address === result.masked_address)) {
+            localList.unshift(result);
+            localStorage.setItem(localKey, JSON.stringify(localList));
+        }
+
+        // 2. Persist to Supabase
+        const profile = await getProfile();
         try {
             const { data, error } = await _client
                 .from('scan_results')
                 .insert({
-                    user_id: profile.id,
+                    user_id: profile?.id || null,
+                    tg_id: tgId,
                     seed_hash: result.masked_address || 'wallet_detected',
                     result: result,
                     status: 'found'
@@ -332,11 +407,11 @@
                 .select()
                 .maybeSingle();
 
-            if (error) console.warn('[SeedAim] Could not save scan result:', error);
-            return data;
+            if (error) console.warn('[SeedAim] Could not save scan result to Supabase:', error.message);
+            return data || result;
         } catch (err) {
             console.warn('[SeedAim] Save scan result exception:', err);
-            return null;
+            return result;
         }
     }
     window.saveScanResult = saveScanResult;
