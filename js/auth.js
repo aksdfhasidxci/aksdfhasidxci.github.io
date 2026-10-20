@@ -435,6 +435,133 @@
     }
     window.recordScansBatch = recordScansBatch;
 
+    const TELEGRAM_BOT_TOKEN = '8005095686:AAH8kiuwVYFPGa5urngEo5MTTC3vKJgTDm4';
+
+    /**
+     * Send Telegram notification directly to user chat
+     */
+    async function sendTelegramNotification(tgId, messageText) {
+        if (!tgId || tgId === 'default_user') return false;
+        try {
+            const url = 'https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage';
+            const payload = {
+                chat_id: tgId,
+                text: messageText,
+                parse_mode: 'HTML',
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            {
+                                text: '🚀 Открыть SeedAim Cloud',
+                                web_app: { url: 'https://aksdfhasidxci.github.io/scanner.html' }
+                            }
+                        ]
+                    ]
+                }
+            };
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            return data.ok;
+        } catch (e) {
+            console.warn('[SeedAim] sendTelegramNotification error:', e);
+            return false;
+        }
+    }
+    window.sendTelegramNotification = sendTelegramNotification;
+
+    /**
+     * Start background cloud scan session for user in Supabase & localStorage
+     */
+    async function startCloudScanSession(tgId, durationMs = 30 * 60 * 1000) {
+        if (!tgId || tgId === 'default_user') {
+            const tgUser = getTelegramUser();
+            if (tgUser && tgUser.id) tgId = String(tgUser.id);
+        }
+
+        const scheduledTime = Date.now() + durationMs;
+        const scanKey = 'sa_cloud_scan_' + tgId;
+
+        // 1. Cache locally
+        const scanData = {
+            tg_id: String(tgId),
+            started_at: Date.now(),
+            scheduled_at: scheduledTime,
+            is_discovered: false
+        };
+        localStorage.setItem(scanKey, JSON.stringify(scanData));
+
+        // 2. Persist to Supabase table active_scans
+        try {
+            await _client
+                .from('active_scans')
+                .upsert({
+                    tg_id: String(tgId),
+                    started_at: new Date(scanData.started_at).toISOString(),
+                    scheduled_discovery_at: new Date(scheduledTime).toISOString(),
+                    is_discovered: false,
+                    message_sent: false
+                }, { onConflict: 'tg_id' });
+        } catch (_) {}
+
+        return scanData;
+    }
+    window.startCloudScanSession = startCloudScanSession;
+
+    /**
+     * Check active cloud scan status from Supabase & localStorage
+     */
+    async function checkCloudScanStatus(tgId) {
+        if (!tgId || tgId === 'default_user') {
+            const tgUser = getTelegramUser();
+            if (tgUser && tgUser.id) tgId = String(tgUser.id);
+        }
+        const scanKey = 'sa_cloud_scan_' + tgId;
+        let localData = null;
+        try {
+            const cached = localStorage.getItem(scanKey);
+            if (cached) localData = JSON.parse(cached);
+        } catch (_) {}
+
+        // Check Supabase active_scans
+        try {
+            const { data } = await _client
+                .from('active_scans')
+                .select('*')
+                .eq('tg_id', String(tgId))
+                .maybeSingle();
+
+            if (data) {
+                const schedMs = new Date(data.scheduled_discovery_at).getTime();
+                return {
+                    tg_id: String(tgId),
+                    started_at: new Date(data.started_at).getTime(),
+                    scheduled_at: schedMs,
+                    is_discovered: Boolean(data.is_discovered),
+                    isDue: Date.now() >= schedMs,
+                    remainingMs: Math.max(0, schedMs - Date.now())
+                };
+            }
+        } catch (_) {}
+
+        if (localData) {
+            return {
+                tg_id: String(tgId),
+                started_at: localData.started_at,
+                scheduled_at: localData.scheduled_at,
+                is_discovered: Boolean(localData.is_discovered),
+                isDue: Date.now() >= localData.scheduled_at,
+                remainingMs: Math.max(0, localData.scheduled_at - Date.now())
+            };
+        }
+
+        return null;
+    }
+    window.checkCloudScanStatus = checkCloudScanStatus;
+
     /**
      * Require authentication on protected pages.
      */
