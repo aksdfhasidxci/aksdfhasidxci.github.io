@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#060817">
+    <title>Open in Telegram — SeedAim Cloud</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% -10%, rgba(124,92,255,.17), transparent 33%),
+                radial-gradient(circle at -10% 58%, rgba(64,39,209,.14), transparent 28%),
+                linear-gradient(180deg, #07091b 0%, #040612 100%);
+            font-family: Inter, ui-sans-serif, -apple-system, sans-serif;
+            color: #f7f8ff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            width: min(100%, 400px);
+            padding: 36px 28px;
+            border: 1px solid rgba(70,89,178,.46);
+            border-radius: 28px;
+            background: linear-gradient(165deg, rgba(9,13,31,.96), rgba(5,9,24,.96));
+            box-shadow:
+                0 28px 72px rgba(0,0,0,.58),
+                -20px 14px 60px rgba(124,92,255,.18),
+                20px 18px 60px rgba(0,200,248,.13);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 9%; width: 82%; height: 2px;
+            background: linear-gradient(90deg, transparent, #7c5cff, #00c8f8, transparent);
+            box-shadow: 0 0 18px rgba(124,92,255,.85);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border: 1px solid rgba(124,92,255,.48);
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(124,92,255,.12), rgba(0,200,248,.06));
+            box-shadow: 0 0 30px rgba(124,92,255,.18);
+        }
+
+        .logo img { width: 100%; height: 100%; object-fit: cover; }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            margin-bottom: 10px;
+            background: linear-gradient(180deg, #fff 0%, #c8cafc 70%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        p {
+            color: #8f98bb;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .tg-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            min-height: 58px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #229ED9 0%, #1a7fad 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 12px 28px rgba(34,158,217,.32), inset 0 1px 0 rgba(255,255,255,.25);
+            transition: .22s ease;
+        }
+
+        .tg-button:hover { transform: translateY(-1px); box-shadow: 0 16px 34px rgba(34,158,217,.4); }
+        .tg-button:active { transform: translateY(0); }
+
+        .tg-button svg { width: 24px; height: 24px; flex: 0 0 auto; }
+
+        .note {
+            margin-top: 18px;
+            color: #5a6380;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo"><img src="img/l18.png" alt="SeedAim"></div>
+        <h1>SeedAim Cloud</h1>
+        <p>This app is designed to run inside<br><strong style="color:#c8cafc">Telegram</strong> as a Mini App.<br>Please open it through our bot.</p>
+
+        <a class="tg-button" href="https://t.me/SeedAimBuyBot" id="tg-link">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.47l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.268.089z"/>
+            </svg>
+            Open in Telegram
+        </a>
+
+        <p class="note">@SeedAimBuyBot</p>
+    </div>
+
+    <script>
+        // Try to auto-redirect to Telegram deep link with the Mini App
+        const tgLink = document.getElementById('tg-link');
+
+        // If on mobile, try to open directly in Telegram app
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+            // tg:// deep link opens the Telegram app directly
+            tgLink.href = 'tg://resolve?domain=SeedAimBuyBot&start=app';
+        }
+
+        // Auto-redirect after 1.5s on mobile
+        if (isMobile) {
+            setTimeout(() => {
+                window.location.href = 'tg://resolve?domain=SeedAimBuyBot&start=app';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

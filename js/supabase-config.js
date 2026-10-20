@@ -1,14 +1,5 @@
 /**
  * SeedAim Cloud — Supabase Configuration
- *
- * HOW TO SETUP:
- * 1. Go to https://supabase.com and create a free project
- * 2. In your project: Settings → API
- * 3. Copy "Project URL" and "anon public" key
- * 4. Paste them below
- *
- * IMPORTANT: The anon key is safe to use in browser — it's public by design.
- * Row Level Security (RLS) policies protect your data server-side.
  */
 
 const SUPABASE_URL = 'https://civrwmpccapyrzpehqbo.supabase.co';
