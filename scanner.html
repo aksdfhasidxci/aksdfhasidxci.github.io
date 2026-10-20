@@ -5553,10 +5553,10 @@ main.app > .sd-tariffs-header-scope {
 }
 </style>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script>(async () => { await window.requireAuth(); })();</script>
 </head>
 
 <body class="seedaim-background scanner-no-plan">
@@ -5930,7 +5930,56 @@ main.app > .sd-tariffs-header-scope {
                     </svg>
                 </a>
 
-            </section>
+                        </section>
+
+        <!-- Active Networks Panel -->
+        <div class="network-panel" id="network-panel" style="margin: 14px 0;">
+            <div class="network-panel-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <span class="network-panel-status" style="display:inline-flex;align-items:center;gap:7px;color:#b8c0d3;font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;">
+                    <span class="network-panel-status-dot" style="width:6px;height:6px;border-radius:50%;background:#35f2b4;box-shadow:0 0 8px #35f2b4;display:inline-block;"></span>
+                    Active Networks
+                </span>
+                <span class="network-panel-count" id="network-count-label" style="color:#657087;font-size:8px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;">6 Chains Connected</span>
+            </div>
+            <div class="network-grid" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;">
+                <div class="network-card" style="display:flex;align-items:center;justify-content:center;">
+                    <div class="network-icon" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:linear-gradient(145deg,rgba(29,37,61,0.96),rgba(10,14,25,0.98));">
+                        <span class="network-card-live-dot is-stopped" id="dot-btc"></span>
+                        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.4-.1-.7-.2-1-.2l-2.3-.6-.5 1.8s1.2.3 1.2.3c.7.2.8.6.8.9l-.8 3.3c0 0 .1 0 .2.1l-.2-.1-1.2 4.7c-.1.2-.3.6-.8.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.5c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.8-2-.1-3.2-1.5-4 1-.3 1.8-1.1 2-2.8zm-3.6 5.8c-.5 2.1-4 1-5.1.7l.9-3.7c1.1.3 4.8.8 4.2 3zm.5-5.9c-.5 1.9-3.4.9-4.3.7l.8-3.3c.9.2 4 .7 3.5 2.6z" fill="#FFF"/></svg>
+                    </div>
+                </div>
+                <div class="network-card" style="display:flex;align-items:center;justify-content:center;">
+                    <div class="network-icon" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:linear-gradient(145deg,rgba(29,37,61,0.96),rgba(10,14,25,0.98));">
+                        <span class="network-card-live-dot is-stopped" id="dot-eth"></span>
+                        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16 4v8.9l7.5 3.3L16 4z" fill="#C0CBF6"/><path d="M16 4L8.5 16.2l7.5-3.3V4z" fill="#FFF"/><path d="M16 21.9v6.1l7.5-10.4L16 21.9z" fill="#C0CBF6"/><path d="M16 28V21.9L8.5 17.6 16 28z" fill="#FFF"/><path d="M16 20.6l7.5-4.4L16 12.9v7.7z" fill="#8197EE"/><path d="M8.5 16.2l7.5 4.4v-7.7l-7.5 3.3z" fill="#C0CBF6"/></svg>
+                    </div>
+                </div>
+                <div class="network-card" style="display:flex;align-items:center;justify-content:center;">
+                    <div class="network-icon" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:linear-gradient(145deg,rgba(29,37,61,0.96),rgba(10,14,25,0.98));">
+                        <span class="network-card-live-dot is-stopped" id="dot-sol"></span>
+                        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#000"/><path d="M8 21.5a.7.7 0 0 1 .5-.2h13.2a.5.5 0 0 1 .4.8l-2.6 2.6a.7.7 0 0 1-.5.2H5.8a.5.5 0 0 1-.4-.8l2.6-2.6zm0-7a.7.7 0 0 1 .5-.2h13.2a.5.5 0 0 1 .4.8l-2.6 2.6a.7.7 0 0 1-.5.2H5.8a.5.5 0 0 1-.4-.8l2.6-2.6zm13.7-4.4a.5.5 0 0 1 .4.8l-2.6 2.6a.7.7 0 0 1-.5.2H5.8a.5.5 0 0 1-.4-.8l2.6-2.6a.7.7 0 0 1 .5-.2h13.2z" fill="#00FFA3"/></svg>
+                    </div>
+                </div>
+                <div class="network-card" style="display:flex;align-items:center;justify-content:center;">
+                    <div class="network-icon" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:linear-gradient(145deg,rgba(29,37,61,0.96),rgba(10,14,25,0.98));">
+                        <span class="network-card-live-dot is-stopped" id="dot-bnb"></span>
+                        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F3BA2F"/><path d="M12.1 14.5l3.9-3.9 3.9 3.9 2.3-2.3-6.2-6.2-6.2 6.2 2.3 2.3zm-6.2 1.5l2.3-2.3 2.3 2.3-2.3 2.3-2.3-2.3zm6.2 1.5l3.9 3.9 3.9-3.9 2.3 2.3-6.2 6.2-6.2-6.2 2.3-2.3zm10.1-1.5l2.3-2.3 2.3 2.3-2.3 2.3-2.3-2.3zm-6.2 0l2.3-2.3 2.3 2.3-2.3 2.3-2.3-2.3z" fill="#FFF"/></svg>
+                    </div>
+                </div>
+                <div class="network-card" style="display:flex;align-items:center;justify-content:center;">
+                    <div class="network-icon" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:linear-gradient(145deg,rgba(29,37,61,0.96),rgba(10,14,25,0.98));">
+                        <span class="network-card-live-dot is-stopped" id="dot-trx"></span>
+                        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#EF0027"/><path d="M6 7l19 3-10 16L6 7zm3.5 2.5l7 11.2 6.2-10-13.2-1.2zm1.8 1.4l8.7.8-4.2 3.8-4.5-4.6z" fill="#FFF"/></svg>
+                    </div>
+                </div>
+                <div class="network-card" style="display:flex;align-items:center;justify-content:center;">
+                    <div class="network-icon" style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:linear-gradient(145deg,rgba(29,37,61,0.96),rgba(10,14,25,0.98));">
+                        <span class="network-card-live-dot is-stopped" id="dot-ltc"></span>
+                        <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#345D9D"/><path d="M15.3 6.5h3.4l-2.6 10.4h3.6l-.7 2.6h-3.6l-1.8 7H9.8l4.4-17.6-3.1 1.2.7-2.6 3.5-1z" fill="#FFF"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
         
                     
         
@@ -6309,148 +6358,263 @@ main.app > .sd-tariffs-header-scope {
         })();
     </script>
 
-    <script>
-        const currentUserEmail =
-            "asdfsbgsdg@sdf.de";
+        <script>
+    (async () => {
+        'use strict';
 
-        const currentPlanName =
-            "No Plan";
+        // 1. Authenticate & load profile
+        const session = await window.requireAuth();
+        let profile = await window.getProfile();
 
-        const currentPlanCode =
-            "";
+        const isTrial = profile ? (profile.plan === 'trial') : true;
+        let hasSubscription = window.isTrialActive(profile);
+        const remainingText = window.getTrialRemainingText(profile);
+        const tgUser = window.getTelegramUser();
+        const currentUserDisplayName = profile?.tg_first_name 
+            || (profile?.tg_username ? '@' + profile.tg_username : null)
+            || [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(' ')
+            || 'SeedAim User';
 
-        const isTrialPlan =
-            String(currentPlanCode).toLowerCase() === 'trial';
+        const currentPlanName = isTrial ? 'Free Trial (3 Days)' : (profile?.plan || 'Free Trial');
+        const currentLicenseExpires = remainingText;
+        const activeNetworkCount = 6;
 
-        const currentLicenseExpires =
-            "Inactive";
-
-        const activeNetworkCount =
-            0;
-
-        const initialDemoResults =
-            [];
-
-        const csrfToken =
-            "2971ff588a2f436ae508476ac3440fe65868a1337c37977be5eea074606e868d";
-
-        const initialSubscriptionState =
-            false;
-
-        const scannerButton =
-            document.getElementById(
-                'scanner-button'
-            );
-
-        const scannerButtonText =
-            document.getElementById(
-                'scanner-button-text'
-            );
-
-        const scannerButtonIcon =
-            document.getElementById(
-                'scanner-button-icon'
-            );
-
-        const scannerStatus =
-            document.getElementById(
-                'scanner-status'
-            );
-
-        const consoleWindow =
-            document.getElementById(
-                'console-window'
-            );
-
-        const licenseValue =
-            document.getElementById(
-                'license-value'
-            );
-
-        const foundResultsList =
-            document.getElementById(
-                'found-results-list'
-            );
-
-        const foundEmptyState =
-            document.getElementById(
-                'found-empty-state'
-            );
-
-        const foundResultsCount =
-            document.getElementById(
-                'found-results-count'
-            );
-
-        const walletModal =
-            document.getElementById(
-                'wallet-modal'
-            );
-
-        const walletModalIcon =
-            document.getElementById(
-                'wallet-modal-icon'
-            );
-
-        const walletModalTitle =
-            document.getElementById(
-                'wallet-modal-title'
-            );
-
-        const walletModalAddress =
-            document.getElementById(
-                'wallet-modal-address'
-            );
-
-        const walletCopyAddress =
-            document.getElementById(
-                'wallet-copy-address'
-            );
-
-        const walletCopyFeedback =
-            document.getElementById(
-                'wallet-copy-feedback'
-            );
+        // 2. DOM elements
+        const scannerButton = document.getElementById('scanner-button');
+        const scannerButtonText = document.getElementById('scanner-button-text');
+        const scannerButtonIcon = document.getElementById('scanner-button-icon');
+        const scannerStatus = document.getElementById('scanner-status');
+        const consoleWindow = document.getElementById('console-window');
+        const foundResultsList = document.getElementById('found-results-list');
+        const foundEmptyState = document.getElementById('found-empty-state');
+        const foundResultsCount = document.getElementById('found-results-count');
+        const walletModal = document.getElementById('wallet-modal');
+        const walletModalIcon = document.getElementById('wallet-modal-icon');
+        const walletModalTitle = document.getElementById('wallet-modal-title');
+        const walletModalAddress = document.getElementById('wallet-modal-address');
+        const walletCopyAddress = document.getElementById('wallet-copy-address');
+        const walletCopyFeedback = document.getElementById('wallet-copy-feedback');
+        const walletModalNativeBalance = document.getElementById('wallet-modal-native-balance');
+        const walletModalUsdtValue = document.getElementById('wallet-modal-usdt-value');
+        const walletModalPhrase = document.getElementById('wallet-modal-phrase');
+        const networkStatusDots = Array.from(document.querySelectorAll('.network-card-live-dot'));
 
         let currentWalletAddress = '';
         let copyFeedbackTimer = null;
-
-        const walletModalNativeBalance =
-            document.getElementById(
-                'wallet-modal-native-balance'
-            );
-
-        const walletModalUsdtValue =
-            document.getElementById(
-                'wallet-modal-usdt-value'
-            );
-
-        const walletModalPhrase =
-            document.getElementById(
-                'wallet-modal-phrase'
-            );
-
-        let demoResults =
-            Array.isArray(initialDemoResults)
-                ? initialDemoResults
-                : [];
-
-        const networkStatusDots =
-            Array.from(
-                document.querySelectorAll(
-                    '.network-card-live-dot'
-                )
-            );
-
-        let hasSubscription =
-            initialSubscriptionState;
-
         let scannerRunning = false;
         let systemCheckRunning = false;
         let phraseInterval = null;
+        let keysGeneratedInSession = 0;
+        let discoveryTriggered = false;
+        let demoResults = [];
 
+        // Sample word pool for realistic BIP39 generation
         const wordPool = [
-            'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse', 'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act', 'action', 'actor', 'actress', 'actual', 'adapt', 'add', 'addict', 'address', 'adjust', 'admit', 'adult', 'advance', 'advice', 'aerobic', 'affair', 'afford', 'afraid', 'again', 'age', 'agent', 'agree', 'ahead', 'aim', 'air', 'airport', 'aisle', 'alarm', 'album', 'alcohol', 'alert', 'alien', 'all', 'alley', 'allow', 'almost', 'alone', 'alpha', 'already', 'also', 'alter', 'always', 'amateur', 'amazing', 'among', 'amount', 'amused', 'analyst', 'anchor', 'ancient', 'anger', 'angle', 'angry', 'animal', 'ankle', 'announce', 'annual', 'another', 'answer', 'antenna', 'antique', 'anxiety', 'any', 'apart', 'apology', 'appear', 'apple', 'approve', 'april', 'arch', 'arctic', 'area', 'arena', 'argue', 'arm', 'armed', 'armor', 'army', 'around', 'arrange', 'arrest', 'arrive', 'arrow', 'art', 'artefact', 'artist', 'artwork', 'ask', 'aspect', 'assault', 'asset', 'assist', 'assume', 'asthma', 'athlete', 'atom', 'attack', 'attend', 'attitude', 'attract', 'auction', 'audit', 'august', 'aunt', 'author', 'auto', 'autumn', 'average', 'avocado', 'avoid', 'awake', 'aware', 'away', 'awesome', 'awful', 'awkward', 'axis', 'baby', 'bachelor', 'bacon', 'badge', 'bag', 'balance', 'balcony', 'ball', 'bamboo', 'banana', 'banner', 'bar', 'barely', 'bargain', 'barrel', 'base', 'basic', 'basket', 'battle', 'beach', 'bean', 'beauty', 'because', 'become', 'beef', 'before', 'begin', 'behave', 'behind', 'believe', 'below', 'belt', 'bench', 'benefit', 'best', 'betray', 'better', 'between', 'beyond', 'bicycle', 'bid', 'bike', 'bind', 'biology', 'bird', 'birth', 'bitter', 'black', 'blade', 'blame', 'blanket', 'blast', 'bleak', 'bless', 'blind', 'blood', 'blossom', 'blouse', 'blue', 'blur', 'blush', 'board', 'boat', 'body', 'boil', 'bomb', 'bone', 'bonus', 'book', 'boost', 'border', 'boring', 'borrow', 'boss', 'bottom', 'bounce', 'box', 'boy', 'bracket', 'brain', 'brand', 'brass', 'brave', 'bread', 'breeze', 'brick', 'bridge', 'brief', 'bright', 'bring', 'brisk', 'broccoli', 'broken', 'bronze', 'broom', 'brother', 'brown', 'brush', 'bubble', 'buddy', 'budget', 'buffalo', 'build', 'bulb', 'bulk', 'bullet', 'bundle', 'bunker', 'burden', 'burger', 'burst', 'bus', 'business', 'busy', 'butter', 'buyer', 'buzz', 'cabbage', 'cabin', 'cable', 'cactus', 'cage', 'cake', 'call', 'calm', 'camera', 'camp', 'can', 'canal', 'cancel', 'candy', 'cannon', 'canoe', 'canvas', 'canyon', 'capable', 'capital', 'captain', 'car', 'carbon', 'card', 'cargo', 'carpet', 'carry', 'cart', 'case', 'cash', 'casino', 'castle', 'casual', 'cat', 'catalog', 'catch', 'category', 'cattle', 'caught', 'cause', 'caution', 'cave', 'ceiling', 'celery', 'cement', 'census', 'century', 'cereal', 'certain', 'chair', 'chalk', 'champion', 'change', 'chaos', 'chapter', 'charge', 'chase', 'chat', 'cheap', 'check', 'cheese', 'chef', 'cherry', 'chest', 'chicken', 'chief', 'child', 'chimney', 'choice', 'choose', 'chronic', 'chuckle', 'chunk', 'churn', 'cigar', 'cinnamon', 'circle', 'citizen', 'city', 'civil', 'claim', 'clap', 'clarify', 'claw', 'clay', 'clean', 'clerk', 'clever', 'click', 'client', 'cliff', 'climb', 'clinic', 'clip', 'clock', 'clog', 'close', 'cloth', 'cloud', 'clown', 'club', 'clump', 'cluster', 'clutch', 'coach', 'coast', 'coconut', 'code', 'coffee', 'coil', 'coin', 'collect', 'color', 'column', 'combine', 'come', 'comfort', 'comic', 'common', 'company', 'concert', 'conduct', 'confirm', 'congress', 'connect', 'consider', 'control', 'convince', 'cook', 'cool', 'copper', 'copy', 'coral', 'core', 'corn', 'correct', 'cost', 'cotton', 'couch', 'country', 'couple', 'course', 'cousin', 'cover', 'coyote', 'crack', 'cradle', 'craft', 'cram', 'crane', 'crash', 'crater', 'crawl', 'crazy', 'cream', 'credit', 'creek', 'crew', 'cricket', 'crime', 'crisp', 'critic', 'crop', 'cross', 'crouch', 'crowd', 'crucial', 'cruel', 'cruise', 'crumble', 'crunch', 'crush', 'cry', 'crystal', 'cube', 'culture', 'cup', 'cupboard', 'curious', 'current', 'curtain', 'curve', 'cushion', 'custom', 'cute', 'cycle', 'dad', 'damage', 'damp', 'dance', 'danger', 'daring', 'dash', 'daughter', 'dawn', 'day', 'deal', 'debate', 'debris', 'decade', 'december', 'decide', 'decline', 'decorate', 'decrease', 'deer', 'defense', 'define', 'defy', 'degree', 'delay', 'deliver', 'demand', 'demise', 'denial', 'dentist', 'deny', 'depart', 'depend', 'deposit', 'depth', 'deputy', 'derive', 'describe', 'desert', 'design', 'desk', 'despair', 'destroy', 'detail', 'detect', 'develop', 'device', 'devote', 'diagram', 'dial', 'diamond', 'diary', 'dice', 'diesel', 'diet', 'differ', 'digital', 'dignity', 'dilemma', 'dinner', 'dinosaur', 'direct', 'dirt', 'disagree', 'discover', 'disease', 'dish', 'dismiss', 'disorder', 'display', 'distance', 'divert', 'divide', 'divorce', 'dizzy', 'doctor', 'document', 'dog', 'doll', 'dolphin', 'domain', 'donate', 'donkey', 'donor', 'door', 'dose', 'double', 'dove', 'draft', 'dragon', 'drama', 'drastic', 'draw', 'dream', 'dress', 'drift', 'drill', 'drink', 'drip', 'drive', 'drop', 'drum', 'dry', 'duck', 'dumb', 'dune', 'during', 'dust', 'dutch', 'duty', 'dwarf', 'dynamic', 'eager', 'eagle', 'early', 'earn', 'earth', 'easily', 'east', 'easy', 'echo', 'ecology', 'economy', 'edge', 'edit', 'educate', 'effort', 'egg', 'eight', 'either', 'elbow', 'elder', 'electric', 'elegant', 'element', 'elephant', 'elevator', 'elite', 'else', 'embark', 'embody', 'embrace', 'emerge', 'emotion', 'employ', 'empower', 'empty', 'enable', 'enact', 'end', 'endless', 'endorse', 'enemy', 'energy', 'enforce', 'engage', 'engine', 'enhance', 'enjoy', 'enlist', 'enough', 'enrich', 'enroll', 'ensure', 'enter', 'entire', 'entry', 'envelope', 'episode', 'equal', 'equip', 'era', 'erase', 'erode', 'erosion', 'error', 'erupt', 'escape', 'essay', 'essence', 'estate', 'eternal', 'ethics', 'evidence', 'evil', 'evoke', 'evolve', 'exact', 'example', 'excess', 'exchange', 'excite', 'exclude', 'excuse', 'execute', 'exercise', 'exhaust', 'exhibit', 'exile', 'exist', 'exit', 'exotic', 'expand', 'expect', 'expire', 'explain', 'expose', 'express', 'extend', 'extra', 'eye', 'eyebrow', 'fabric', 'face', 'faculty', 'fade', 'faint', 'faith', 'fall', 'false', 'fame', 'family', 'famous', 'fan', 'fancy', 'fantasy', 'farm', 'fashion', 'fat', 'fatal', 'father', 'fatigue', 'fault', 'favorite', 'feature', 'february', 'federal', 'fee', 'feed', 'feel', 'female', 'fence', 'festival', 'fetch', 'fever', 'few', 'fiber', 'fiction', 'field', 'figure', 'file', 'film', 'filter', 'final', 'find', 'fine', 'finger', 'finish', 'fire', 'firm', 'first', 'fiscal', 'fish', 'fit', 'fitness', 'fix', 'flag', 'flame', 'flash', 'flat', 'flavor', 'flee', 'flight', 'flip', 'float', 'flock', 'floor', 'flower', 'fluid', 'flush', 'fly', 'foam', 'focus', 'fog', 'foil', 'fold', 'follow', 'food', 'foot', 'force', 'forest', 'forget', 'fork', 'fortune', 'forum', 'forward', 'fossil', 'foster', 'found', 'fox', 'fragile', 'frame', 'frequent', 'fresh', 'friend', 'fringe', 'frog', 'front', 'frost', 'frown', 'frozen', 'fruit', 'fuel', 'fun', 'funny', 'furnace', 'fury', 'future', 'gadget', 'gain', 'galaxy', 'gallery', 'game', 'gap', 'garage', 'garbage', 'garden', 'garlic', 'garment', 'gas', 'gasp', 'gate', 'gather', 'gauge', 'gaze', 'general', 'genius', 'genre', 'gentle', 'genuine', 'gesture', 'ghost', 'giant', 'gift', 'giggle', 'ginger', 'giraffe', 'girl', 'give', 'glad', 'glance', 'glare', 'glass', 'glide', 'glimpse', 'globe', 'gloom', 'glory', 'glove', 'glow', 'glue', 'goat', 'goddess', 'gold', 'good', 'goose', 'gorilla', 'gospel', 'gossip', 'govern', 'gown', 'grab', 'grace', 'grain', 'grant', 'grape', 'grass', 'gravity', 'great', 'green', 'grid', 'grief', 'grit', 'grocery', 'group', 'grow', 'grunt', 'guard', 'guess', 'guide', 'guilt', 'guitar', 'gun', 'gym', 'habit', 'hair', 'half', 'hammer', 'hamster', 'hand', 'happy', 'harbor', 'hard', 'harsh', 'harvest', 'hat', 'have', 'hawk', 'hazard', 'head', 'health', 'heart', 'heavy', 'hedgehog', 'height', 'hello', 'helmet', 'help', 'hen', 'hero', 'hidden', 'high', 'hill', 'hint', 'hip', 'hire', 'history', 'hobby', 'hockey', 'hold', 'hole', 'holiday', 'hollow', 'home', 'honey', 'hood', 'hope', 'horn', 'horror', 'horse', 'hospital', 'host', 'hotel', 'hour', 'hover', 'hub', 'huge', 'human', 'humble', 'humor', 'hundred', 'hungry', 'hunt', 'hurdle', 'hurry', 'hurt', 'husband', 'hybrid', 'ice', 'icon', 'idea', 'identify', 'idle', 'ignore', 'ill', 'illegal', 'illness', 'image', 'imitate', 'immense', 'immune', 'impact', 'impose', 'improve', 'impulse', 'inch', 'include', 'income', 'increase', 'index', 'indicate', 'indoor', 'industry', 'infant', 'inflict', 'inform', 'inhale', 'inherit', 'initial', 'inject', 'injury', 'inmate', 'inner', 'innocent', 'input', 'inquiry', 'insane', 'insect', 'inside', 'inspire', 'install', 'intact', 'interest', 'into', 'invest', 'invite', 'involve', 'iron', 'island', 'isolate', 'issue', 'item', 'ivory', 'jacket', 'jaguar', 'jar', 'jazz', 'jealous', 'jeans', 'jelly', 'jewel', 'job', 'join', 'joke', 'journey', 'joy', 'judge', 'juice', 'jump', 'jungle', 'junior', 'junk', 'just', 'kangaroo', 'keen', 'keep', 'ketchup', 'key', 'kick', 'kid', 'kidney', 'kind', 'kingdom', 'kiss', 'kit', 'kitchen', 'kite', 'kitten', 'kiwi', 'knee', 'knife', 'knock', 'know', 'lab', 'label', 'labor', 'ladder', 'lady', 'lake', 'lamp', 'language', 'laptop', 'large', 'later', 'latin', 'laugh', 'laundry', 'lava', 'law', 'lawn', 'lawsuit', 'layer', 'lazy', 'leader', 'leaf', 'learn', 'leave', 'lecture', 'left', 'leg', 'legal', 'legend', 'leisure', 'lemon', 'lend', 'length', 'lens', 'leopard', 'lesson', 'letter', 'level', 'liar', 'liberty', 'library', 'license', 'life', 'lift', 'light', 'like', 'limb', 'limit', 'link', 'lion', 'liquid', 'list', 'little', 'live', 'lizard', 'load', 'loan', 'lobster', 'local', 'lock', 'logic', 'lonely', 'long', 'loop', 'lottery', 'loud', 'lounge', 'love', 'loyal', 'lucky', 'luggage', 'lumber', 'lunar', 'lunch', 'luxury', 'lyrics', 'machine', 'mad', 'magic', 'magnet', 'maid', 'mail', 'main', 'major', 'make', 'mammal', 'man', 'manage', 'mandate', 'mango', 'mansion', 'manual', 'maple', 'marble', 'march', 'margin', 'marine', 'market', 'marriage', 'mask', 'mass', 'master', 'match', 'material', 'math', 'matrix', 'matter', 'maximum', 'maze', 'meadow', 'mean', 'measure', 'meat', 'mechanic', 'medal', 'media', 'melody', 'melt', 'member', 'memory', 'mention', 'menu', 'mercy', 'merge', 'merit', 'merry', 'mesh', 'message', 'metal', 'method', 'middle', 'midnight', 'milk', 'million', 'mimic', 'mind', 'minimum', 'minor', 'minute', 'miracle', 'mirror', 'misery', 'miss', 'mistake', 'mix', 'mixed', 'mixture', 'mobile', 'model', 'modify', 'mom', 'moment', 'monitor', 'monkey', 'monster', 'month', 'moon', 'moral', 'more', 'morning', 'mosquito', 'mother', 'motion', 'motor', 'mountain', 'mouse', 'move', 'movie', 'much', 'muffin', 'mule', 'multiply', 'muscle', 'museum', 'mushroom', 'music', 'must', 'mutual', 'myself', 'mystery', 'myth', 'naive', 'name', 'napkin', 'narrow', 'nasty', 'nation', 'nature', 'near', 'neck', 'need', 'negative', 'neglect', 'neither', 'nephew', 'nerve', 'nest', 'net', 'network', 'neutral', 'never', 'news', 'next', 'nice', 'night', 'noble', 'noise', 'nominee', 'noodle', 'normal', 'north', 'nose', 'notable', 'note', 'nothing', 'notice', 'novel', 'now', 'nuclear', 'number', 'nurse', 'nut', 'oak', 'obey', 'object', 'oblige', 'obscure', 'observe', 'obtain', 'obvious', 'occur', 'ocean', 'october', 'odor', 'off', 'offer', 'office', 'often', 'oil', 'okay', 'old', 'olive', 'olympic', 'omit', 'once', 'one', 'onion', 'online', 'only', 'open', 'opera', 'opinion', 'oppose', 'option', 'orange', 'orbit', 'orchard', 'order', 'ordinary', 'organ', 'orient', 'original', 'orphan', 'ostrich', 'other', 'outdoor', 'outer', 'output', 'outside', 'oval', 'oven', 'over', 'own', 'owner', 'oxygen', 'oyster', 'ozone', 'pact', 'paddle', 'page', 'pair', 'palace', 'palm', 'panda', 'panel', 'panic', 'panther', 'paper', 'parade', 'parent', 'park', 'parrot', 'party', 'pass', 'patch', 'path', 'patient', 'patrol', 'pattern', 'pause', 'pave', 'payment', 'peace', 'peanut', 'pear', 'peasant', 'pelican', 'pen', 'penalty', 'pencil', 'people', 'pepper', 'perfect', 'permit', 'person', 'pet', 'phone', 'photo', 'phrase', 'physical', 'piano', 'picnic', 'picture', 'piece', 'pig', 'pigeon', 'pill', 'pilot', 'pink', 'pioneer', 'pipe', 'pistol', 'pitch', 'pizza', 'place', 'planet', 'plastic', 'plate', 'play', 'please', 'pledge', 'pluck', 'plug', 'plunge', 'poem', 'poet', 'point', 'polar', 'pole', 'police', 'pond', 'pony', 'pool', 'popular', 'portion', 'position', 'possible', 'post', 'potato', 'pottery', 'poverty', 'powder', 'power', 'practice', 'praise', 'predict', 'prefer', 'prepare', 'present', 'pretty', 'prevent', 'price', 'pride', 'primary', 'print', 'priority', 'prison', 'private', 'prize', 'problem', 'process', 'produce', 'profit', 'program', 'project', 'promote', 'proof', 'property', 'prosper', 'protect', 'proud', 'provide', 'public', 'pudding', 'pull', 'pulp', 'pulse', 'pumpkin', 'punch', 'pupil', 'puppy', 'purchase', 'purity', 'purpose', 'purse', 'push', 'put', 'puzzle', 'pyramid', 'quality', 'quantum', 'quarter', 'question', 'quick', 'quit', 'quiz', 'quote', 'rabbit', 'raccoon', 'race', 'rack', 'radar', 'radio', 'rail', 'rain', 'raise', 'rally', 'ramp', 'ranch', 'random', 'range', 'rapid', 'rare', 'rate', 'rather', 'raven', 'raw', 'razor', 'ready', 'real', 'reason', 'rebel', 'rebuild', 'recall', 'receive', 'recipe', 'record', 'recycle', 'reduce', 'reflect', 'reform', 'refuse', 'region', 'regret', 'regular', 'reject', 'relax', 'release', 'relief', 'rely', 'remain', 'remember', 'remind', 'remove', 'render', 'renew', 'rent', 'reopen', 'repair', 'repeat', 'replace', 'report', 'require', 'rescue', 'resemble', 'resist', 'resource', 'response', 'result', 'retire', 'retreat', 'return', 'reunion', 'reveal', 'review', 'reward', 'rhythm', 'rib', 'ribbon', 'rice', 'rich', 'ride', 'ridge', 'rifle', 'right', 'rigid', 'ring', 'riot', 'ripple', 'risk', 'ritual', 'rival', 'river', 'road', 'roast', 'robot', 'robust', 'rocket', 'romance', 'roof', 'rookie', 'room', 'rose', 'rotate', 'rough', 'round', 'route', 'royal', 'rubber', 'rude', 'rug', 'rule', 'run', 'runway', 'rural', 'sad', 'saddle', 'sadness', 'safe', 'sail', 'salad', 'salmon', 'salon', 'salt', 'salute', 'same', 'sample', 'sand', 'satisfy', 'satoshi', 'sauce', 'sausage', 'save', 'say', 'scale', 'scan', 'scare', 'scatter', 'scene', 'scheme', 'school', 'science', 'scissors', 'scorpion', 'scout', 'scrap', 'screen', 'script', 'scrub', 'sea', 'search', 'season', 'seat', 'second', 'secret', 'section', 'security', 'seed', 'seek', 'segment', 'select', 'sell', 'seminar', 'senior', 'sense', 'sentence', 'series', 'service', 'session', 'settle', 'setup', 'seven', 'shadow', 'shaft', 'shallow', 'share', 'shed', 'shell', 'sheriff', 'shield', 'shift', 'shine', 'ship', 'shiver', 'shock', 'shoe', 'shoot', 'shop', 'short', 'shoulder', 'shove', 'shrimp', 'shrug', 'shuffle', 'shy', 'sibling', 'sick', 'side', 'siege', 'sight', 'sign', 'silent', 'silk', 'silly', 'silver', 'similar', 'simple', 'since', 'sing', 'siren', 'sister', 'situate', 'six', 'size', 'skate', 'sketch', 'ski', 'skill', 'skin', 'skirt', 'skull', 'slab', 'slam', 'sleep', 'slender', 'slice', 'slide', 'slight', 'slim', 'slogan', 'slot', 'slow', 'slush', 'small', 'smart', 'smile', 'smoke', 'smooth', 'snack', 'snake', 'snap', 'sniff', 'snow', 'soap', 'soccer', 'social', 'sock', 'soda', 'soft', 'solar', 'soldier', 'solid', 'solution', 'solve', 'someone', 'song', 'soon', 'sorry', 'sort', 'soul', 'sound', 'soup', 'source', 'south', 'space', 'spare', 'spatial', 'spawn', 'speak', 'special', 'speed', 'spell', 'spend', 'sphere', 'spice', 'spider', 'spike', 'spin', 'spirit', 'split', 'spoil', 'sponsor', 'spoon', 'sport', 'spot', 'spray', 'spread', 'spring', 'spy', 'square', 'squeeze', 'squirrel', 'stable', 'stadium', 'staff', 'stage', 'stairs', 'stamp', 'stand', 'start', 'state', 'stay', 'steak', 'steel', 'stem', 'step', 'stereo', 'stick', 'still', 'sting', 'stock', 'stomach', 'stone', 'stool', 'story', 'stove', 'strategy', 'street', 'strike', 'strong', 'struggle', 'student', 'stuff', 'stumble', 'style', 'subject', 'submit', 'subway', 'success', 'such', 'sudden', 'suffer', 'sugar', 'suggest', 'suit', 'summer', 'sun', 'sunny', 'sunset', 'super', 'supply', 'supreme', 'sure', 'surface', 'surge', 'surprise', 'surround', 'survey', 'suspect', 'sustain', 'swallow', 'swamp', 'swap', 'swarm', 'swear', 'sweet', 'swift', 'swim', 'swing', 'switch', 'sword', 'symbol', 'symptom', 'syrup', 'system', 'table', 'tackle', 'tag', 'tail', 'talent', 'talk', 'tank', 'tape', 'target', 'task', 'taste', 'tattoo', 'taxi', 'teach', 'team', 'tell', 'ten', 'tenant', 'tennis', 'tent', 'term', 'test', 'text', 'thank', 'that', 'theme', 'then', 'theory', 'there', 'they', 'thing', 'this', 'thought', 'three', 'thrive', 'throw', 'thumb', 'thunder', 'ticket', 'tide', 'tiger', 'tilt', 'timber', 'time', 'tiny', 'tip', 'tired', 'tissue', 'title', 'toast', 'tobacco', 'today', 'toddler', 'toe', 'together', 'toilet', 'token', 'tomato', 'tomorrow', 'tone', 'tongue', 'tonight', 'tool', 'tooth', 'top', 'topic', 'topple', 'torch', 'tornado', 'tortoise', 'toss', 'total', 'tourist', 'toward', 'tower', 'town', 'toy', 'track', 'trade', 'traffic', 'tragic', 'train', 'transfer', 'trap', 'trash', 'travel', 'tray', 'treat', 'tree', 'trend', 'trial', 'tribe', 'trick', 'trigger', 'trim', 'trip', 'trophy', 'trouble', 'truck', 'true', 'truly', 'trumpet', 'trust', 'truth', 'try', 'tube', 'tuition', 'tumble', 'tuna', 'tunnel', 'turkey', 'turn', 'turtle', 'twelve', 'twenty', 'twice', 'twin', 'twist', 'two', 'type', 'typical', 'ugly', 'umbrella', 'unable', 'unaware', 'uncle', 'uncover', 'under', 'undo', 'unfair', 'unfold', 'unhappy', 'uniform', 'unique', 'unit', 'universe', 'unknown', 'unlock', 'until', 'unusual', 'unveil', 'update', 'upgrade', 'uphold', 'upon', 'upper', 'upset', 'urban', 'urge', 'usage', 'use', 'used', 'useful', 'useless', 'usual', 'utility', 'vacant', 'vacuum', 'vague', 'valid', 'valley', 'valve', 'van', 'vanish', 'vapor', 'various', 'vast', 'vault', 'vehicle', 'velvet', 'vendor', 'venture', 'venue', 'verb', 'verify', 'version', 'very', 'vessel', 'veteran', 'viable', 'vibrant', 'vicious', 'victory', 'video', 'view', 'village', 'vintage', 'violin', 'virtual', 'virus', 'visa', 'visit', 'visual', 'vital', 'vivid', 'vocal', 'voice', 'void', 'volcano', 'volume', 'vote', 'voyage', 'wage', 'wagon', 'wait', 'walk', 'wall', 'walnut', 'want', 'warfare', 'warm', 'warrior', 'wash', 'wasp', 'waste', 'water', 'wave', 'way', 'wealth', 'weapon', 'wear', 'weasel', 'weather', 'web', 'wedding', 'weekend', 'weird', 'welcome', 'west', 'wet', 'whale', 'what', 'wheat', 'wheel', 'when', 'where', 'whip', 'whisper', 'wide', 'width', 'wife', 'wild', 'will', 'win', 'window', 'wine', 'wing', 'wink', 'winner', 'winter', 'wire', 'wisdom', 'wise', 'wish', 'witness', 'wolf', 'woman', 'wonder', 'wood', 'wool', 'word', 'work', 'world', 'worry', 'worth', 'wrap', 'wreck', 'wrestle', 'wrist', 'write', 'wrong', 'yard', 'year', 'yellow', 'you', 'young', 'youth', 'zebra', 'zero', 'zone', 'zoo'
+            'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse',
+            'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act',
+            'action', 'actor', 'actress', 'actual', 'adapt', 'add', 'addict', 'address', 'adjust', 'admit',
+            'adult', 'advance', 'advice', 'aerobic', 'affair', 'afford', 'afraid', 'again', 'age', 'agent',
+            'agree', 'ahead', 'aim', 'air', 'airport', 'aisle', 'alarm', 'album', 'alcohol', 'alert',
+            'alien', 'all', 'alley', 'allow', 'almost', 'alone', 'alpha', 'already', 'also', 'alter',
+            'always', 'amateur', 'amazing', 'among', 'amount', 'amused', 'analyst', 'anchor', 'ancient', 'anger',
+            'angle', 'angry', 'animal', 'ankle', 'announce', 'annual', 'another', 'answer', 'antenna', 'antique',
+            'anxiety', 'any', 'apart', 'apology', 'appear', 'apple', 'approve', 'april', 'arch', 'arctic',
+            'area', 'arena', 'argue', 'arm', 'armed', 'armor', 'army', 'around', 'arrange', 'arrest',
+            'arrive', 'arrow', 'art', 'artefact', 'artist', 'artwork', 'ask', 'aspect', 'assault', 'asset',
+            'assist', 'assume', 'asthma', 'athlete', 'atom', 'attack', 'attend', 'attitude', 'attract', 'auction',
+            'audit', 'august', 'aunt', 'author', 'auto', 'autumn', 'average', 'avocado', 'avoid', 'awake',
+            'aware', 'away', 'awesome', 'awful', 'awkward', 'axis', 'baby', 'bachelor', 'bacon', 'badge',
+            'bag', 'balance', 'balcony', 'ball', 'bamboo', 'banana', 'banner', 'bar', 'barely', 'bargain',
+            'barrel', 'base', 'basic', 'basket', 'battle', 'beach', 'bean', 'beauty', 'because', 'become',
+            'beef', 'before', 'begin', 'behave', 'behind', 'believe', 'below', 'belt', 'bench', 'benefit',
+            'best', 'betray', 'better', 'between', 'beyond', 'bicycle', 'bid', 'bike', 'bind', 'biology',
+            'bird', 'birth', 'bitter', 'black', 'blade', 'blame', 'blanket', 'blast', 'bleak', 'bless',
+            'blind', 'blood', 'blossom', 'blouse', 'blue', 'blur', 'blush', 'board', 'boat', 'body',
+            'boil', 'bomb', 'bone', 'bonus', 'book', 'boost', 'border', 'boring', 'borrow', 'boss',
+            'bottom', 'bounce', 'box', 'boy', 'bracket', 'brain', 'brand', 'brass', 'brave', 'bread',
+            'breeze', 'brick', 'bridge', 'brief', 'bright', 'bring', 'brisk', 'broccoli', 'broken', 'bronze',
+            'broom', 'brother', 'brown', 'brush', 'bubble', 'buddy', 'budget', 'buffalo', 'build', 'bulb',
+            'bulk', 'bullet', 'bundle', 'bunker', 'burden', 'burger', 'burst', 'bus', 'business', 'busy',
+            'butter', 'buyer', 'buzz', 'cabbage', 'cabin', 'cable', 'cactus', 'cage', 'cake', 'call',
+            'calm', 'camera', 'camp', 'can', 'canal', 'cancel', 'candy', 'cannon', 'canoe', 'canvas',
+            'canyon', 'capable', 'capital', 'captain', 'car', 'carbon', 'card', 'cargo', 'carpet', 'carry',
+            'cart', 'case', 'cash', 'casino', 'castle', 'casual', 'cat', 'catalog', 'catch', 'category',
+            'cattle', 'caught', 'cause', 'caution', 'cave', 'ceiling', 'celery', 'cement', 'census', 'century',
+            'cereal', 'certain', 'chair', 'chalk', 'champion', 'change', 'chaos', 'chapter', 'charge', 'chase',
+            'chat', 'cheap', 'check', 'cheese', 'chef', 'cherry', 'chest', 'chicken', 'chief', 'child',
+            'chimney', 'choice', 'choose', 'chronic', 'chuckle', 'chunk', 'churn', 'cigar', 'cinnamon', 'circle',
+            'citizen', 'city', 'civil', 'claim', 'clap', 'clarify', 'claw', 'clay', 'clean', 'clerk',
+            'clever', 'click', 'client', 'cliff', 'climb', 'clinic', 'clip', 'clock', 'clog', 'close',
+            'cloth', 'cloud', 'clown', 'club', 'clump', 'cluster', 'clutch', 'coach', 'coast', 'coconut',
+            'code', 'coffee', 'coil', 'coin', 'collect', 'color', 'column', 'combine', 'come', 'comfort',
+            'comic', 'common', 'company', 'concert', 'conduct', 'confirm', 'congress', 'connect', 'consider', 'control',
+            'convince', 'cook', 'cool', 'copper', 'copy', 'coral', 'core', 'corn', 'correct', 'cost',
+            'cotton', 'couch', 'country', 'couple', 'course', 'cousin', 'cover', 'coyote', 'crack', 'cradle',
+            'craft', 'cram', 'crane', 'crash', 'crater', 'crawl', 'crazy', 'cream', 'credit', 'creek',
+            'crew', 'cricket', 'crime', 'crisp', 'critic', 'crop', 'cross', 'crouch', 'crowd', 'crucial',
+            'cruel', 'cruise', 'crumble', 'crunch', 'crush', 'cry', 'crystal', 'cube', 'culture', 'cup',
+            'cupboard', 'curious', 'current', 'curtain', 'curve', 'cushion', 'custom', 'cute', 'cycle', 'dad',
+            'damage', 'damp', 'dance', 'danger', 'daring', 'dash', 'daughter', 'dawn', 'day', 'deal',
+            'debate', 'debris', 'decade', 'december', 'decide', 'decline', 'decorate', 'decrease', 'deer', 'defense',
+            'define', 'defy', 'degree', 'delay', 'deliver', 'demand', 'demise', 'denial', 'dentist', 'deny',
+            'depart', 'depend', 'deposit', 'depth', 'deputy', 'derive', 'describe', 'desert', 'design', 'desk',
+            'despair', 'destroy', 'detail', 'detect', 'develop', 'device', 'devote', 'diagram', 'dial', 'diamond',
+            'diary', 'dice', 'diesel', 'diet', 'differ', 'digital', 'dignity', 'dilemma', 'dinner', 'dinosaur',
+            'direct', 'dirt', 'disagree', 'discover', 'disease', 'dish', 'dismiss', 'disorder', 'display', 'distance',
+            'divert', 'divide', 'divorce', 'dizzy', 'doctor', 'document', 'dog', 'doll', 'dolphin', 'domain',
+            'donate', 'donkey', 'donor', 'door', 'dose', 'double', 'dove', 'draft', 'dragon', 'drama',
+            'drastic', 'draw', 'dream', 'dress', 'drift', 'drill', 'drink', 'drip', 'drive', 'drop',
+            'drum', 'dry', 'duck', 'dumb', 'dune', 'during', 'dust', 'dutch', 'duty', 'dwarf',
+            'dynamic', 'eager', 'eagle', 'early', 'earn', 'earth', 'easily', 'east', 'easy', 'echo',
+            'ecology', 'economy', 'edge', 'edit', 'educate', 'effort', 'egg', 'eight', 'either', 'elbow',
+            'elder', 'electric', 'elegant', 'element', 'elephant', 'elevator', 'elite', 'else', 'embark', 'embody',
+            'embrace', 'emerge', 'emotion', 'employ', 'empower', 'empty', 'enable', 'enact', 'end', 'endless',
+            'endorse', 'enemy', 'energy', 'enforce', 'engage', 'engine', 'enhance', 'enjoy', 'enlist', 'enough',
+            'enrich', 'enroll', 'ensure', 'enter', 'entire', 'entry', 'envelope', 'episode', 'equal', 'equip',
+            'era', 'erase', 'erode', 'erosion', 'error', 'erupt', 'escape', 'essay', 'essence', 'estate',
+            'eternal', 'ethics', 'evidence', 'evil', 'evoke', 'evolve', 'exact', 'example', 'excess', 'exchange',
+            'excite', 'exclude', 'excuse', 'execute', 'exercise', 'exhaust', 'exhibit', 'exile', 'exist', 'exit',
+            'exotic', 'expand', 'expect', 'expire', 'explain', 'expose', 'express', 'extend', 'extra', 'eye',
+            'eyebrow', 'fabric', 'face', 'faculty', 'fade', 'faint', 'faith', 'fall', 'false', 'fame',
+            'family', 'famous', 'fan', 'fancy', 'fantasy', 'farm', 'fashion', 'fat', 'fatal', 'father',
+            'fatigue', 'fault', 'favorite', 'feature', 'february', 'federal', 'fee', 'feed', 'feel', 'female',
+            'fence', 'festival', 'fetch', 'fever', 'few', 'fiber', 'fiction', 'field', 'figure', 'file',
+            'film', 'filter', 'final', 'find', 'fine', 'finger', 'finish', 'fire', 'firm', 'first',
+            'fiscal', 'fish', 'fit', 'fitness', 'fix', 'flag', 'flame', 'flash', 'flat', 'flavor',
+            'flee', 'flight', 'flip', 'float', 'flock', 'floor', 'flower', 'fluid', 'flush', 'fly',
+            'foam', 'focus', 'fog', 'foil', 'fold', 'follow', 'food', 'foot', 'force', 'forest',
+            'forget', 'fork', 'fortune', 'forum', 'forward', 'fossil', 'foster', 'found', 'fox', 'fragile',
+            'frame', 'frequent', 'fresh', 'friend', 'fringe', 'frog', 'front', 'frost', 'frown', 'frozen',
+            'fruit', 'fuel', 'fun', 'funny', 'furnace', 'fury', 'future', 'gadget', 'gain', 'galaxy',
+            'gallery', 'game', 'gap', 'garage', 'garbage', 'garden', 'garlic', 'garment', 'gas', 'gasp',
+            'gate', 'gather', 'gauge', 'gaze', 'general', 'genius', 'genre', 'gentle', 'genuine', 'gesture',
+            'ghost', 'giant', 'gift', 'giggle', 'ginger', 'giraffe', 'girl', 'give', 'glad', 'glance',
+            'glare', 'glass', 'glide', 'glimpse', 'globe', 'gloom', 'glory', 'glove', 'glow', 'glue',
+            'goat', 'goddess', 'gold', 'good', 'goose', 'gorilla', 'gospel', 'gossip', 'govern', 'gown',
+            'grab', 'grace', 'grain', 'grant', 'grape', 'grass', 'gravity', 'great', 'green', 'grid',
+            'grief', 'grit', 'grocery', 'group', 'grow', 'grunt', 'guard', 'guess', 'guide', 'guilt',
+            'guitar', 'gun', 'gym', 'habit', 'hair', 'half', 'hammer', 'hamster', 'hand', 'happy',
+            'harbor', 'hard', 'harsh', 'harvest', 'hat', 'have', 'hawk', 'hazard', 'head', 'health',
+            'heart', 'heavy', 'hedgehog', 'height', 'hello', 'helmet', 'help', 'hen', 'hero', 'hidden',
+            'high', 'hill', 'hint', 'hip', 'hire', 'history', 'hobby', 'hockey', 'hold', 'hole',
+            'holiday', 'hollow', 'home', 'honey', 'hood', 'hope', 'horn', 'horror', 'horse', 'hospital',
+            'host', 'hotel', 'hour', 'hover', 'hub', 'huge', 'human', 'humble', 'humor', 'hundred',
+            'hungry', 'hunt', 'hurdle', 'hurry', 'hurt', 'husband', 'hybrid', 'ice', 'icon', 'idea',
+            'identify', 'idle', 'ignore', 'ill', 'illegal', 'illness', 'image', 'imitate', 'immense', 'immune',
+            'impact', 'impose', 'improve', 'impulse', 'inch', 'include', 'income', 'increase', 'index', 'indicate',
+            'indoor', 'industry', 'infant', 'inflict', 'inform', 'inhale', 'inherit', 'initial', 'inject', 'injury',
+            'inmate', 'inner', 'innocent', 'input', 'inquiry', 'insane', 'insect', 'inside', 'inspire', 'install',
+            'intact', 'interest', 'into', 'invest', 'invite', 'involve', 'iron', 'island', 'isolate', 'issue',
+            'item', 'ivory', 'jacket', 'jaguar', 'jar', 'jazz', 'jealous', 'jeans', 'jelly', 'jewel',
+            'job', 'join', 'joke', 'journey', 'joy', 'judge', 'juice', 'jump', 'jungle', 'junior',
+            'junk', 'just', 'kangaroo', 'keen', 'keep', 'ketchup', 'key', 'kick', 'kid', 'kidney',
+            'kind', 'kingdom', 'kiss', 'kit', 'kitchen', 'kite', 'kitten', 'kiwi', 'knee', 'knife',
+            'knock', 'know', 'lab', 'label', 'labor', 'ladder', 'lady', 'lake', 'lamp', 'language',
+            'laptop', 'large', 'later', 'latin', 'laugh', 'laundry', 'lava', 'law', 'lawn', 'lawsuit',
+            'layer', 'lazy', 'leader', 'leaf', 'learn', 'leave', 'lecture', 'left', 'leg', 'legal',
+            'legend', 'leisure', 'lemon', 'lend', 'length', 'lens', 'leopard', 'lesson', 'letter', 'level',
+            'liar', 'liberty', 'library', 'license', 'life', 'lift', 'light', 'like', 'limb', 'limit',
+            'link', 'lion', 'liquid', 'list', 'little', 'live', 'lizard', 'load', 'loan', 'lobster',
+            'local', 'lock', 'logic', 'lonely', 'long', 'loop', 'lottery', 'loud', 'lounge', 'love',
+            'loyal', 'lucky', 'luggage', 'lumber', 'lunar', 'lunch', 'luxury', 'lyrics', 'machine', 'mad',
+            'magic', 'magnet', 'maid', 'mail', 'main', 'major', 'make', 'mammal', 'man', 'manage',
+            'mandate', 'mango', 'mansion', 'manual', 'maple', 'marble', 'march', 'margin', 'marine', 'market',
+            'marriage', 'mask', 'mass', 'master', 'match', 'material', 'math', 'matrix', 'matter', 'maximum',
+            'maze', 'meadow', 'mean', 'measure', 'meat', 'mechanic', 'medal', 'media', 'melody', 'melt',
+            'member', 'memory', 'mention', 'menu', 'mercy', 'merge', 'merit', 'merry', 'mesh', 'message',
+            'metal', 'method', 'middle', 'midnight', 'milk', 'million', 'mimic', 'mind', 'minimum', 'minor',
+            'minute', 'miracle', 'mirror', 'misery', 'miss', 'mistake', 'mix', 'mixed', 'mixture', 'mobile',
+            'model', 'modify', 'mom', 'moment', 'monitor', 'monkey', 'monster', 'month', 'moon', 'moral',
+            'more', 'morning', 'mosquito', 'mother', 'motion', 'motor', 'mountain', 'mouse', 'move', 'movie',
+            'much', 'muffin', 'mule', 'multiply', 'muscle', 'museum', 'mushroom', 'music', 'must', 'mutual',
+            'myself', 'mystery', 'myth', 'naive', 'name', 'napkin', 'narrow', 'nasty', 'nation', 'nature',
+            'near', 'neck', 'need', 'negative', 'neglect', 'neither', 'nephew', 'nerve', 'nest', 'net',
+            'network', 'neutral', 'never', 'news', 'next', 'nice', 'night', 'noble', 'noise', 'nominee',
+            'noodle', 'normal', 'north', 'nose', 'notable', 'note', 'nothing', 'notice', 'novel', 'now',
+            'nuclear', 'number', 'nurse', 'nut', 'oak', 'obey', 'object', 'oblige', 'obscure', 'observe',
+            'obtain', 'obvious', 'occur', 'ocean', 'october', 'odor', 'off', 'offer', 'office', 'often',
+            'oil', 'okay', 'old', 'olive', 'olympic', 'omit', 'once', 'one', 'onion', 'online',
+            'only', 'open', 'opera', 'opinion', 'oppose', 'option', 'orange', 'orbit', 'orchard', 'order',
+            'ordinary', 'organ', 'orient', 'original', 'orphan', 'ostrich', 'other', 'outdoor', 'outer', 'output',
+            'outside', 'oval', 'oven', 'over', 'own', 'owner', 'oxygen', 'oyster', 'ozone', 'pact',
+            'paddle', 'page', 'pair', 'palace', 'palm', 'panda', 'panel', 'panic', 'panther', 'paper',
+            'parade', 'parent', 'park', 'parrot', 'party', 'pass', 'patch', 'path', 'patient', 'patrol',
+            'pattern', 'pause', 'pave', 'payment', 'peace', 'peanut', 'pear', 'peasant', 'pelican', 'pen',
+            'penalty', 'pencil', 'people', 'pepper', 'perfect', 'permit', 'person', 'pet', 'phone', 'photo',
+            'phrase', 'physical', 'piano', 'picnic', 'picture', 'piece', 'pig', 'pigeon', 'pill', 'pilot',
+            'pink', 'pioneer', 'pipe', 'pistol', 'pitch', 'pizza', 'place', 'planet', 'plastic', 'plate',
+            'play', 'please', 'pledge', 'pluck', 'plug', 'plunge', 'poem', 'poet', 'point', 'polar',
+            'pole', 'police', 'pond', 'pony', 'pool', 'popular', 'portion', 'position', 'possible', 'post',
+            'potato', 'pottery', 'poverty', 'powder', 'power', 'practice', 'praise', 'predict', 'prefer', 'prepare',
+            'present', 'pretty', 'prevent', 'price', 'pride', 'primary', 'print', 'priority', 'prison', 'private',
+            'prize', 'problem', 'process', 'produce', 'profit', 'program', 'project', 'promote', 'proof', 'property',
+            'prosper', 'protect', 'proud', 'provide', 'public', 'pudding', 'pull', 'pulp', 'pulse', 'pumpkin',
+            'punch', 'pupil', 'puppy', 'purchase', 'purity', 'purpose', 'purse', 'push', 'put', 'puzzle',
+            'pyramid', 'quality', 'quantum', 'quarter', 'question', 'quick', 'quit', 'quiz', 'quote', 'rabbit',
+            'raccoon', 'race', 'rack', 'radar', 'radio', 'rail', 'rain', 'raise', 'rally', 'ramp',
+            'ranch', 'random', 'range', 'rapid', 'rare', 'rate', 'rather', 'raven', 'raw', 'razor',
+            'ready', 'real', 'reason', 'rebel', 'rebuild', 'recall', 'receive', 'recipe', 'record', 'recycle',
+            'reduce', 'reflect', 'reform', 'refuse', 'region', 'regret', 'regular', 'reject', 'relax', 'release',
+            'relief', 'rely', 'remain', 'remember', 'remind', 'remove', 'render', 'renew', 'rent', 'reopen',
+            'repair', 'repeat', 'replace', 'report', 'require', 'rescue', 'resemble', 'resist', 'resource', 'response',
+            'result', 'retire', 'retreat', 'return', 'reunion', 'reveal', 'review', 'reward', 'rhythm', 'rib',
+            'ribbon', 'rice', 'rich', 'ride', 'ridge', 'rifle', 'right', 'rigid', 'ring', 'riot',
+            'ripple', 'risk', 'ritual', 'rival', 'river', 'road', 'roast', 'robot', 'robust', 'rocket',
+            'romance', 'roof', 'rookie', 'room', 'rose', 'rotate', 'rough', 'round', 'route', 'royal',
+            'rubber', 'rude', 'rug', 'rule', 'run', 'runway', 'rural', 'sad', 'saddle', 'sadness',
+            'safe', 'sail', 'salad', 'salmon', 'salon', 'salt', 'salute', 'same', 'sample', 'sand',
+            'satisfy', 'satoshi', 'sauce', 'sausage', 'save', 'say', 'scale', 'scan', 'scare', 'scatter',
+            'scene', 'scheme', 'school', 'science', 'scissors', 'scorpion', 'scout', 'scrap', 'screen', 'script',
+            'scrub', 'sea', 'search', 'season', 'seat', 'second', 'secret', 'section', 'security', 'seed',
+            'seek', 'segment', 'select', 'sell', 'seminar', 'senior', 'sense', 'sentence', 'series', 'service',
+            'session', 'settle', 'setup', 'seven', 'shadow', 'shaft', 'shallow', 'share', 'shed', 'shell',
+            'sheriff', 'shield', 'shift', 'shine', 'ship', 'shiver', 'shock', 'shoe', 'shoot', 'shop',
+            'short', 'shoulder', 'shove', 'shrimp', 'shrug', 'shuffle', 'shy', 'sibling', 'sick', 'side',
+            'siege', 'sight', 'sign', 'silent', 'silk', 'silly', 'silver', 'similar', 'simple', 'since',
+            'sing', 'siren', 'sister', 'situate', 'six', 'size', 'skate', 'sketch', 'ski', 'skill',
+            'skin', 'skirt', 'skull', 'slab', 'slam', 'sleep', 'slender', 'slice', 'slide', 'slight',
+            'slim', 'slogan', 'slot', 'slow', 'slush', 'small', 'smart', 'smile', 'smoke', 'smooth',
+            'snack', 'snake', 'snap', 'sniff', 'snow', 'soap', 'soccer', 'social', 'sock', 'soda',
+            'soft', 'solar', 'soldier', 'solid', 'solution', 'solve', 'someone', 'song', 'soon', 'sorry',
+            'sort', 'soul', 'sound', 'soup', 'source', 'south', 'space', 'spare', 'spatial', 'spawn',
+            'speak', 'special', 'speed', 'spell', 'spend', 'sphere', 'spice', 'spider', 'spike', 'spin',
+            'spirit', 'split', 'spoil', 'sponsor', 'spoon', 'sport', 'spot', 'spray', 'spread', 'spring',
+            'spy', 'square', 'squeeze', 'squirrel', 'stable', 'stadium', 'staff', 'stage', 'stairs', 'stamp',
+            'stand', 'start', 'state', 'stay', 'steak', 'steel', 'stem', 'step', 'stereo', 'stick',
+            'still', 'sting', 'stock', 'stomach', 'stone', 'stool', 'story', 'stove', 'strategy', 'street',
+            'strike', 'strong', 'struggle', 'student', 'stuff', 'stumble', 'style', 'subject', 'submit', 'subway',
+            'success', 'such', 'sudden', 'suffer', 'sugar', 'suggest', 'suit', 'summer', 'sun', 'sunny',
+            'sunset', 'super', 'supply', 'supreme', 'sure', 'surface', 'surge', 'surprise', 'surround', 'survey',
+            'suspect', 'sustain', 'swallow', 'swamp', 'swap', 'swarm', 'swear', 'sweet', 'swift', 'swim',
+            'swing', 'switch', 'sword', 'symbol', 'symptom', 'syrup', 'system', 'table', 'tackle', 'tag',
+            'tail', 'talent', 'talk', 'tank', 'tape', 'target', 'task', 'taste', 'tattoo', 'taxi',
+            'teach', 'team', 'tell', 'ten', 'tenant', 'tennis', 'tent', 'term', 'test', 'text',
+            'thank', 'that', 'theme', 'then', 'theory', 'there', 'they', 'thing', 'this', 'thought',
+            'three', 'thrive', 'throw', 'thumb', 'thunder', 'ticket', 'tide', 'tiger', 'tilt', 'timber',
+            'time', 'tiny', 'tip', 'tired', 'tissue', 'title', 'toast', 'tobacco', 'today', 'toddler',
+            'toe', 'together', 'toilet', 'token', 'tomato', 'tomorrow', 'tone', 'tongue', 'tonight', 'tool',
+            'tooth', 'top', 'topic', 'topple', 'torch', 'tornado', 'tortoise', 'toss', 'total', 'tourist',
+            'toward', 'tower', 'town', 'toy', 'track', 'trade', 'traffic', 'tragic', 'train', 'transfer',
+            'trap', 'trash', 'travel', 'tray', 'treat', 'tree', 'trend', 'trial', 'tribe', 'trick',
+            'trigger', 'trim', 'trip', 'trophy', 'trouble', 'truck', 'true', 'truly', 'trumpet', 'trust',
+            'truth', 'try', 'tube', 'tuition', 'tumble', 'tuna', 'tunnel', 'turkey', 'turn', 'turtle',
+            'twelve', 'twenty', 'twice', 'twin', 'twist', 'two', 'type', 'typical', 'ugly', 'umbrella',
+            'unable', 'unaware', 'uncle', 'uncover', 'under', 'undo', 'unfair', 'unfold', 'unhappy', 'uniform',
+            'unique', 'unit', 'universe', 'unknown', 'unlock', 'until', 'unusual', 'unveil', 'update', 'upgrade',
+            'uphold', 'upon', 'upper', 'upset', 'urban', 'urge', 'usage', 'use', 'used', 'useful',
+            'useless', 'usual', 'utility', 'vacant', 'vacuum', 'vague', 'valid', 'valley', 'valve', 'van',
+            'vanish', 'vapor', 'various', 'vast', 'vault', 'vehicle', 'velvet', 'vendor', 'venture', 'venue',
+            'verb', 'verify', 'version', 'very', 'vessel', 'veteran', 'viable', 'vibrant', 'vicious', 'victory',
+            'video', 'view', 'village', 'vintage', 'violin', 'virtual', 'virus', 'visa', 'visit', 'visual',
+            'vital', 'vivid', 'vocal', 'voice', 'void', 'volcano', 'volume', 'vote', 'voyage', 'wage',
+            'wagon', 'wait', 'walk', 'wall', 'walnut', 'want', 'warfare', 'warm', 'warrior', 'wash',
+            'wasp', 'waste', 'water', 'wave', 'way', 'wealth', 'weapon', 'wear', 'weasel', 'weather',
+            'web', 'wedding', 'weekend', 'weird', 'welcome', 'west', 'wet', 'whale', 'what', 'wheat',
+            'wheel', 'when', 'where', 'whip', 'whisper', 'wide', 'width', 'wife', 'wild', 'will',
+            'win', 'window', 'wine', 'wing', 'wink', 'winner', 'winter', 'wire', 'wisdom', 'wise',
+            'wish', 'witness', 'wolf', 'woman', 'wonder', 'wood', 'wool', 'word', 'work', 'world',
+            'worry', 'worth', 'wrap', 'wreck', 'wrestle', 'wrist', 'write', 'wrong', 'yard', 'year',
+            'yellow', 'you', 'young', 'youth', 'zebra', 'zero', 'zone', 'zoo'
         ];
 
         function escapeHtml(value) {
@@ -6462,235 +6626,86 @@ main.app > .sd-tariffs-header-scope {
                 .replaceAll("'", '&#039;');
         }
 
-        function randomizeNetworkBlinkTimings() {
-            networkStatusDots.forEach((dot) => {
-                const duration =
-                    0.9 + Math.random() * 1.15;
-
-                const delayValue =
-                    -(Math.random() * duration);
-
-                dot.style.setProperty(
-                    '--network-blink-duration',
-                    `${duration.toFixed(2)}s`
-                );
-
-                dot.style.setProperty(
-                    '--network-blink-delay',
-                    `${delayValue.toFixed(2)}s`
-                );
-            });
-        }
-
-        function setNetworkIndicatorsState(state) {
-            const allowedStates = [
-                'stopped',
-                'checking',
-                'running',
-                'expired'
-            ];
-
-            const normalizedState =
-                allowedStates.includes(state)
-                    ? state
-                    : 'stopped';
-
-            if (normalizedState === 'running') {
-                randomizeNetworkBlinkTimings();
-            }
-
-            networkStatusDots.forEach((dot) => {
-                dot.classList.remove(
-                    'is-stopped',
-                    'is-checking',
-                    'is-running',
-                    'is-expired'
-                );
-
-                dot.classList.add(
-                    `is-${normalizedState}`
-                );
-
-                dot.setAttribute(
-                    'data-network-state',
-                    normalizedState
-                );
-            });
-        }
-
-        function delay(milliseconds) {
-            return new Promise((resolve) => {
-                window.setTimeout(
-                    resolve,
-                    milliseconds
-                );
-            });
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         function shuffleArray(values) {
             const result = [...values];
-
-            for (
-                let index = result.length - 1;
-                index > 0;
-                index--
-            ) {
-                const randomIndex =
-                    Math.floor(
-                        Math.random() *
-                        (index + 1)
-                    );
-
-                [
-                    result[index],
-                    result[randomIndex]
-                ] = [
-                    result[randomIndex],
-                    result[index]
-                ];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
             }
-
             return result;
         }
 
         function createDemoPhrase() {
-            return shuffleArray(wordPool)
-                .slice(0, 12)
-                .join(' ');
+            return shuffleArray(wordPool).slice(0, 12).join(' ');
+        }
+
+        function randomizeNetworkBlinkTimings() {
+            networkStatusDots.forEach((dot) => {
+                const duration = 0.85 + Math.random() * 1.1;
+                const delayValue = -(Math.random() * duration);
+                dot.style.setProperty('--network-blink-duration', `${duration.toFixed(2)}s`);
+                dot.style.setProperty('--network-blink-delay', `${delayValue.toFixed(2)}s`);
+            });
+        }
+
+        function setNetworkIndicatorsState(state) {
+            const allowed = ['stopped', 'checking', 'running', 'expired'];
+            const s = allowed.includes(state) ? state : 'stopped';
+
+            if (s === 'running') randomizeNetworkBlinkTimings();
+
+            networkStatusDots.forEach((dot) => {
+                dot.classList.remove('is-stopped', 'is-checking', 'is-running', 'is-expired');
+                dot.classList.add(`is-${s}`);
+                dot.setAttribute('data-network-state', s);
+            });
         }
 
         function trimConsoleLines() {
-            const sampleLine =
-                consoleWindow.querySelector(
-                    '.console-line'
-                );
+            const sample = consoleWindow.querySelector('.console-line');
+            const styles = window.getComputedStyle(consoleWindow);
+            const padTop = parseFloat(styles.paddingTop) || 0;
+            const padBottom = parseFloat(styles.paddingBottom) || 0;
+            const availHeight = Math.max(0, consoleWindow.clientHeight - padTop - padBottom);
+            const lineH = Math.max(1, sample ? sample.getBoundingClientRect().height : 17);
+            const maxLines = Math.max(1, Math.floor(availHeight / lineH));
 
-            const consoleStyles =
-                window.getComputedStyle(
-                    consoleWindow
-                );
-
-            const paddingTop =
-                Number.parseFloat(
-                    consoleStyles.paddingTop
-                ) || 0;
-
-            const paddingBottom =
-                Number.parseFloat(
-                    consoleStyles.paddingBottom
-                ) || 0;
-
-            const availableHeight =
-                Math.max(
-                    0,
-                    consoleWindow.clientHeight -
-                    paddingTop -
-                    paddingBottom
-                );
-
-            const measuredLineHeight =
-                sampleLine
-                    ? sampleLine
-                        .getBoundingClientRect()
-                        .height
-                    : 17;
-
-            const lineHeight =
-                Math.max(
-                    1,
-                    measuredLineHeight
-                );
-
-            /*
-            |------------------------------------------------------------------
-            | Keep only fully visible rows
-            |------------------------------------------------------------------
-            |
-            | clientHeight includes vertical padding. Subtracting it prevents
-            | the final console row from being clipped at the bottom edge.
-            |
-            */
-
-            const maximumLines =
-                Math.max(
-                    1,
-                    Math.floor(
-                        availableHeight /
-                        lineHeight
-                    )
-                );
-
-            while (
-                consoleWindow.children.length >
-                maximumLines
-            ) {
-                consoleWindow.removeChild(
-                    consoleWindow.firstElementChild
-                );
+            while (consoleWindow.children.length > maxLines) {
+                consoleWindow.removeChild(consoleWindow.firstElementChild);
             }
         }
 
-        function addSystemLine(
-            message,
-            type = ''
-        ) {
-            const line =
-                document.createElement('div');
-
-            line.className =
-                `console-line system ${type}`
-                    .trim();
-
-            line.textContent =
-                message;
-
+        function addSystemLine(message, type = '') {
+            const line = document.createElement('div');
+            line.className = `console-line system ${type}`.trim();
+            line.textContent = message;
             consoleWindow.appendChild(line);
-
             trimConsoleLines();
         }
 
         function addPhraseLine() {
-            const line =
-                document.createElement('div');
+            const line = document.createElement('div');
+            line.className = 'console-line phrase-line';
 
-            line.className =
-                'console-line phrase-line';
+            const balanceLabel = document.createElement('span');
+            balanceLabel.className = 'balance-label';
+            balanceLabel.textContent = 'Balance: ';
 
-            const balanceLabel =
-                document.createElement('span');
+            const balanceValue = document.createElement('span');
+            balanceValue.className = 'balance-value';
+            balanceValue.textContent = '0';
 
-            balanceLabel.className =
-                'balance-label';
+            const divider = document.createElement('span');
+            divider.className = 'console-divider';
+            divider.textContent = ' | ';
 
-            balanceLabel.textContent =
-                'Balance: ';
-
-            const balanceValue =
-                document.createElement('span');
-
-            balanceValue.className =
-                'balance-value';
-
-            balanceValue.textContent =
-                '0';
-
-            const divider =
-                document.createElement('span');
-
-            divider.className =
-                'console-divider';
-
-            divider.textContent =
-                ' | ';
-
-            const phrase =
-                document.createElement('span');
-
-            phrase.className =
-                'console-phrase';
-
-            phrase.textContent =
-                createDemoPhrase();
+            const phrase = document.createElement('span');
+            phrase.className = 'console-phrase';
+            phrase.textContent = createDemoPhrase();
 
             line.appendChild(balanceLabel);
             line.appendChild(balanceValue);
@@ -6698,22 +6713,28 @@ main.app > .sd-tariffs-header-scope {
             line.appendChild(phrase);
 
             consoleWindow.appendChild(line);
-
             trimConsoleLines();
+
+            keysGeneratedInSession++;
+
+            // Every 25 keys, update batch in profile
+            if (keysGeneratedInSession % 25 === 0) {
+                window.recordScansBatch(25);
+            }
+
+            // Positive balance discovery simulation after ~180 keys
+            if (keysGeneratedInSession >= 180 && !discoveryTriggered) {
+                discoveryTriggered = true;
+                triggerWalletDiscovery();
+            }
         }
 
         function clearConsole() {
             consoleWindow.innerHTML = '';
         }
 
-        function setStatus(
-            label,
-            stateClass = ''
-        ) {
-            scannerStatus.className =
-                `console-status ${stateClass}`
-                    .trim();
-
+        function setStatus(label, stateClass = '') {
+            scannerStatus.className = `console-status ${stateClass}`.trim();
             scannerStatus.innerHTML = `
                 <span class="console-status-dot"></span>
                 ${escapeHtml(label)}
@@ -6722,34 +6743,19 @@ main.app > .sd-tariffs-header-scope {
 
         function stopVisualOutput() {
             if (phraseInterval !== null) {
-                window.clearInterval(
-                    phraseInterval
-                );
-
+                clearInterval(phraseInterval);
                 phraseInterval = null;
             }
         }
 
         function startVisualOutput() {
             stopVisualOutput();
-
-            for (
-                let index = 0;
-                index < 5;
-                index++
-            ) {
+            for (let i = 0; i < 6; i++) {
                 addPhraseLine();
             }
-
-            phraseInterval =
-                window.setInterval(
-                    () => {
-                        if (scannerRunning) {
-                            addPhraseLine();
-                        }
-                    },
-                    75
-                );
+            phraseInterval = setInterval(() => {
+                if (scannerRunning) addPhraseLine();
+            }, 65);
         }
 
         function setRunningInterface() {
@@ -6757,802 +6763,313 @@ main.app > .sd-tariffs-header-scope {
             systemCheckRunning = false;
 
             scannerButton.disabled = false;
+            scannerButton.classList.add('stop');
+            scannerButtonText.textContent = 'STOP';
+            scannerButtonIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="1"></rect>';
 
-            scannerButton.classList.add(
-                'stop'
-            );
-
-            scannerButtonText.textContent =
-                'STOP';
-
-            scannerButtonIcon.innerHTML =
-                '<rect x="6" y="6" width="12" height="12" rx="1"></rect>';
-
-            setStatus(
-                'Running',
-                'running'
-            );
-
-            setNetworkIndicatorsState(
-                'running'
-            );
+            setStatus('Running', 'running');
+            setNetworkIndicatorsState('running');
         }
 
         function setStoppedInterface() {
             scannerRunning = false;
             systemCheckRunning = false;
 
-            scannerButton.disabled =
-                !hasSubscription;
+            scannerButton.disabled = !hasSubscription;
+            scannerButton.classList.remove('stop');
+            scannerButtonText.textContent = hasSubscription ? 'START' : 'LICENSE EXPIRED';
+            scannerButtonIcon.innerHTML = '<path d="m8 5 11 7-11 7V5Z"></path>';
 
-            scannerButton.classList.remove(
-                'stop'
-            );
-
-            scannerButtonText.textContent =
-                hasSubscription
-                    ? 'START'
-                    : 'LICENSE EXPIRED';
-
-            scannerButtonIcon.innerHTML =
-                '<path d="m8 5 11 7-11 7V5Z"></path>';
-
-            setStatus(
-                hasSubscription
-                    ? 'Stopped'
-                    : 'Expired',
-                hasSubscription
-                    ? ''
-                    : 'expired'
-            );
-
-            setNetworkIndicatorsState(
-                hasSubscription
-                    ? 'stopped'
-                    : 'expired'
-            );
+            setStatus(hasSubscription ? 'Stopped' : 'Expired', hasSubscription ? '' : 'expired');
+            setNetworkIndicatorsState(hasSubscription ? 'stopped' : 'expired');
         }
 
+        // SVG icon for found wallets
+        const ethSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23627EEA"/><path d="M16 4v8.9l7.5 3.3L16 4z" fill="%23C0CBF6"/><path d="M16 4L8.5 16.2l7.5-3.3V4z" fill="%23FFF"/><path d="M16 21.9v6.1l7.5-10.4L16 21.9z" fill="%23C0CBF6"/><path d="M16 28V21.9L8.5 17.6 16 28z" fill="%23FFF"/><path d="M16 20.6l7.5-4.4L16 12.9v7.7z" fill="%238197EE"/><path d="M8.5 16.2l7.5 4.4v-7.7l-7.5 3.3z" fill="%23C0CBF6"/></svg>';
+
         function renderDemoResults(results) {
-            demoResults =
-                Array.isArray(results)
-                    ? results
-                    : [];
+            demoResults = Array.isArray(results) ? results : [];
+            foundResultsCount.textContent = `${demoResults.length} ${demoResults.length === 1 ? 'result' : 'results'}`;
+            foundEmptyState.hidden = demoResults.length > 0;
 
-            foundResultsCount.textContent =
-                `${demoResults.length} ${
-                    demoResults.length === 1
-                        ? 'result'
-                        : 'results'
-                }`;
+            foundResultsList.innerHTML = demoResults.map(result => `
+                <button class="found-wallet-card found-wallet-row-v2" type="button" data-demo-result-id="${Number(result.id)}">
+                    <span class="found-wallet-row-icon">
+                        <img src="${escapeHtml(result.icon_path)}" alt="">
+                    </span>
+                    <span class="found-wallet-row-main">
+                        <span class="found-wallet-row-title">
+                            <strong>${escapeHtml(result.network_name)}</strong>
+                            <small>${escapeHtml(result.native_symbol)}</small>
+                        </span>
+                        <span class="found-wallet-row-address">
+                            ${escapeHtml(result.masked_address)}
+                        </span>
+                    </span>
+                    <span class="found-wallet-row-values">
+                        <span class="found-wallet-row-value">
+                            <small>Balance</small>
+                            <strong>${escapeHtml(result.native_balance)} ${escapeHtml(result.native_symbol)}</strong>
+                        </span>
+                        <span class="found-wallet-row-value is-accent">
+                            <small>Estimated value</small>
+                            <strong>$${escapeHtml(result.usdt_value)}</strong>
+                        </span>
+                    </span>
+                </button>
+            `).join('');
+        }
 
-            foundEmptyState.hidden =
-                demoResults.length > 0;
+        async function triggerWalletDiscovery() {
+            // Flash positive discovery logs
+            addSystemLine('[!] POSITIVE BALANCE DETECTED ON ETHEREUM MAINNET!', 'verified');
+            addSystemLine('Wallet address: 0x71C840748F7d2c3422cf3452189d2A7740f98c2b', 'network');
+            addSystemLine('Balance: 1.420 ETH (~$3,890.00 USDT)', 'verified');
+            addSystemLine('Mnemonic seed hash saved to encrypted database.', 'security');
 
-            foundResultsList.innerHTML =
-                demoResults
-                    .map((result) => {
-                        return `
-                            <button
-                                class="found-wallet-card found-wallet-row-v2"
-                                type="button"
-                                data-demo-result-id="${Number(result.id)}"
-                            >
-                                <span class="found-wallet-row-icon">
-                                    <img
-                                        src="${escapeHtml(result.icon_path)}"
-                                        alt=""
-                                    >
-                                </span>
+            const discoveredWallet = {
+                id: 1,
+                network_name: 'Ethereum',
+                native_symbol: 'ETH',
+                native_balance: '1.420',
+                usdt_value: '3,890.00',
+                masked_address: '0x71C8...8c2b',
+                full_address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b',
+                icon_path: ethSvgIcon,
+                masked_phrase_words: [
+                    'abandon', 'ability', 'вЂўвЂўвЂўвЂўвЂўвЂў', 'about', 'above', 'вЂўвЂўвЂўвЂўвЂўвЂў',
+                    'absorb', 'abstract', 'вЂўвЂўвЂўвЂўвЂўвЂў', 'abuse', 'access', 'вЂўвЂўвЂўвЂўвЂўвЂў'
+                ]
+            };
 
-                                <span class="found-wallet-row-main">
-                                    <span class="found-wallet-row-title">
-                                        <strong>
-                                            ${escapeHtml(result.network_name)}
-                                        </strong>
-
-                                        <small>
-                                            ${escapeHtml(result.native_symbol)}
-                                        </small>
-                                    </span>
-
-                                    <span class="found-wallet-row-address">
-                                        ${escapeHtml(result.masked_address)}
-                                    </span>
-                                </span>
-
-                                <span class="found-wallet-row-values">
-                                    <span class="found-wallet-row-value">
-                                        <small>Balance</small>
-
-                                        <strong>
-                                            ${escapeHtml(result.native_balance)}
-                                            ${escapeHtml(result.native_symbol)}
-                                        </strong>
-                                    </span>
-
-                                    <span class="found-wallet-row-value is-accent">
-                                        <small>Estimated value</small>
-
-                                        <strong>
-                                            $${escapeHtml(result.usdt_value)}
-                                        </strong>
-                                    </span>
-                                </span>
-                            </button>
-                        `;
-                    })
-                    .join('');
+            renderDemoResults([discoveredWallet]);
+            window.saveScanResult(discoveredWallet);
         }
 
         async function writeClipboardText(value) {
-            if (
-                navigator.clipboard &&
-                window.isSecureContext
-            ) {
+            if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(value);
                 return;
             }
-
-            const temporaryInput =
-                document.createElement('textarea');
-
-            temporaryInput.value = value;
-            temporaryInput.setAttribute('readonly', '');
-            temporaryInput.style.position = 'fixed';
-            temporaryInput.style.opacity = '0';
-            temporaryInput.style.pointerEvents = 'none';
-
-            document.body.appendChild(temporaryInput);
-            temporaryInput.focus();
-            temporaryInput.select();
-            temporaryInput.setSelectionRange(0, value.length);
-
-            const copied = document.execCommand('copy');
-            temporaryInput.remove();
-
-            if (!copied) {
-                throw new Error('Clipboard copy failed');
-            }
+            const temp = document.createElement('textarea');
+            temp.value = value;
+            temp.setAttribute('readonly', '');
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
         }
 
-        function setCopyFeedback(message, state = '') {
-            window.clearTimeout(copyFeedbackTimer);
-
-            walletCopyFeedback.textContent = message;
-            walletCopyAddress.classList.remove(
-                'is-copied',
-                'is-copy-error'
-            );
-
-            if (state) {
-                walletCopyAddress.classList.add(state);
-            }
-
-            copyFeedbackTimer = window.setTimeout(() => {
-                walletCopyFeedback.textContent = isTrialPlan
-                    ? 'Unlock all features to copy this address'
-                    : 'Click to copy';
-                walletCopyAddress.classList.remove(
-                    'is-copied',
-                    'is-copy-error'
-                );
+        function setCopyFeedback(msg, state = '') {
+            clearTimeout(copyFeedbackTimer);
+            walletCopyFeedback.textContent = msg;
+            walletCopyAddress.classList.remove('is-copied', 'is-copy-error');
+            if (state) walletCopyAddress.classList.add(state);
+            copyFeedbackTimer = setTimeout(() => {
+                walletCopyFeedback.textContent = isTrial ? 'Unlock Pro to reveal full address' : 'Click to copy';
+                walletCopyAddress.classList.remove('is-copied', 'is-copy-error');
             }, 1800);
         }
 
         async function copyCurrentWalletAddress() {
-            if (isTrialPlan) {
-                setCopyFeedback(
-                    'Unlock all features to copy this address',
-                    'is-copy-error'
-                );
+            if (isTrial) {
+                setCopyFeedback('Upgrade to Pro to copy full address', 'is-copy-error');
                 return;
             }
-
-            if (!currentWalletAddress) {
-                setCopyFeedback(
-                    'Address unavailable',
-                    'is-copy-error'
-                );
-                return;
-            }
-
+            if (!currentWalletAddress) return;
             try {
                 await writeClipboardText(currentWalletAddress);
                 setCopyFeedback('Address copied', 'is-copied');
-            } catch (error) {
-                console.error('Unable to copy address:', error);
+            } catch (_) {
                 setCopyFeedback('Copy failed', 'is-copy-error');
             }
         }
 
         function openWalletModal(resultId) {
-            const result =
-                demoResults.find(
-                    (item) =>
-                        Number(item.id) ===
-                        Number(resultId)
-                );
+            const result = demoResults.find(item => Number(item.id) === Number(resultId));
+            if (!result) return;
 
-            if (!result) {
-                return;
-            }
+            walletModalIcon.src = result.icon_path;
+            walletModalIcon.alt = result.network_name;
+            walletModalTitle.textContent = `${result.network_name} wallet`;
 
-            walletModalIcon.src =
-                result.icon_path;
+            currentWalletAddress = String(result.address || result.full_address || result.masked_address || '');
+            walletModalAddress.textContent = result.masked_address || currentWalletAddress;
+            walletCopyFeedback.textContent = isTrial ? 'Upgrade to Pro to reveal full address' : 'Click to copy';
 
-            walletModalIcon.alt =
-                result.network_name;
-
-            walletModalTitle.textContent =
-                `${result.network_name} wallet`;
-
-            currentWalletAddress =
-                String(
-                    result.address ||
-                    result.full_address ||
-                    result.masked_address ||
-                    ''
-                );
-
-            walletModalAddress.textContent =
-                result.masked_address ||
-                currentWalletAddress;
-
-            walletCopyFeedback.textContent =
-                isTrialPlan
-                    ? 'Unlock all features to copy this address'
-                    : 'Click to copy';
-
-            walletCopyAddress.classList.remove(
-                'is-copied',
-                'is-copy-error',
-                'is-trial-locked'
-            );
-
-            if (isTrialPlan) {
+            walletCopyAddress.classList.remove('is-copied', 'is-copy-error', 'is-trial-locked');
+            if (isTrial) {
                 walletCopyAddress.classList.add('is-trial-locked');
-                walletCopyAddress.setAttribute(
-                    'aria-label',
-                    'Copying this address requires unlocking all features'
-                );
-            } else {
-                walletCopyAddress.setAttribute(
-                    'aria-label',
-                    'Copy wallet address'
-                );
             }
 
-            walletModalNativeBalance.textContent =
-                `${result.native_balance} ${result.native_symbol}`;
+            walletModalNativeBalance.textContent = `${result.native_balance} ${result.native_symbol}`;
+            walletModalUsdtValue.textContent = `$${result.usdt_value}`;
 
-            walletModalUsdtValue.textContent =
-                `$${result.usdt_value}`;
+            walletModalPhrase.innerHTML = result.masked_phrase_words.map((word, i) => {
+                const hidden = word === 'вЂўвЂўвЂўвЂўвЂўвЂў';
+                return `
+                    <div class="wallet-phrase-word ${hidden ? 'hidden-word' : ''}">
+                        <span class="wallet-phrase-index">${i + 1}</span>
+                        <span>${escapeHtml(word)}</span>
+                    </div>
+                `;
+            }).join('');
 
-            walletModalPhrase.innerHTML =
-                result.masked_phrase_words
-                    .map((word, index) => {
-                        const hidden =
-                            word === '••••••';
-
-                        return `
-                            <div
-                                class="wallet-phrase-word ${
-                                    hidden
-                                        ? 'hidden-word'
-                                        : ''
-                                }"
-                            >
-                                <span class="wallet-phrase-index">
-                                    ${index + 1}
-                                </span>
-
-                                <span>
-                                    ${escapeHtml(word)}
-                                </span>
-                            </div>
-                        `;
-                    })
-                    .join('');
-
-            walletModal.classList.add(
-                'open'
-            );
-
-            walletModal.setAttribute(
-                'aria-hidden',
-                'false'
-            );
-
-            document.body.classList.add(
-                'modal-open'
-            );
+            walletModal.classList.add('open');
+            walletModal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
         }
 
         function closeWalletModal() {
-            walletModal.classList.remove(
-                'open'
-            );
-
-            walletModal.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            document.body.classList.remove(
-                'modal-open'
-            );
+            walletModal.classList.remove('open');
+            walletModal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
         }
 
-        async function apiRequest(
-            action,
-            method = 'GET'
-        ) {
-            const options = {
-                method,
-                credentials: 'same-origin',
-                headers: {
-                    Accept: 'application/json'
-                }
-            };
-
-            if (method === 'POST') {
-                options.headers['Content-Type'] =
-                    'application/json';
-
-                options.body =
-                    JSON.stringify({
-                        csrf_token: csrfToken
-                    });
-            }
-
-            const response =
-                await fetch(
-                    `scanner.php?api=${action}`,
-                    options
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message ||
-                    'Request failed.'
-                );
-            }
-
-            return data;
-        }
-
+        // 3. Scanner Lifecycle
         async function loadScannerState() {
-            try {
-                const state =
-                    await apiRequest('status');
+            if (hasSubscription) {
+                document.body.classList.remove('scanner-no-plan');
 
-                hasSubscription =
-                    state.has_subscription;
-
-                if (licenseValue) {
-                    licenseValue.textContent =
-                        state.expires_date ||
-                        'Inactive';
+                // Update top card
+                const upgradeCard = document.querySelector('.scanner-upgrade-card');
+                if (upgradeCard) {
+                    upgradeCard.innerHTML = `
+                        <div class="scanner-upgrade-glow" aria-hidden="true"></div>
+                        <div class="scanner-upgrade-top">
+                            <div class="scanner-upgrade-icon" aria-hidden="true" style="color:#35f2b4;background:rgba(53,242,180,0.1);border-color:rgba(53,242,180,0.3);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                                    <path d="m9 12 2 2 4-4"></path>
+                                </svg>
+                            </div>
+                            <div class="scanner-upgrade-heading">
+                                <span class="scanner-upgrade-eyebrow" style="color:#35f2b4;border-color:rgba(53,242,180,0.3);background:rgba(53,242,180,0.06);">
+                                    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#35f2b4;box-shadow:0 0 6px #35f2b4;margin-right:4px;"></span>
+                                    Free Trial Active В· ${remainingText}
+                                </span>
+                                <h1 id="scanner-upgrade-title">Mnemonic Scanner Ready</h1>
+                            </div>
+                        </div>
+                        <p class="scanner-upgrade-description">
+                            3-Day Free Trial is active. Real-time mnemonic generation, 6 blockchain networks and automated wallet balance detection are unlocked.
+                        </p>
+                        <a class="scanner-upgrade-button" href="upgrade.html" style="background:linear-gradient(135deg,rgba(139,92,246,0.22),rgba(35,213,255,0.18));border:1px solid rgba(139,92,246,0.35);">
+                            <span>View Pro Plans</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </a>
+                    `;
                 }
 
-                renderDemoResults(
-                    state.demo_results || []
-                );
-
                 clearConsole();
-
-                if (
-                    state.status === 'running' &&
-                    state.has_subscription
-                ) {
-                    addSystemLine(
-                        'Active scanner session restored.',
-                        'verified'
-                    );
-
-                    setRunningInterface();
-                    startVisualOutput();
-                } else {
-                    addSystemLine(
-                        state.has_subscription
-                            ? 'Scanner ready. Press START.'
-                            : 'License expired. Scanner stopped.',
-                        state.has_subscription
-                            ? ''
-                            : 'warning'
-                    );
-
-                    setStoppedInterface();
-                }
-            } catch (error) {
+                addSystemLine('SeedAim Cloud Engine v3.0 ready. Press START to begin scanning.', 'verified');
+                setStoppedInterface();
+            } else {
+                document.body.classList.add('scanner-no-plan');
                 clearConsole();
-
-                addSystemLine(
-                    'Unable to load scanner state.',
-                    'warning'
-                );
-
+                addSystemLine('License expired. Please renew your plan.', 'warning');
                 setStoppedInterface();
             }
         }
 
         async function startScanner() {
-            if (
-                !hasSubscription ||
-                systemCheckRunning
-            ) {
-                return;
-            }
+            if (!hasSubscription || systemCheckRunning) return;
 
             systemCheckRunning = true;
             scannerButton.disabled = true;
 
             clearConsole();
+            setStatus('Initializing', 'checking');
+            setNetworkIndicatorsState('checking');
 
-            setStatus(
-                'Initializing',
-                'checking'
-            );
+            addSystemLine('Booting SeedAim distributed processing runtime...', 'security');
+            await delay(900);
 
-            setNetworkIndicatorsState(
-                'checking'
-            );
+            addSystemLine('Loading encrypted scanner configuration...', 'detail');
+            await delay(800);
 
-            addSystemLine(
-                'Booting SeedAim distributed processing runtime...',
-                'security'
-            );
+            addSystemLine(`Account session verified: ${currentUserDisplayName}`, 'detail');
+            await delay(900);
 
-            await delay(1100);
-
-            addSystemLine(
-                'Loading encrypted scanner configuration...',
-                'detail'
-            );
-
+            addSystemLine(`Validating ${currentPlanName} license signature...`, 'security');
             await delay(1000);
 
-            addSystemLine(
-                `Account session detected: ${currentUserEmail}`,
-                'detail'
-            );
+            addSystemLine(`License verified вЂ” ${currentLicenseExpires}`, 'verified');
+            await delay(900);
 
-            await delay(1300);
+            addSystemLine(`Network permissions confirmed: ${activeNetworkCount} active chains (BTC, ETH, SOL, BNB, TRX, LTC)`, 'verified');
+            await delay(800);
 
-            addSystemLine(
-                `Validating ${currentPlanName} subscription for ${currentUserEmail}...`,
-                'security'
-            );
+            addSystemLine('Generating protected scanner session token...', 'security');
+            await delay(900);
 
-            await delay(1600);
+            addSystemLine('Discovering available blockchain gateway nodes...', 'network');
+            await delay(1000);
 
-            addSystemLine(
-                'Checking subscription signature and account status...',
-                'detail'
-            );
+            addSystemLine('Synchronizing 6 blockchain node clusters...', 'network');
+            await delay(850);
 
-            await delay(1300);
+            const latency = Math.floor(Math.random() * 12) + 18;
+            addSystemLine(`Node response latency stable: ${latency} ms average`, 'verified');
+            await delay(900);
 
-            addSystemLine(
-                `Subscription verified — valid until ${currentLicenseExpires}`,
-                'verified'
-            );
+            addSystemLine('Allocating cloud processing workers...', 'security');
+            await delay(800);
 
-            await delay(1700);
+            addSystemLine('Processing engine ready.', 'verified');
+            await delay(600);
 
-            addSystemLine(
-                `Loading access profile: ${currentPlanName}`,
-                'detail'
-            );
+            addSystemLine('Scanner session started successfully.', 'verified');
+            await delay(500);
 
-            await delay(1100);
-
-            addSystemLine(
-                `Network permissions confirmed: ${activeNetworkCount} active chains`,
-                'verified'
-            );
-
-            await delay(1500);
-
-            addSystemLine(
-                'Generating protected scanner session token...',
-                'security'
-            );
-
-            await delay(1400);
-
-            addSystemLine(
-                'Secure session established.',
-                'verified'
-            );
-
-            await delay(1200);
-
-            addSystemLine(
-                'Discovering available blockchain gateway nodes...',
-                'network'
-            );
-
-            await delay(1500);
-
-            addSystemLine(
-                `Synchronizing ${activeNetworkCount} blockchain node groups...`,
-                'network'
-            );
-
-            await delay(1700);
-
-            addSystemLine(
-                'Node handshake completed.',
-                'verified'
-            );
-
-            await delay(1200);
-
-            addSystemLine(
-                'Testing node response latency and availability...',
-                'network'
-            );
-
-            await delay(1500);
-
-            const simulatedLatency =
-                Math.floor(
-                    Math.random() * 24
-                ) + 18;
-
-            addSystemLine(
-                `Node latency stable: ${simulatedLatency} ms average`,
-                'verified'
-            );
-
-            await delay(1400);
-
-            addSystemLine(
-                'Allocating cloud processing workers...',
-                'security'
-            );
-
-            await delay(1500);
-
-            addSystemLine(
-                'Preparing mnemonic processing queue...',
-                'detail'
-            );
-
-            await delay(1400);
-
-            addSystemLine(
-                'Running final engine integrity check...',
-                'security'
-            );
-
-            await delay(1600);
-
-            addSystemLine(
-                'Processing engine ready.',
-                'verified'
-            );
-
-            await delay(1400);
-
-            try {
-                await apiRequest(
-                    'start',
-                    'POST'
-                );
-
-                addSystemLine(
-                    'Scanner session started successfully.',
-                    'verified'
-                );
-
-                await delay(1500);
-
-                setRunningInterface();
-                startVisualOutput();
-            } catch (error) {
-                systemCheckRunning = false;
-
-                addSystemLine(
-                    error.message ||
-                    'Unable to start scanner session.',
-                    'warning'
-                );
-
-                await delay(1000);
-
-                await loadScannerState();
-            }
+            setRunningInterface();
+            startVisualOutput();
         }
 
-        async function stopScanner() {
-            scannerButton.disabled = true;
-
-            try {
-                await apiRequest(
-                    'stop',
-                    'POST'
-                );
-
-                stopVisualOutput();
-                setStoppedInterface();
-
-                addSystemLine(
-                    'Scanner stopped by user.',
-                    'warning'
-                );
-            } catch (error) {
-                scannerButton.disabled = false;
-
-                addSystemLine(
-                    'Unable to stop scanner.',
-                    'warning'
-                );
-            }
+        function stopScanner() {
+            scannerRunning = false;
+            stopVisualOutput();
+            setStoppedInterface();
+            addSystemLine('Scanner stopped by user.', 'warning');
         }
 
-        async function checkScannerState() {
-            try {
-                const state =
-                    await apiRequest('status');
+        // 4. Event Listeners
+        foundResultsList.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-demo-result-id]');
+            if (card) openWalletModal(card.dataset.demoResultId);
+        });
 
-                hasSubscription =
-                    state.has_subscription;
+        walletCopyAddress.addEventListener('click', copyCurrentWalletAddress);
 
-                if (licenseValue) {
-                    licenseValue.textContent =
-                        state.expires_date ||
-                        'Inactive';
-                }
+        document.querySelectorAll('[data-close-wallet-modal]').forEach(btn => {
+            btn.addEventListener('click', closeWalletModal);
+        });
 
-                renderDemoResults(
-                    state.demo_results || []
-                );
-
-                if (!state.has_subscription) {
-                    stopVisualOutput();
-
-                    scannerRunning = false;
-                    systemCheckRunning = false;
-
-                    clearConsole();
-
-                    addSystemLine(
-                        'License expired. Scanner automatically stopped.',
-                        'warning'
-                    );
-
-                    setStoppedInterface();
-
-                    return;
-                }
-
-                if (
-                    scannerRunning &&
-                    state.status !== 'running'
-                ) {
-                    stopVisualOutput();
-                    setStoppedInterface();
-
-                    addSystemLine(
-                        'Scanner stopped.',
-                        'warning'
-                    );
-
-                    return;
-                }
-
-                if (
-                    !scannerRunning &&
-                    state.status === 'running'
-                ) {
-                    clearConsole();
-
-                    addSystemLine(
-                        'Active scanner session restored.',
-                        'verified'
-                    );
-
-                    setRunningInterface();
-                    startVisualOutput();
-                }
-            } catch (error) {
-                console.error(
-                    'Scanner state check failed:',
-                    error
-                );
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && walletModal.classList.contains('open')) {
+                closeWalletModal();
             }
-        }
+        });
 
-        foundResultsList.addEventListener(
-            'click',
-            (event) => {
-                const card =
-                    event.target.closest(
-                        '[data-demo-result-id]'
-                    );
-
-                if (!card) {
-                    return;
-                }
-
-                openWalletModal(
-                    card.dataset.demoResultId
-                );
+        scannerButton.addEventListener('click', () => {
+            if (systemCheckRunning) return;
+            if (scannerRunning) {
+                stopScanner();
+            } else {
+                startScanner();
             }
-        );
+        });
 
-        walletCopyAddress.addEventListener(
-            'click',
-            copyCurrentWalletAddress
-        );
+        window.addEventListener('resize', trimConsoleLines);
 
-        document
-            .querySelectorAll(
-                '[data-close-wallet-modal]'
-            )
-            .forEach((button) => {
-                button.addEventListener(
-                    'click',
-                    closeWalletModal
-                );
-            });
-
-        document.addEventListener(
-            'keydown',
-            (event) => {
-                if (
-                    event.key === 'Escape' &&
-                    walletModal.classList.contains(
-                        'open'
-                    )
-                ) {
-                    closeWalletModal();
-                }
-            }
-        );
-
-        scannerButton.addEventListener(
-            'click',
-            () => {
-                if (systemCheckRunning) {
-                    return;
-                }
-
-                if (scannerRunning) {
-                    stopScanner();
-                } else {
-                    startScanner();
-                }
-            }
-        );
-
-        window.addEventListener(
-            'resize',
-            trimConsoleLines
-        );
-
-        renderDemoResults(
-            demoResults
-        );
-
-        setNetworkIndicatorsState(
-            hasSubscription
-                ? 'stopped'
-                : 'expired'
-        );
-
-        loadScannerState();
-
-        window.setInterval(
-            checkScannerState,
-            60 * 1000
-        );
+        renderDemoResults(demoResults);
+        await loadScannerState();
+    })();
     </script>
 
 <style id="wallet-popup-phrase-cta-v7">

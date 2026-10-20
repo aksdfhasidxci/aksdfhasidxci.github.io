@@ -2,6 +2,7 @@
  * SeedAim Cloud — Telegram Mini App Auth Module
  * 
  * Works seamlessly inside Telegram WebApp with persistence across all pages.
+ * Handles 3-day Free Trial by default for new and existing users.
  */
 
 (() => {
@@ -72,22 +73,61 @@
      * Check if currently running inside Telegram context
      */
     function isInTelegram() {
-        // If we already know the Telegram user
         if (getTelegramUser()) return true;
-
-        // If Telegram WebApp platform is detected and not unknown
         const platform = tg?.platform;
         if (platform && platform !== 'unknown') return true;
-
-        // If initData is present
         if (tg?.initData && tg.initData.length > 0) return true;
-
-        // If userAgent indicates Telegram
         if (/Telegram/i.test(navigator.userAgent || '')) return true;
-
         return false;
     }
     window.isInTelegram = isInTelegram;
+
+    /**
+     * Check if trial or plan is currently active
+     */
+    function isTrialActive(profile) {
+        if (!profile) return false;
+        // Paid plans are always active
+        if (profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired') {
+            return true;
+        }
+
+        const expiresStr = profile.plan_expires_at || 
+            (profile.created_at ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() : null);
+
+        if (!expiresStr) return true;
+
+        const expiresTime = new Date(expiresStr).getTime();
+        return Date.now() < expiresTime;
+    }
+    window.isTrialActive = isTrialActive;
+
+    /**
+     * Format remaining trial time nicely
+     */
+    function getTrialRemainingText(profile) {
+        if (!profile) return 'Inactive';
+        if (profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired') {
+            return 'Active Plan';
+        }
+
+        const expiresStr = profile.plan_expires_at || 
+            (profile.created_at ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() : null);
+
+        if (!expiresStr) return '3 days remaining';
+
+        const diff = new Date(expiresStr).getTime() - Date.now();
+        if (diff <= 0) return 'Expired';
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+        if (days > 0) {
+            return `${days} ${days === 1 ? 'day' : 'days'} ${hours}h left`;
+        }
+        return `${hours}h left`;
+    }
+    window.getTrialRemainingText = getTrialRemainingText;
 
     /**
      * Internal: get or create profile row in Supabase `profiles` table
@@ -95,6 +135,9 @@
     async function _getOrCreateProfile(userId, tgUser) {
         const tgId = String(tgUser.id);
         const displayName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username || 'User';
+
+        // 3-day trial from now
+        const trialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
 
         // 1. Try find existing by tg_id
         try {
@@ -104,10 +147,25 @@
                 .eq('tg_id', tgId)
                 .maybeSingle();
 
-            if (profile) return profile;
+            if (profile) {
+                // If trial has no expires date, initialize it with 3 days from created_at
+                if (profile.plan === 'trial' && !profile.plan_expires_at) {
+                    const fallbackDate = profile.created_at
+                        ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
+                        : trialExpires;
+                    profile.plan_expires_at = fallbackDate;
+                    try {
+                        await _client
+                            .from('profiles')
+                            .update({ plan_expires_at: fallbackDate, scans_limit: 1000 })
+                            .eq('id', profile.id);
+                    } catch (_) {}
+                }
+                return profile;
+            }
         } catch (_) {}
 
-        // 2. Insert new profile
+        // 2. Insert new profile with 3-day Free Trial
         try {
             const { data: newProfile } = await _client
                 .from('profiles')
@@ -117,8 +175,9 @@
                     tg_username: tgUser.username || null,
                     tg_first_name: displayName,
                     plan: 'trial',
+                    plan_expires_at: trialExpires,
                     scans_used: 0,
-                    scans_limit: 3,
+                    scans_limit: 1000,
                 }, { onConflict: 'id' })
                 .select()
                 .maybeSingle();
@@ -128,15 +187,15 @@
             console.error('[SeedAim] Profile upsert error:', err);
         }
 
-        // Return minimal profile fallback
         return {
             id: userId,
             tg_id: tgId,
             tg_first_name: displayName,
             tg_username: tgUser.username || null,
             plan: 'trial',
+            plan_expires_at: trialExpires,
             scans_used: 0,
-            scans_limit: 3
+            scans_limit: 1000
         };
     }
 
@@ -184,15 +243,16 @@
         try {
             const { data: anonData, error: anonError } = await _client.auth.signInAnonymously();
             if (anonError || !anonData?.session) {
-                console.warn('[SeedAim] Anon sign-in failed, trying existing session or fallback:', anonError);
-                // Even without Supabase session, create local profile so UI works
+                console.warn('[SeedAim] Anon sign-in failed, trying fallback:', anonError);
+                const trialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
                 const fallbackProfile = {
                     id: tgId,
                     tg_id: tgId,
                     tg_first_name: tgUser.first_name || 'User',
                     plan: 'trial',
+                    plan_expires_at: trialExpires,
                     scans_used: 0,
-                    scans_limit: 3
+                    scans_limit: 1000
                 };
                 return { session: { user: { id: tgId } }, profile: fallbackProfile };
             }
@@ -218,15 +278,27 @@
         const tgUser = getTelegramUser();
         if (!tgUser) return null;
         const tgId = String(tgUser.id);
+        const trialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
 
         try {
-            const { data } = await _client
+            let { data } = await _client
                 .from('profiles')
                 .select('*')
                 .eq('tg_id', tgId)
                 .maybeSingle();
 
-            if (data) return data;
+            if (data) {
+                if (data.plan === 'trial' && !data.plan_expires_at) {
+                    const fallbackDate = data.created_at
+                        ? new Date(new Date(data.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
+                        : trialExpires;
+                    data.plan_expires_at = fallbackDate;
+                    try {
+                        await _client.from('profiles').update({ plan_expires_at: fallbackDate }).eq('id', data.id);
+                    } catch (_) {}
+                }
+                return data;
+            }
         } catch (_) {}
 
         return {
@@ -234,16 +306,62 @@
             tg_first_name: tgUser.first_name || 'User',
             tg_username: tgUser.username || null,
             plan: 'trial',
+            plan_expires_at: trialExpires,
             scans_used: 0,
-            scans_limit: 3
+            scans_limit: 1000
         };
     }
     window.getProfile = getProfile;
 
     /**
+     * Save found wallet result to Supabase
+     */
+    async function saveScanResult(result) {
+        const profile = await getProfile();
+        if (!profile || !profile.id) return null;
+
+        try {
+            const { data, error } = await _client
+                .from('scan_results')
+                .insert({
+                    user_id: profile.id,
+                    seed_hash: result.masked_address || 'wallet_detected',
+                    result: result,
+                    status: 'found'
+                })
+                .select()
+                .maybeSingle();
+
+            if (error) console.warn('[SeedAim] Could not save scan result:', error);
+            return data;
+        } catch (err) {
+            console.warn('[SeedAim] Save scan result exception:', err);
+            return null;
+        }
+    }
+    window.saveScanResult = saveScanResult;
+
+    /**
+     * Increment scans used in profile
+     */
+    async function recordScansBatch(count = 25) {
+        const profile = await getProfile();
+        if (!profile || !profile.id) return;
+
+        const updatedCount = (profile.scans_used || 0) + count;
+        profile.scans_used = updatedCount;
+
+        try {
+            await _client
+                .from('profiles')
+                .update({ scans_used: updatedCount })
+                .eq('id', profile.id);
+        } catch (_) {}
+    }
+    window.recordScansBatch = recordScansBatch;
+
+    /**
      * Require authentication on protected pages.
-     * Guaranteed never to throw user to open-telegram if they're in Telegram
-     * or already have a saved profile.
      */
     async function requireAuth() {
         if (tg) {
@@ -255,7 +373,6 @@
 
         const tgUser = getTelegramUser();
 
-        // If not in Telegram at all and no cached user, redirect to open-telegram
         if (!tgUser && !isInTelegram()) {
             if (!window.location.pathname.endsWith('open-telegram.html')) {
                 window.location.href = 'open-telegram.html';

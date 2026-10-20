@@ -4713,10 +4713,12 @@ main.app.sd-dashboard {
 
         // --- Update plan display if profile loaded ---
         if (profile) {
+            const isTrial = profile.plan === 'trial';
+            const isActive = window.isTrialActive(profile);
+
             // Find plan-related elements and update them
             const planSection = document.querySelector('.sd-premium-account-card');
             if (planSection) {
-                // Remove existing plan classes and set correct one
                 planSection.classList.remove(
                     'sd-account-plan-trial',
                     'sd-account-plan-starter',
@@ -4724,25 +4726,47 @@ main.app.sd-dashboard {
                     'sd-account-plan-ultra',
                     'sd-account-plan-inactive'
                 );
-                planSection.classList.add('sd-account-plan-' + (profile.plan || 'trial'));
+                planSection.classList.add(isActive ? 'sd-account-plan-' + (profile.plan || 'trial') : 'sd-account-plan-inactive');
             }
 
-            // Update plan title
+            // Update plan title & description
             const planTitle = document.querySelector('.sd-premium-plan-copy h1');
             if (planTitle) {
                 const planLabels = {
-                    trial: 'Trial Plan',
+                    trial: 'Free Trial (3 Days)',
                     starter: 'Starter Plan',
                     pro: 'Pro Plan',
                     ultra: 'Ultra Plan'
                 };
-                planTitle.textContent = planLabels[profile.plan] || 'Trial Plan';
+                planTitle.textContent = isActive 
+                    ? (planLabels[profile.plan] || 'Free Trial (3 Days)')
+                    : 'Plan Expired';
+            }
+
+            const planDesc = document.querySelector('.sd-premium-plan-copy p');
+            if (planDesc && isActive) {
+                planDesc.textContent = isTrial 
+                    ? '3-Day Free Trial unlocked. Automated cloud scanning enabled.'
+                    : 'Cloud processing active. All networks unlocked.';
+            }
+
+            // Update access period and speed
+            const statsDivs = document.querySelectorAll('.sd-premium-plan-stats > div strong');
+            if (statsDivs.length >= 2) {
+                statsDivs[0].textContent = isActive ? window.getTrialRemainingText(profile) : 'Expired';
+                statsDivs[1].textContent = isActive ? (isTrial ? '1,250 keys/sec' : '3,500 keys/sec') : 'Locked';
+            }
+
+            // Scanner status
+            const scannerStatusText = document.getElementById('welcome-scanner-status-text');
+            if (scannerStatusText && isActive) {
+                scannerStatusText.textContent = 'Scanner Ready';
             }
 
             // Update scans used in KPI cards
             const processedEl = document.getElementById('processed-total-value');
             if (processedEl && profile.scans_used !== undefined) {
-                processedEl.textContent = profile.scans_used;
+                processedEl.textContent = profile.scans_used.toLocaleString();
             }
         }
 
