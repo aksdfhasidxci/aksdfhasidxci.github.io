@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#060817">
+    <meta name="color-scheme" content="dark">
+    <meta name="description" content="SeedAim Cloud">
+    <title>Sign In — SeedAim Cloud</title>
+
+    <style>
+        :root {
+            --bg: #050716;
+            --panel: rgba(8, 12, 30, 0.88);
+            --panel-soft: rgba(13, 18, 42, 0.72);
+            --field: rgba(15, 21, 47, 0.88);
+            --border: rgba(126, 141, 204, 0.24);
+            --border-bright: rgba(127, 112, 255, 0.42);
+            --text: #f7f8ff;
+            --text-soft: #b8bfdc;
+            --muted: #7f88ad;
+            --purple: #7c5cff;
+            --purple-2: #ab38ff;
+            --cyan: #00c8f8;
+            --green: #20e39a;
+            --danger: #ff657a;
+            --radius-xl: 30px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --shadow: 0 32px 80px rgba(0, 0, 0, .48), 0 0 60px rgba(124, 92, 255, .08);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { min-height: 100%; background: var(--bg); }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 50% -10%, rgba(124, 92, 255, .17), transparent 33%),
+                radial-gradient(circle at -10% 58%, rgba(64, 39, 209, .14), transparent 28%),
+                radial-gradient(circle at 112% 65%, rgba(0, 200, 248, .11), transparent 30%),
+                linear-gradient(180deg, #07091b 0%, #040612 100%);
+            font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input { font: inherit; }
+        button { -webkit-tap-highlight-color: transparent; }
+
+        .page-noise,
+        .page-grid,
+        .hex-decoration {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .page-noise {
+            z-index: 0;
+            opacity: .16;
+            background-image: radial-gradient(rgba(255,255,255,.12) .65px, transparent .65px);
+            background-size: 7px 7px;
+            mask-image: linear-gradient(to bottom, #000, transparent 92%);
+        }
+
+        .page-grid {
+            z-index: 0;
+            opacity: .14;
+            background-image:
+                linear-gradient(rgba(76, 96, 170, .1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(76, 96, 170, .1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, #000 0, transparent 76%);
+        }
+
+        .hex-decoration {
+            z-index: 0;
+            opacity: .23;
+            background:
+                linear-gradient(30deg, transparent 24%, rgba(72,80,180,.16) 25%, rgba(72,80,180,.16) 26%, transparent 27%, transparent 74%, rgba(72,80,180,.16) 75%, rgba(72,80,180,.16) 76%, transparent 77%),
+                linear-gradient(150deg, transparent 24%, rgba(0,200,248,.09) 25%, rgba(0,200,248,.09) 26%, transparent 27%, transparent 74%, rgba(0,200,248,.09) 75%, rgba(0,200,248,.09) 76%, transparent 77%);
+            background-size: 84px 146px;
+            background-position: -42px 0, 0 0;
+            mask-image: linear-gradient(90deg, #000, transparent 27%, transparent 73%, #000);
+        }
+
+        .auth-shell {
+            position: relative;
+            z-index: 2;
+            width: min(100%, 520px);
+            margin: 0 auto;
+            padding: max(38px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 0 0 24px;
+        }
+
+        .brand-logo-wrap {
+            width: 72px;
+            height: 72px;
+            flex: 0 0 72px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border: 1px solid rgba(124,92,255,.48);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(124,92,255,.12), rgba(0,200,248,.06));
+            box-shadow:
+                0 18px 38px rgba(17, 9, 70, .42),
+                0 0 30px rgba(124,92,255,.18),
+                inset 0 1px 0 rgba(255,255,255,.16);
+        }
+
+        .brand-logo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: drop-shadow(0 10px 22px rgba(124,92,255,.24));
+        }
+
+        .brand-copy {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+        }
+
+        .brand-title-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: clamp(34px, 9vw, 48px);
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -1.8px;
+            background: linear-gradient(180deg, #fff 0%, #c8cafc 70%, #979de3 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(124,92,255,.14);
+        }
+
+        .brand-version {
+            color: #8f7dff;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .auth-card {
+            position: relative;
+            overflow: hidden;
+            padding: 18px;
+            border: 1px solid rgba(70, 89, 178, .46);
+            border-radius: var(--radius-xl);
+            background:
+                radial-gradient(circle at 50% 0%, rgba(124,92,255,.09), transparent 28%),
+                linear-gradient(165deg, rgba(9, 13, 31, .96), rgba(5, 9, 24, .96));
+            box-shadow:
+                0 28px 72px rgba(0, 0, 0, .58),
+                -28px 18px 72px rgba(124, 92, 255, .22),
+                30px 24px 76px rgba(0, 200, 248, .17),
+                -10px -8px 38px rgba(124, 92, 255, .11),
+                12px -4px 34px rgba(0, 200, 248, .08),
+                0 0 0 1px rgba(255, 255, 255, .025),
+                inset 0 1px 0 rgba(255, 255, 255, .045);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .auth-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 9%;
+            width: 82%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--purple), var(--cyan), transparent);
+            box-shadow: 0 0 18px rgba(124,92,255,.85);
+        }
+
+        .status-pill {
+            width: fit-content;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+            margin: 4px auto 20px;
+            padding: 10px 16px;
+            border: 1px solid rgba(111, 124, 192, .22);
+            border-radius: 999px;
+            background: rgba(18, 25, 53, .72);
+            color: var(--text-soft);
+            font-size: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+        }
+
+        .status-pill svg { width: 18px; height: 18px; color: #967cff; }
+        .status-divider { width: 4px; height: 4px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+        .status-divider.purple { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+
+        .inner-panel {
+            padding: 14px;
+            border: 1px solid rgba(92, 108, 173, .28);
+            border-radius: 24px;
+            background: linear-gradient(165deg, rgba(11, 16, 38, .90), rgba(7, 11, 29, .86));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 5px;
+            border: 1px solid rgba(88, 105, 166, .27);
+            border-radius: 18px;
+            background: rgba(11, 16, 39, .85);
+        }
+
+        .tab-button {
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            color: #8f98bd;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: .22s ease;
+        }
+
+        .tab-button svg { width: 20px; height: 20px; }
+
+        .tab-button.active {
+            color: #26d9ff;
+            border-color: rgba(100, 127, 220, .48);
+            background: linear-gradient(145deg, rgba(22, 30, 66, .98), rgba(13, 18, 43, .98));
+            box-shadow:
+                0 12px 24px rgba(0,0,0,.24),
+                inset 0 -2px 0 rgba(0,200,248,.9),
+                0 0 20px rgba(0,200,248,.07);
+        }
+
+        .form-tab-content { display: none; padding-top: 24px; }
+        .form-tab-content.active { display: block; animation: fadeUp .28s ease both; }
+
+        .form-header { margin-bottom: 22px; }
+        .form-title { margin: 0 0 7px; font-size: 22px; letter-spacing: -.45px; }
+        .form-description { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+        .field { margin-bottom: 18px; }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 9px 4px;
+            color: #e8eaff;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .field-label svg { width: 18px; height: 18px; color: #a463ff; }
+
+        .input-wrapper { position: relative; }
+
+        .field-input {
+            width: 100%;
+            height: 58px;
+            padding: 0 54px 0 16px;
+            border: 1px solid rgba(98, 113, 177, .34);
+            border-radius: 15px;
+            outline: 0;
+            color: #fff;
+            background: linear-gradient(180deg, rgba(20, 27, 57, .94), rgba(13, 19, 43, .94));
+            font-size: 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+            transition: .22s ease;
+        }
+
+        .field-input::placeholder { color: #687198; }
+
+        .field-input:focus {
+            border-color: rgba(0,200,248,.68);
+            background: rgba(18, 24, 52, .98);
+            box-shadow: 0 0 0 3px rgba(0,200,248,.09), 0 0 22px rgba(124,92,255,.09);
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 9px;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 11px;
+            color: #939abd;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .password-toggle:hover { color: var(--cyan); background: rgba(0,200,248,.07); }
+        .password-toggle svg { width: 21px; height: 21px; pointer-events: none; }
+
+        .field-hint { margin: 8px 4px 0; color: #747da2; font-size: 10px; }
+
+        .button-primary {
+            width: 100%;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 6px;
+            border: 1px solid rgba(255,255,255,.28);
+            border-radius: 15px;
+            color: white;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d4ad8 100%);
+            box-shadow: 0 12px 28px rgba(70,57,255,.27), inset 0 1px 0 rgba(255,255,255,.3);
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .22s ease;
+        }
+
+        .button-primary:hover { transform: translateY(-1px); box-shadow: 0 16px 34px rgba(70,57,255,.34), inset 0 1px 0 rgba(255,255,255,.35); }
+        .button-primary:active { transform: translateY(0); }
+        .button-primary:disabled { cursor: wait; opacity: .72; transform: none; }
+        .button-primary svg { width: 21px; height: 21px; }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(111, 127, 184, .2);
+            color: #8f98bb;
+            font-size: 11px;
+            line-height: 1.45;
+            text-align: left;
+        }
+
+        .security-note svg { width: 30px; height: 30px; color: #39e7c3; flex: 0 0 auto; }
+        .security-note strong { color: #9d65ff; font-weight: 700; }
+
+        .alert-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 0 0 15px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,101,122,.28);
+            border-radius: 14px;
+            color: #ffc2cb;
+            background: rgba(255,101,122,.08);
+            font-size: 12px;
+        }
+
+        .alert-error svg { width: 19px; height: 19px; flex: 0 0 auto; color: var(--danger); }
+        .alert-error ul { margin: 0; padding-left: 17px; }
+
+        .auth-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            margin: 22px 0 0;
+            color: #7f88ab;
+            font-size: 11px;
+        }
+
+        .footer-status { display: flex; align-items: center; gap: 8px; }
+        .footer-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px rgba(32,227,154,.85); }
+        .footer-separator { width: 1px; height: 18px; background: rgba(113,125,179,.25); }
+        .footer-status svg { width: 17px; height: 17px; }
+
+        .entry-loader {
+            position: fixed;
+            z-index: 5000;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 38%, rgba(124,92,255,.18), transparent 34%),
+                #050716;
+            transition: opacity .5s ease, visibility .5s ease;
+        }
+
+        .entry-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-box { width: 220px; text-align: center; }
+        .loader-target { position: relative; width: 92px; height: 92px; margin: 0 auto 18px; display: grid; place-items: center; }
+        .loader-target::before, .loader-target::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(124,92,255,.4); }
+        .loader-target::before { border-top-color: var(--cyan); border-right-color: transparent; animation: spin 1.2s linear infinite; box-shadow: 0 0 24px rgba(0,200,248,.12); }
+        .loader-target::after { inset: 12px; border-color: rgba(124,92,255,.24); border-bottom-color: var(--purple); animation: spin 1.8s linear infinite reverse; }
+        .loader-target img { position: relative; z-index: 2; width: 54px; height: 54px; border-radius: 14px; object-fit: cover; filter: drop-shadow(0 10px 22px rgba(124,92,255,.3)); }
+        .loader-title { margin: 0; font-size: 17px; font-weight: 800; }
+        .loader-status { min-height: 16px; margin: 7px 0 13px; color: var(--muted); font-size: 10px; }
+        .loader-track { height: 4px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.06); }
+        .loader-bar { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg,var(--cyan),var(--purple),var(--purple-2)); animation: loadbar 1.2s ease forwards; box-shadow: 0 0 14px rgba(124,92,255,.5); }
+        .mini-loader { width: 17px; height: 17px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes loadbar { 0% { width: 0; } 60% { width: 72%; } 100% { width: 100%; } }
+
+        @media (max-width: 430px) {
+            .auth-shell { padding-left: 12px; padding-right: 12px; padding-top: max(26px, env(safe-area-inset-top)); }
+            .brand-logo-wrap { width: 60px; height: 60px; flex-basis: 60px; border-radius: 17px; }
+            .brand-title { font-size: 35px; }
+            .brand-version { font-size: 12px; }
+            .auth-card { padding: 13px; border-radius: 25px; }
+            .inner-panel { padding: 10px; border-radius: 21px; }
+            .tab-button { min-height: 52px; font-size: 13px; }
+            .status-pill { gap: 8px; padding: 9px 12px; font-size: 10px; }
+            .field-input { height: 54px; }
+            .button-primary { min-height: 54px; }
+            .auth-footer { gap: 13px; font-size: 10px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+        }
+        .brand-subtitle {
+            margin: 0px 0 0;
+            font-size: 13px;
+            color: rgba(255,255,255,.68);
+            font-weight: 500;
+            line-height: 1.35;
+            letter-spacing: .05px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 430px) {
+            .brand-subtitle {
+                font-size: 11px;
+                white-space: normal;
+                max-width: 260px;
+            }
+        }
+
+</style>
+</head>
+<body>
+    <div class="entry-loader" id="entry-loader" aria-hidden="true">
+        <div class="loader-box">
+            <div class="loader-target"><img src="img/l18.png" alt=""></div>
+            <p class="loader-title">SeedAim Cloud</p>
+            <p class="loader-status" id="loader-status">Initializing secure environment...</p>
+            <div class="loader-track"><div class="loader-bar"></div></div>
+        </div>
+    </div>
+
+    <div class="page-noise" aria-hidden="true"></div>
+    <div class="page-grid" aria-hidden="true"></div>
+    <div class="hex-decoration" aria-hidden="true"></div>
+
+    <main class="auth-shell">
+        <header class="brand-header">
+            <div class="brand-logo-wrap"><img src="img/l18.png" alt="SeedAim logo"></div>
+            <div class="brand-copy">
+                <div class="brand-title-row">
+                    <h1 class="brand-title">SeedAim</h1>
+                    <span class="brand-version">Cloud</span>
+                </div>
+                <p class="brand-subtitle">Professional App for Mining</p>
+            </div>
+        </header>
+
+        <section class="auth-card">
+            <div class="status-pill" aria-label="Platform status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                <span>SSL Secured</span><span class="status-divider"></span><span>Private</span><span class="status-divider purple"></span><span>Encrypted</span>
+            </div>
+
+            <div class="inner-panel">
+                <div class="tabs" role="tablist" aria-label="Authentication">
+                    <button class="tab-button active" type="button" role="tab" aria-selected="true" aria-controls="login-form" data-form="login">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Sign In
+                    </button>
+                    <button class="tab-button " type="button" role="tab" aria-selected="false" aria-controls="register-form" data-form="register">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21a6 6 0 0 0-12 0"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>
+                        Create Account
+                    </button>
+                </div>
+
+                
+                <form id="login-form" class="form-tab-content active" role="tabpanel">
+
+                    <header class="form-header">
+                        <h2 class="form-title">Welcome back</h2>
+                        <p class="form-description">Sign in to open your SeedAim dashboard and continue scanning.</p>
+                    </header>
+
+                    <div class="field">
+                        <label class="field-label" for="login-email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+                            Email Address
+                        </label>
+                        <div class="input-wrapper">
+                            <input class="field-input" id="login-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="example@gmail.com" value="" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="login-password">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                            Password
+                        </label>
+                        <div class="input-wrapper">
+                            <input class="field-input" id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+                            <button class="password-toggle" type="button" data-password-target="login-password" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="button-primary" type="submit" data-auth-submit>
+                        <span>Sign In</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+                    </button>
+                </form>
+
+                <form id="register-form" class="form-tab-content " role="tabpanel">
+
+                    <header class="form-header">
+                        <h2 class="form-title">Create your account</h2>
+                        <p class="form-description">Register to access the SeedAim Cloud scanning environment.</p>
+                    </header>
+
+                    <div class="field">
+                        <label class="field-label" for="register-email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+                            Email Address
+                        </label>
+                        <div class="input-wrapper">
+                            <input class="field-input" id="register-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="example@gmail.com" value="" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="register-password">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                            Password
+                        </label>
+                        <div class="input-wrapper">
+                            <input class="field-input" id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+                            <button class="password-toggle" type="button" data-password-target="register-password" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                        <p class="field-hint">Use at least 8 characters.</p>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="password-confirmation">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3v8Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                            Confirm Password
+                        </label>
+                        <div class="input-wrapper">
+                            <input class="field-input" id="password-confirmation" name="password_confirmation" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat your password" required>
+                            <button class="password-toggle" type="button" data-password-target="password-confirmation" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="button-primary" type="submit" data-auth-submit>
+                        <span>Create Account</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+                    </button>
+                </form>
+
+                <div class="security-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3v8Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                    <span>Your data is protected with<br><strong>end-to-end encryption</strong></span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="auth-footer">
+            <span class="footer-status"><span class="footer-dot"></span>All systems secure</span>
+            <span class="footer-separator"></span>
+            <span class="footer-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H7a5 5 0 1 1 1-9.9A7 7 0 0 1 21 12a4 4 0 0 1-3.5 7Z"></path></svg>Cloud synced</span>
+        </footer>
+    </main>
+
+    <!-- Supabase JS SDK (ESM via CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <!-- SeedAim config & auth module -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+
+    <script>
+        (() => {
+            'use strict';
+
+            // ── Loader animation ──────────────────────────────────────────────
+            const entryLoader = document.getElementById('entry-loader');
+            const loaderStatus = document.getElementById('loader-status');
+            const loaderMessages = [
+                'Initializing secure environment...',
+                'Verifying encrypted gateway...',
+                'Loading authentication modules...'
+            ];
+            let loaderIndex = 0;
+
+            const messageTimer = window.setInterval(() => {
+                loaderIndex = (loaderIndex + 1) % loaderMessages.length;
+                if (loaderStatus) loaderStatus.textContent = loaderMessages[loaderIndex];
+            }, 360);
+
+            // Redirect to dashboard if already logged in
+            (async () => {
+                const { data: { session } } = await window.sb.auth.getSession();
+                if (session) {
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                window.addEventListener('load', () => {
+                    window.setTimeout(() => {
+                        window.clearInterval(messageTimer);
+                        entryLoader?.classList.add('hidden');
+                    }, 1100);
+                });
+            })();
+
+            // ── Tab switching ─────────────────────────────────────────────────
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const formTabs = document.querySelectorAll('.form-tab-content');
+
+            tabButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const target = button.dataset.form;
+                    tabButtons.forEach((item) => {
+                        item.classList.remove('active');
+                        item.setAttribute('aria-selected', 'false');
+                    });
+                    formTabs.forEach((form) => form.classList.remove('active'));
+                    button.classList.add('active');
+                    button.setAttribute('aria-selected', 'true');
+                    document.getElementById(`${target}-form`)?.classList.add('active');
+                    // Clear errors when switching tabs
+                    document.querySelectorAll('.alert-error').forEach(el => el.remove());
+                });
+            });
+
+            // ── Password toggle ───────────────────────────────────────────────
+            document.querySelectorAll('.password-toggle').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const input = document.getElementById(button.dataset.passwordTarget || '');
+                    if (!input) return;
+                    const hidden = input.type === 'password';
+                    input.type = hidden ? 'text' : 'password';
+                    button.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+                });
+            });
+
+            // ── Show error helper ─────────────────────────────────────────────
+            function showError(form, message) {
+                form.querySelectorAll('.alert-error').forEach(el => el.remove());
+                const alert = document.createElement('div');
+                alert.className = 'alert-error';
+                alert.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4m0 4h.01"></path></svg>
+                    <span>${message}</span>`;
+                form.prepend(alert);
+            }
+
+            function setButtonLoading(btn, loading, originalHTML) {
+                btn.disabled = loading;
+                btn.innerHTML = loading
+                    ? '<span class="mini-loader"></span><span>Please wait...</span>'
+                    : originalHTML;
+            }
+
+            // ── Login form ────────────────────────────────────────────────────
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                const loginBtn = loginForm.querySelector('[data-auth-submit]');
+                const loginBtnHTML = loginBtn.innerHTML;
+
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    loginForm.querySelectorAll('.alert-error').forEach(el => el.remove());
+
+                    const email = loginForm.querySelector('#login-email').value.trim();
+                    const password = loginForm.querySelector('#login-password').value;
+
+                    if (!email || !password) {
+                        showError(loginForm, 'Please fill in all fields.');
+                        return;
+                    }
+
+                    setButtonLoading(loginBtn, true, loginBtnHTML);
+
+                    const { error } = await window.sb.auth.signInWithPassword({ email, password });
+
+                    if (error) {
+                        setButtonLoading(loginBtn, false, loginBtnHTML);
+                        const msg = error.message.includes('Invalid login')
+                            ? 'Invalid email or password.'
+                            : error.message;
+                        showError(loginForm, msg);
+                    } else {
+                        // auth.js onAuthStateChange will redirect to dashboard.html
+                        window.location.href = 'dashboard.html';
+                    }
+                });
+            }
+
+            // ── Register form ─────────────────────────────────────────────────
+            const registerForm = document.getElementById('register-form');
+            if (registerForm) {
+                const regBtn = registerForm.querySelector('[data-auth-submit]');
+                const regBtnHTML = regBtn.innerHTML;
+
+                registerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    registerForm.querySelectorAll('.alert-error').forEach(el => el.remove());
+
+                    const email = registerForm.querySelector('#register-email').value.trim();
+                    const password = registerForm.querySelector('#register-password').value;
+                    const confirm = registerForm.querySelector('#password-confirmation').value;
+
+                    if (!email || !password || !confirm) {
+                        showError(registerForm, 'Please fill in all fields.');
+                        return;
+                    }
+                    if (password.length < 8) {
+                        showError(registerForm, 'Password must be at least 8 characters.');
+                        return;
+                    }
+                    if (password !== confirm) {
+                        showError(registerForm, 'Passwords do not match.');
+                        return;
+                    }
+
+                    setButtonLoading(regBtn, true, regBtnHTML);
+
+                    const { error } = await window.sb.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            emailRedirectTo: window.location.origin + '/dashboard.html'
+                        }
+                    });
+
+                    if (error) {
+                        setButtonLoading(regBtn, false, regBtnHTML);
+                        showError(registerForm, error.message);
+                    } else {
+                        // Show success message
+                        registerForm.innerHTML = `
+                            <div style="text-align:center;padding:24px 0;">
+                                <svg style="width:52px;height:52px;color:#20e39a;margin-bottom:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                                <h3 style="margin:0 0 10px;color:#fff;font-size:18px">Check your email!</h3>
+                                <p style="color:#8f98bb;font-size:13px;line-height:1.6">
+                                    We sent a confirmation link to <strong style="color:#c8cafc">${email}</strong>.<br>
+                                    Click the link to activate your account.
+                                </p>
+                            </div>`;
+                    }
+                });
+            }
+
+        })();
+    </script>
+</body>
+</html>

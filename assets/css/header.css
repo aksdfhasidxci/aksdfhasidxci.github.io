@@ -1,0 +1,177 @@
+/*
+|--------------------------------------------------------------------------
+| SeedAim Header — exact isolated Dashboard copy
+|--------------------------------------------------------------------------
+| Source: dashboard (16).php
+| Classes are renamed only. Dimensions, spacing, colors and glow are preserved.
+|--------------------------------------------------------------------------
+*/
+
+.sdh-header,
+.sdh-header * {
+    box-sizing: border-box;
+}
+
+.sdh-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 52px;
+    margin: 0 0 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.sdh-header::before,
+.sdh-header::after {
+    display: none !important;
+    content: none !important;
+}
+
+.sdh-brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sdh-logo-wrap {
+    position: relative;
+    display: block;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    flex: 0 0 46px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.sdh-logo-wrap::before,
+.sdh-logo-wrap::after {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+.sdh-logo {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    object-fit: contain;
+    object-position: center;
+    filter:
+        drop-shadow(0 4px 7px rgba(124, 92, 255, .20))
+        drop-shadow(0 0 5px rgba(0, 200, 248, .14));
+}
+
+.sdh-copy {
+    min-width: 0;
+}
+
+.sdh-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sdh-title {
+    margin: 0;
+    color: #f8f9ff;
+    font-family:
+        "Satoshi",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    font-size: 21px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.55px;
+    text-shadow: 0 0 18px rgba(124, 92, 255, .18);
+    white-space: nowrap;
+}
+
+.sdh-version {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 20px;
+    padding: 4px 8px;
+
+    border: 1px solid rgba(124, 92, 255, .28);
+    border-radius: 999px;
+
+    background: rgba(124, 92, 255, .10);
+    color: #d4ccff;
+
+    font-family:
+        "Satoshi",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+
+    letter-spacing: .15px;
+    text-transform: none;
+}
+
+.sdh-tagline {
+    margin: 3px 0 0;
+    color: #8590ae;
+    font-family:
+        "Satoshi",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: .18px;
+    white-space: nowrap;
+}
+
+@media (max-width: 370px) {
+    .sdh-logo-wrap {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        flex-basis: 42px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sdh-header,
+    .sdh-header *,
+    .sdh-header *::before,
+    .sdh-header *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

@@ -1,0 +1,3287 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+
+    <meta name="theme-color" content="#060811">
+    <meta name="color-scheme" content="dark">
+
+    <meta name="description" content="SeedAim Cloud frequently asked questions and help center.">
+
+    <title>FAQ — SeedAim Cloud</title>
+
+    <link rel="stylesheet" href="assets/css/app.css">
+
+    <style>
+        /*
+        |------------------------------------------------------------------
+        | Page layout — inherited from Dashboard visual language
+        |------------------------------------------------------------------
+        */
+
+        .faq-app {
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-bottom: 112px;
+        }
+
+        .faq-app .topbar {
+            min-height: 48px;
+            margin-bottom: 14px;
+        }
+
+        .faq-app .brand-mark {
+            width: 43px;
+            height: 43px;
+            flex-basis: 43px;
+            border-radius: 13px;
+            font-size: 20px;
+        }
+
+        .faq-app .brand-name {
+            font-size: 20px;
+        }
+
+        .faq-app .brand-version {
+            min-height: 20px;
+            padding: 4px 7px;
+            font-size: 8px;
+        }
+
+        .faq-app .brand-tagline {
+            margin-top: 3px;
+            font-size: 10px;
+        }
+
+        /*
+        |------------------------------------------------------------------
+        | Intro card
+        |------------------------------------------------------------------
+        */
+
+        .faq-hero {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            padding: 18px 16px 16px;
+            border: 1px solid rgba(124, 92, 255, 0.18);
+            border-radius: 20px;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(0, 200, 248, 0.11),
+                    transparent 42%
+                ),
+                radial-gradient(
+                    circle at 0% 100%,
+                    rgba(124, 92, 255, 0.14),
+                    transparent 48%
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(17, 23, 39, 0.98),
+                    rgba(9, 13, 24, 0.99)
+                );
+            box-shadow:
+                0 12px 34px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.035);
+        }
+
+        .faq-hero::before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            top: -68px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(255, 255, 255, 0.045);
+            border-radius: 50%;
+        }
+
+        .faq-hero-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .faq-hero-icon {
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(124, 92, 255, 0.24);
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(124, 92, 255, 0.18),
+                    rgba(0, 200, 248, 0.06)
+                );
+            color: #a99aff;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.055),
+                0 8px 20px rgba(0, 0, 0, 0.16);
+        }
+
+        .faq-hero-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .faq-hero-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .faq-eyebrow {
+            margin: 1px 0 5px;
+            color: var(--text-muted);
+            font-size: 8px;
+            font-weight: 850;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .faq-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 23px;
+            font-weight: 900;
+            line-height: 1.12;
+            letter-spacing: -0.65px;
+        }
+
+        .faq-description {
+            margin: 7px 0 0;
+            color: var(--text-secondary);
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        /*
+        |------------------------------------------------------------------
+        | Search
+        |------------------------------------------------------------------
+        */
+
+        .faq-search {
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .faq-search-icon {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            width: 17px;
+            height: 17px;
+            color: var(--text-muted);
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .faq-search-input {
+            width: 100%;
+            min-height: 46px;
+            padding: 0 43px 0 40px;
+            border: 1px solid rgba(255, 255, 255, 0.085);
+            border-radius: 14px;
+            outline: none;
+            background: rgba(4, 7, 14, 0.52);
+            color: var(--text-primary);
+            font: inherit;
+            font-size: 11px;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.025);
+            transition:
+                border-color 180ms ease,
+                box-shadow 180ms ease,
+                background 180ms ease;
+        }
+
+        .faq-search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .faq-search-input:focus {
+            border-color: rgba(124, 92, 255, 0.48);
+            background: rgba(5, 8, 16, 0.75);
+            box-shadow:
+                0 0 0 3px rgba(124, 92, 255, 0.09),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .faq-search-clear {
+            position: absolute;
+            top: 50%;
+            right: 9px;
+            width: 28px;
+            height: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.045);
+            color: var(--text-muted);
+            cursor: pointer;
+            transform: translateY(-50%);
+        }
+
+        .faq-search-clear.visible {
+            display: flex;
+        }
+
+        .faq-search-clear svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /*
+        |------------------------------------------------------------------
+        | Category chips
+        |------------------------------------------------------------------
+        */
+
+        .faq-categories {
+            display: flex;
+            gap: 7px;
+            margin: 12px -2px 0;
+            padding: 2px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .faq-categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .faq-category-button {
+            min-height: 31px;
+            flex: 0 0 auto;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.025);
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 8px;
+            font-weight: 850;
+            line-height: 1;
+            cursor: pointer;
+            white-space: nowrap;
+            transition:
+                color 180ms ease,
+                border-color 180ms ease,
+                background 180ms ease,
+                box-shadow 180ms ease;
+        }
+
+        .faq-category-button.active {
+            border-color: rgba(124, 92, 255, 0.32);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(124, 92, 255, 0.17),
+                    rgba(0, 200, 248, 0.065)
+                );
+            color: #c7beff;
+            box-shadow:
+                0 6px 18px rgba(0, 0, 0, 0.13),
+                inset 0 1px 0 rgba(255, 255, 255, 0.035);
+        }
+
+        /*
+        |------------------------------------------------------------------
+        | FAQ sections
+        |------------------------------------------------------------------
+        */
+
+        .faq-content {
+            margin-top: 20px;
+        }
+
+        .faq-section {
+            margin-top: 20px;
+        }
+
+        .faq-section:first-child {
+            margin-top: 0;
+        }
+
+        .faq-section[hidden],
+        .faq-item[hidden] {
+            display: none !important;
+        }
+
+        .faq-section-header {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 9px;
+            padding: 0 2px;
+        }
+
+        .faq-section-icon {
+            width: 29px;
+            height: 29px;
+            flex: 0 0 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(124, 92, 255, 0.19);
+            border-radius: 10px;
+            background: rgba(124, 92, 255, 0.08);
+            color: #a99aff;
+        }
+
+        .faq-section-icon.cyan {
+            border-color: rgba(0, 200, 248, 0.18);
+            background: rgba(0, 200, 248, 0.07);
+            color: #63ddff;
+        }
+
+        .faq-section-icon.green {
+            border-color: rgba(39, 224, 163, 0.18);
+            background: rgba(39, 224, 163, 0.07);
+            color: var(--success);
+        }
+
+        .faq-section-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .faq-section-label {
+            margin: 0 0 2px;
+            color: var(--text-muted);
+            font-size: 7px;
+            font-weight: 850;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.65px;
+        }
+
+        .faq-section-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.2;
+            letter-spacing: -0.25px;
+        }
+
+        .faq-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .faq-item {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.075);
+            border-radius: 16px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(16, 22, 38, 0.98),
+                    rgba(8, 12, 22, 0.99)
+                );
+            box-shadow:
+                0 10px 28px rgba(0, 0, 0, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.025);
+            transition:
+                border-color 190ms ease,
+                box-shadow 190ms ease;
+        }
+
+        .faq-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, #7c5cff, #00c8f8);
+            opacity: 0;
+            transition: opacity 190ms ease;
+        }
+
+        .faq-item.open {
+            border-color: rgba(124, 92, 255, 0.2);
+            box-shadow:
+                0 12px 31px rgba(0, 0, 0, 0.2),
+                0 0 24px rgba(124, 92, 255, 0.045),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .faq-item.open::before {
+            opacity: 1;
+        }
+
+        .faq-question {
+            width: 100%;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 13px 13px 15px;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: var(--text-primary);
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .faq-question-text {
+            min-width: 0;
+            flex: 1;
+            font-size: 11px;
+            font-weight: 850;
+            line-height: 1.4;
+        }
+
+        .faq-toggle {
+            width: 29px;
+            height: 29px;
+            flex: 0 0 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(124, 92, 255, 0.17);
+            border-radius: 10px;
+            background: rgba(124, 92, 255, 0.075);
+            color: #a99aff;
+            transition:
+                transform 210ms ease,
+                color 180ms ease,
+                border-color 180ms ease,
+                background 180ms ease;
+        }
+
+        .faq-toggle svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 210ms ease;
+        }
+
+        .faq-item.open .faq-toggle {
+            border-color: rgba(0, 200, 248, 0.2);
+            background: rgba(0, 200, 248, 0.07);
+            color: #63ddff;
+        }
+
+        .faq-item.open .faq-toggle svg {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer-wrap {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 230ms ease;
+        }
+
+        .faq-item.open .faq-answer-wrap {
+            grid-template-rows: 1fr;
+        }
+
+        .faq-answer-inner {
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .faq-answer {
+            margin: 0 14px 0 15px;
+            padding: 0 0 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.055);
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .faq-answer p {
+            margin: 11px 0 0;
+        }
+
+        .faq-answer strong {
+            color: var(--text-primary);
+            font-weight: 850;
+        }
+
+        .faq-answer ul {
+            display: grid;
+            gap: 5px;
+            margin: 9px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .faq-answer li {
+            position: relative;
+            padding-left: 13px;
+        }
+
+        .faq-answer li::before {
+            content: "";
+            position: absolute;
+            top: 7px;
+            left: 1px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c5cff, #00c8f8);
+            box-shadow: 0 0 8px rgba(124, 92, 255, 0.35);
+        }
+
+        /*
+        |------------------------------------------------------------------
+        | Empty state and support card
+        |------------------------------------------------------------------
+        */
+
+        .faq-empty {
+            display: none;
+            margin-top: 14px;
+            padding: 24px 18px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.018);
+            text-align: center;
+        }
+
+        .faq-empty.visible {
+            display: block;
+        }
+
+        .faq-empty-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            border: 1px solid rgba(124, 92, 255, 0.2);
+            border-radius: 13px;
+            background: rgba(124, 92, 255, 0.08);
+            color: #a99aff;
+        }
+
+        .faq-empty-icon svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .faq-empty-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .faq-empty-text {
+            margin: 5px 0 0;
+            color: var(--text-muted);
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .faq-support {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            margin-top: 22px;
+            padding: 16px;
+            border: 1px solid rgba(0, 200, 248, 0.16);
+            border-radius: 18px;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(0, 200, 248, 0.095),
+                    transparent 46%
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(16, 22, 38, 0.98),
+                    rgba(8, 12, 22, 0.99)
+                );
+            box-shadow:
+                0 12px 32px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.028);
+        }
+
+        .faq-support-top {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .faq-support-icon {
+            width: 41px;
+            height: 41px;
+            flex: 0 0 41px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 200, 248, 0.21);
+            border-radius: 13px;
+            background: rgba(0, 200, 248, 0.075);
+            color: #63ddff;
+        }
+
+        .faq-support-icon svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .faq-support-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .faq-support-label {
+            margin: 0 0 3px;
+            color: var(--text-muted);
+            font-size: 7px;
+            font-weight: 850;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.65px;
+        }
+
+        .faq-support-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.25;
+        }
+
+        .faq-support-description {
+            margin: 9px 0 0;
+            color: var(--text-secondary);
+            font-size: 9px;
+            line-height: 1.55;
+        }
+
+        .faq-support-button {
+            width: 100%;
+            min-height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 13px;
+            padding: 10px 14px;
+            border: 1px solid rgba(124, 92, 255, 0.32);
+            border-radius: 13px;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(124, 92, 255, 0.92),
+                    rgba(101, 73, 239, 0.95)
+                );
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 900;
+            text-decoration: none;
+            box-shadow:
+                0 9px 24px rgba(83, 57, 211, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            transition:
+                transform 160ms ease,
+                box-shadow 160ms ease;
+        }
+
+        .faq-support-button:active {
+            transform: scale(0.985);
+            box-shadow:
+                0 5px 16px rgba(83, 57, 211, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .faq-support-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        @media (min-width: 520px) {
+            .faq-title {
+                font-size: 25px;
+            }
+
+            .faq-question-text {
+                font-size: 12px;
+            }
+
+            .faq-answer {
+                font-size: 10px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .faq-item,
+            .faq-toggle,
+            .faq-toggle svg,
+            .faq-answer-wrap,
+            .faq-search-input,
+            .faq-category-button,
+            .faq-support-button {
+                transition: none !important;
+            }
+        }
+    
+
+        /*
+        |------------------------------------------------------------------
+        | Header — exact clean Dashboard logo implementation
+        |------------------------------------------------------------------
+        */
+
+        .faq-app .topbar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: 52px;
+            margin: 0 0 18px;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .faq-app .topbar::before,
+        .faq-app .topbar::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        .faq-app .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .faq-app .brand-mark {
+            position: relative;
+            display: block;
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
+            flex: 0 0 46px;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(124, 92, 255, .45);
+            border-radius: 14px;
+            background: rgba(8, 12, 28, .78);
+            box-shadow:
+                0 10px 24px rgba(0, 0, 0, .32),
+                0 0 18px rgba(124, 92, 255, .22),
+                0 0 15px rgba(0, 200, 248, .12),
+                inset 0 1px 0 rgba(255, 255, 255, .08);
+        }
+
+        /* Remove the legacy CSS/SVG logo beneath the PNG completely. */
+        .faq-app .brand-mark::before,
+        .faq-app .brand-mark::after {
+            display: none !important;
+            content: none !important;
+            background: none !important;
+            box-shadow: none !important;
+        }
+
+        .faq-app .brand-mark > svg,
+        .faq-app .brand-mark > i,
+        .faq-app .brand-mark > span:not(.brand-logo-image) {
+            display: none !important;
+        }
+
+        .faq-app .brand-logo-image {
+            position: relative;
+            z-index: 2;
+            display: block;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            object-fit: cover;
+            object-position: center;
+            border: 0;
+            border-radius: inherit;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .faq-app .brand-text {
+            min-width: 0;
+        }
+
+        .faq-app .brand-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .faq-app .brand-name {
+            margin: 0;
+            color: #f8f9ff;
+            font-size: 21px;
+            line-height: 1.05;
+            letter-spacing: -.55px;
+            text-shadow: 0 0 18px rgba(124, 92, 255, .18);
+        }
+
+        .faq-app .brand-version {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 20px;
+            padding: 4px 7px;
+            color: #c9c1ff;
+            font-size: 8px;
+            line-height: 1;
+            border: 1px solid rgba(124, 92, 255, .28);
+            border-radius: 999px;
+            background: rgba(124, 92, 255, .10);
+        }
+
+        .faq-app .brand-tagline {
+            margin: 3px 0 0;
+            color: #8590ae;
+            font-size: 10px;
+            line-height: 1.25;
+            letter-spacing: .18px;
+        }
+
+    
+
+/* Header logo: no background, exact same subtle glow as Scanner */
+.faq-app .topbar .brand-mark,
+.faq-app .brand .brand-mark {
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter:
+        drop-shadow(0 0 3px rgba(123,97,255,.16))
+        drop-shadow(0 0 6px rgba(123,97,255,.10)) !important;
+}
+
+.faq-app .topbar .brand-mark::before,
+.faq-app .topbar .brand-mark::after,
+.faq-app .brand .brand-mark::before,
+.faq-app .brand .brand-mark::after {
+    content: none !important;
+    display: none !important;
+}
+
+.faq-app .topbar .brand-logo-image,
+.faq-app .brand .brand-logo-image {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter:
+        drop-shadow(0 2px 5px rgba(0,0,0,.18))
+        drop-shadow(0 0 4px rgba(123,97,255,.18)) !important;
+}
+
+</style>
+    
+
+<style id="faq-header-logo-final-fix">
+/* Loaded AFTER background-final.css so the FAQ logo glow is not overridden */
+.faq-app .topbar .brand-mark {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible !important;
+}
+
+.faq-app .topbar .brand-mark::before,
+.faq-app .topbar .brand-mark::after {
+    content: none !important;
+    display: none !important;
+}
+
+.faq-app .topbar .brand-logo-image {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    filter:
+        drop-shadow(0 3px 7px rgba(0, 0, 0, .26))
+        drop-shadow(0 0 7px rgba(123, 97, 255, .34))
+        drop-shadow(0 0 13px rgba(62, 168, 255, .16))
+        !important;
+}
+
+
+        /*
+        |------------------------------------------------------------------
+        | Support center modal
+        |------------------------------------------------------------------
+        */
+
+        .support-modal-overlay {
+            position: fixed;
+            z-index: 900;
+            inset: 0;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(2, 4, 9, 0.76);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .support-modal-overlay.open {
+            display: flex;
+        }
+
+        .support-modal {
+            width: min(100%, 470px);
+            max-height: min(88dvh, 760px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 24px;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(59, 130, 246, 0.13),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    160deg,
+                    rgba(16, 22, 37, 0.995),
+                    rgba(7, 11, 20, 0.995)
+                );
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.62),
+                0 0 44px rgba(124, 92, 255, 0.10),
+                inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        }
+
+        .support-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 17px 17px 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+        }
+
+        .support-modal-heading {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .support-modal-icon {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 13px;
+            background: rgba(124, 92, 255, 0.10);
+            color: #b8aaff;
+        }
+
+        .support-modal-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .support-modal-title {
+            margin: 0;
+            color: #f6f8fc;
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.35px;
+        }
+
+        .support-modal-subtitle {
+            margin: 4px 0 0;
+            color: #7d899d;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .support-modal-close {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #8f99aa;
+            cursor: pointer;
+        }
+
+        .support-modal-close svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .support-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 5px;
+            margin: 12px 16px 0;
+            padding: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.065);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .support-tab {
+            min-height: 40px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: transparent;
+            color: #7f8a9e;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .support-tab.active {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(124, 92, 255, 0.22),
+                    rgba(59, 130, 246, 0.09)
+                );
+            color: #f1efff;
+            box-shadow:
+                inset 0 0 0 1px rgba(139, 92, 246, 0.22);
+        }
+
+        .support-modal-body {
+            min-height: 0;
+            overflow-y: auto;
+            padding: 15px 16px 18px;
+        }
+
+        .support-panel {
+            display: none;
+        }
+
+        .support-panel.active {
+            display: block;
+        }
+
+        .support-alert {
+            margin-bottom: 12px;
+            padding: 11px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .support-alert.error {
+            border-color: rgba(255, 92, 124, 0.23);
+            background: rgba(255, 92, 124, 0.08);
+            color: #ff9eb1;
+        }
+
+        .support-alert.success {
+            border-color: rgba(39, 224, 163, 0.21);
+            background: rgba(39, 224, 163, 0.075);
+            color: #75ebc2;
+        }
+
+        .support-field {
+            margin-bottom: 13px;
+        }
+
+        .support-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #d7dce7;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .support-field input,
+        .support-field textarea {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            outline: none;
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #f3f5fa;
+            font-family: "Satoshi", sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition:
+                border-color 0.18s ease,
+                box-shadow 0.18s ease,
+                background 0.18s ease;
+        }
+
+        .support-field input {
+            height: 48px;
+            padding: 0 13px;
+        }
+
+        .support-field textarea {
+            min-height: 138px;
+            padding: 12px 13px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .support-field input:focus,
+        .support-field textarea:focus {
+            border-color: rgba(139, 92, 246, 0.45);
+            background: rgba(124, 92, 255, 0.045);
+            box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.09);
+        }
+
+        .support-field-note {
+            margin: 7px 0 0;
+            color: #667187;
+            font-size: 9px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .support-submit {
+            width: 100%;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 16px;
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #7c5cff,
+                    #5d72e8 55%,
+                    #3f9ee8
+                );
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow:
+                0 12px 28px rgba(92, 72, 220, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.19);
+        }
+
+        .support-submit svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .support-ticket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .support-empty-tickets {
+            padding: 28px 18px;
+            border: 1px dashed rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.018);
+            color: #7c879a;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .support-ticket {
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.022);
+        }
+
+        .support-ticket-summary {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 13px;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .support-ticket-copy {
+            min-width: 0;
+        }
+
+        .support-ticket-subject {
+            margin: 0;
+            overflow: hidden;
+            color: #e8ebf2;
+            font-size: 12px;
+            font-weight: 800;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .support-ticket-date {
+            margin: 4px 0 0;
+            color: #657084;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .support-ticket-meta {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .support-status {
+            min-height: 22px;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 7px;
+            border-radius: 999px;
+            font-size: 8px;
+            font-weight: 900;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .support-status.open {
+            background: rgba(59, 130, 246, 0.10);
+            color: #82b4ff;
+        }
+
+        .support-status.answered {
+            background: rgba(39, 224, 163, 0.10);
+            color: #67e4b7;
+        }
+
+        .support-status.closed {
+            background: rgba(255, 255, 255, 0.055);
+            color: #8c96a8;
+        }
+
+        .support-ticket-arrow {
+            width: 16px;
+            height: 16px;
+            color: #687489;
+            transition: transform 0.18s ease;
+        }
+
+        .support-ticket.open .support-ticket-arrow {
+            transform: rotate(180deg);
+        }
+
+        .support-thread {
+            display: none;
+            padding: 0 13px 13px;
+        }
+
+        .support-ticket.open .support-thread {
+            display: block;
+        }
+
+        .support-thread-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 11px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .support-message {
+            max-width: 88%;
+            padding: 9px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.48;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .support-message.user {
+            align-self: flex-end;
+            border: 1px solid rgba(139, 92, 246, 0.18);
+            border-bottom-right-radius: 4px;
+            background: rgba(124, 92, 255, 0.10);
+            color: #dad5ff;
+        }
+
+        .support-message.admin {
+            align-self: flex-start;
+            border: 1px solid rgba(39, 224, 163, 0.16);
+            border-bottom-left-radius: 4px;
+            background: rgba(39, 224, 163, 0.07);
+            color: #b8e9d7;
+        }
+
+        .support-message-author {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.45px;
+            opacity: 0.72;
+        }
+
+        .support-message-time {
+            display: block;
+            margin-top: 5px;
+            font-size: 8px;
+            font-weight: 600;
+            opacity: 0.52;
+        }
+
+        body.support-modal-open {
+            overflow: hidden;
+        }
+
+        @media (min-width: 481px) {
+            .support-modal-overlay {
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 370px) {
+            .support-modal-overlay {
+                padding: 10px;
+            }
+
+            .support-modal {
+                border-radius: 21px;
+            }
+
+            .support-modal-header {
+                padding: 14px 14px 12px;
+            }
+
+            .support-tabs {
+                margin-right: 13px;
+                margin-left: 13px;
+            }
+
+            .support-modal-body {
+                padding-right: 13px;
+                padding-left: 13px;
+            }
+        }
+
+
+
+        /*
+        |------------------------------------------------------------------
+        | Support messages — layout correction
+        |------------------------------------------------------------------
+        */
+
+        .support-thread,
+        .support-thread-inner,
+        .support-message,
+        .support-message * {
+            box-sizing: border-box;
+        }
+
+        .support-thread {
+            width: 100%;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .support-thread-inner {
+            width: 100%;
+            min-width: 0;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .support-message {
+            width: fit-content;
+            min-width: 118px;
+            max-width: min(86%, 340px);
+
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+
+            margin: 0;
+            padding: 10px 11px;
+
+            overflow: hidden;
+            border-radius: 14px;
+
+            font-family: "Satoshi", sans-serif;
+            text-align: left;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        .support-message.user {
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .support-message.admin {
+            align-self: flex-start;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .support-message-author {
+            width: 100%;
+            display: block;
+            margin: 0 0 5px;
+            padding: 0;
+
+            overflow: visible;
+
+            font-size: 8px;
+            font-weight: 900;
+            line-height: 1.2;
+            letter-spacing: 0.55px;
+            text-align: left;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+
+        .support-message-text {
+            width: 100%;
+            min-width: 0;
+            display: block;
+            margin: 0;
+            padding: 0;
+
+            color: inherit;
+
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.48;
+            text-align: left;
+
+            white-space: normal;
+            word-break: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .support-message-time {
+            width: 100%;
+            display: block;
+            margin: 7px 0 0;
+            padding: 0;
+
+            overflow: visible;
+
+            font-size: 8px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-align: right;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+
+        .support-message.admin .support-message-time {
+            text-align: left;
+        }
+
+        @media (max-width: 370px) {
+            .support-message {
+                min-width: 104px;
+                max-width: 91%;
+                padding: 9px 10px;
+            }
+
+            .support-message-text {
+                font-size: 11.5px;
+            }
+        }
+
+
+
+        /*
+        |------------------------------------------------------------------
+        | Support plan access
+        |------------------------------------------------------------------
+        */
+
+        .faq-support-button.is-locked {
+            border-color: rgba(255, 255, 255, 0.075);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.055),
+                    rgba(255, 255, 255, 0.025)
+                );
+            color: #7f899b;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.045);
+            cursor: pointer;
+        }
+
+        .faq-support-button.is-locked:active {
+            transform: none;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        }
+
+        .faq-support-plan-note {
+            max-height: 0;
+            margin: 0;
+            overflow: hidden;
+            color: #a99cff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.4;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-3px);
+            transition:
+                max-height 180ms ease,
+                margin-top 180ms ease,
+                opacity 180ms ease,
+                transform 180ms ease;
+        }
+
+        .faq-support-plan-note.visible {
+            max-height: 42px;
+            margin-top: 9px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+</style>
+
+
+    <link rel="stylesheet" href="assets/css/header.css">
+</head>
+
+<body class="seedaim-background">
+<div class="seedaim-bg" aria-hidden="true">
+  <div class="seedaim-bg__noise"></div>
+  <div class="seedaim-bg__grid"></div>
+  <div class="seedaim-bg__hex"></div>
+</div>
+
+    <main class="app faq-app">
+        <!-- Exact Dashboard header structure -->
+        
+<style id="sdh-support-action-styles">
+.sdh-header__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.sdh-support-action {
+    position: relative;
+    isolation: isolate;
+
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid rgba(139, 92, 246, .28);
+    border-radius: 13px;
+
+    background:
+        radial-gradient(
+            circle at 75% 20%,
+            rgba(96, 165, 250, .17),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(139, 92, 246, .16),
+            rgba(59, 130, 246, .07)
+        );
+
+    color: #c4b8ff;
+    text-decoration: none;
+
+    box-shadow:
+        0 9px 24px rgba(0, 0, 0, .20),
+        0 0 18px rgba(124, 92, 255, .09),
+        inset 0 1px 0 rgba(255, 255, 255, .075);
+
+    transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+
+    animation: sdhSupportFloat 3.2s ease-in-out infinite;
+}
+
+.sdh-support-action::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 5px;
+
+    border: 1px solid rgba(167, 139, 250, .18);
+    border-radius: 9px;
+
+    opacity: .72;
+}
+
+.sdh-support-action::after {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    inset: -5px;
+
+    border: 1px solid rgba(124, 92, 255, .16);
+    border-radius: 17px;
+
+    opacity: 0;
+    transform: scale(.86);
+
+    animation: sdhSupportPulse 3.2s ease-out infinite;
+}
+
+.sdh-support-action:hover {
+    transform: translateY(-1px);
+    border-color: rgba(167, 139, 250, .48);
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, .24),
+        0 0 22px rgba(124, 92, 255, .15),
+        inset 0 1px 0 rgba(255, 255, 255, .10);
+}
+
+.sdh-support-action:active {
+    transform: scale(.96);
+}
+
+.sdh-support-action svg {
+    width: 20px;
+    height: 20px;
+
+    filter:
+        drop-shadow(0 0 5px rgba(167, 139, 250, .24));
+}
+
+
+.sdh-support-action.is-locked {
+    border-color: rgba(255, 255, 255, .09);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, .055),
+            rgba(255, 255, 255, .025)
+        );
+    color: #7f899b;
+    box-shadow:
+        0 9px 22px rgba(0, 0, 0, .18),
+        inset 0 1px 0 rgba(255, 255, 255, .045);
+    animation: none;
+}
+
+.sdh-support-action.is-locked::after {
+    display: none;
+    animation: none;
+}
+
+.sdh-support-action.is-locked:hover {
+    transform: none;
+    border-color: rgba(255, 255, 255, .13);
+    box-shadow:
+        0 9px 22px rgba(0, 0, 0, .18),
+        inset 0 1px 0 rgba(255, 255, 255, .045);
+}
+
+.sdh-support-action.is-locked .sdh-support-action__dot {
+    display: none;
+}
+
+.sdh-support-access-note {
+    position: absolute;
+    z-index: 50;
+    top: calc(100% + 9px);
+    right: 0;
+
+    width: max-content;
+    max-width: min(260px, calc(100vw - 28px));
+
+    padding: 9px 11px;
+
+    border: 1px solid rgba(139, 92, 246, .22);
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 23, 38, .98),
+            rgba(8, 12, 22, .99)
+        );
+
+    color: #b9adff;
+
+    font-family:
+        "Satoshi",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, .36),
+        0 0 20px rgba(124, 92, 255, .09);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+
+    transition:
+        opacity 170ms ease,
+        visibility 170ms ease,
+        transform 170ms ease;
+}
+
+.sdh-support-access-note.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.sdh-support-action__dot {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+
+    width: 6px;
+    height: 6px;
+
+    border: 1px solid rgba(255, 255, 255, .48);
+    border-radius: 50%;
+
+    background: #61e8b2;
+
+    box-shadow:
+        0 0 0 3px rgba(97, 232, 178, .08),
+        0 0 8px rgba(97, 232, 178, .42);
+}
+
+@keyframes sdhSupportFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-1.5px);
+    }
+}
+
+@keyframes sdhSupportPulse {
+    0%,
+    48% {
+        opacity: 0;
+        transform: scale(.88);
+    }
+
+    66% {
+        opacity: .48;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.12);
+    }
+}
+
+@media (max-width: 390px) {
+    .sdh-support-action {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+        border-radius: 12px;
+    }
+
+    .sdh-support-action svg {
+        width: 19px;
+        height: 19px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sdh-support-action,
+    .sdh-support-action::after {
+        animation: none !important;
+    }
+}
+</style>
+
+<header class="sdh-header">
+    <div class="sdh-brand">
+        <div class="sdh-logo-wrap" aria-hidden="true">
+            <img src="img/l18.png" alt="" class="sdh-logo">
+        </div>
+
+        <div class="sdh-copy">
+            <div class="sdh-title-row">
+                <p class="sdh-title">SeedAim</p>
+                <span class="sdh-version">Cloud</span>
+            </div>
+
+            <p class="sdh-tagline">
+                New Era of Crypto Mining
+            </p>
+        </div>
+    </div>
+
+    <div class="sdh-header__actions">
+                    <button class="sdh-support-action is-locked" type="button" id="sdh-support-locked-button" aria-label="Support access information" aria-describedby="sdh-support-access-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                    <path d="M8 9h8"></path>
+                    <path d="M8 13h5"></path>
+                </svg>
+            </button>
+
+            <div class="sdh-support-access-note" id="sdh-support-access-note" role="status" aria-live="polite">
+                Support is available to users of paid plans.
+            </div>
+            </div>
+</header>
+
+<script>
+(() => {
+    const button = document.getElementById('sdh-support-locked-button');
+    const note = document.getElementById('sdh-support-access-note');
+
+    if (!button || !note) {
+        return;
+    }
+
+    let hideTimer = null;
+
+    button.addEventListener('click', () => {
+        note.classList.add('is-visible');
+
+        if (hideTimer) {
+            window.clearTimeout(hideTimer);
+        }
+
+        hideTimer = window.setTimeout(() => {
+            note.classList.remove('is-visible');
+        }, 4500);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (
+            event.target !== button &&
+            !button.contains(event.target) &&
+            !note.contains(event.target)
+        ) {
+            note.classList.remove('is-visible');
+        }
+    });
+})();
+</script>
+
+
+        <section class="faq-hero" aria-labelledby="faq-page-title">
+            <div class="faq-hero-top">
+                <div class="faq-hero-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.1 9a3 3 0 1 1 5.83 1c0 2-3 2-3 4"></path>
+                        <path d="M12 18h.01"></path>
+                    </svg>
+                </div>
+
+                <div class="faq-hero-copy">
+                    <p class="faq-eyebrow">Help Center</p>
+
+                    <h1 class="faq-title" id="faq-page-title">
+                        Frequently Asked Questions
+                    </h1>
+
+                    <p class="faq-description">
+                        Clear answers about SeedAim, subscriptions,
+                        scanner operation, security and billing.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-search">
+                <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+
+                <input class="faq-search-input" id="faq-search-input" type="search" placeholder="Search questions..." autocomplete="off" aria-label="Search frequently asked questions">
+
+                <button class="faq-search-clear" id="faq-search-clear" type="button" aria-label="Clear search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="faq-categories" aria-label="FAQ categories">
+                <button class="faq-category-button active" type="button" data-category="all" aria-pressed="true">
+                    All questions
+                </button>
+
+                <button class="faq-category-button" type="button" data-category="general" aria-pressed="false">
+                    Getting started
+                </button>
+
+                <button class="faq-category-button" type="button" data-category="scanner" aria-pressed="false">
+                    Scanner
+                </button>
+
+                <button class="faq-category-button" type="button" data-category="plans" aria-pressed="false">
+                    Plans
+                </button>
+
+                <button class="faq-category-button" type="button" data-category="security" aria-pressed="false">
+                    Security
+                </button>
+
+                <button class="faq-category-button" type="button" data-category="billing" aria-pressed="false">
+                    Billing
+                </button>
+            </nav>
+        </section>
+
+        <div class="faq-content" id="faq-content">
+            <section class="faq-section" data-section="general">
+                <div class="faq-section-header">
+                    <div class="faq-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2 2 7l10 5 10-5-10-5Z"></path>
+                            <path d="m2 17 10 5 10-5"></path>
+                            <path d="m2 12 10 5 10-5"></path>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="faq-section-label">Basics</p>
+                        <h2 class="faq-section-title">Getting Started</h2>
+                    </div>
+                </div>
+
+                <div class="faq-list">
+                    <article class="faq-item" data-category="general">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                What is SeedAim Cloud?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+SeedAim Cloud is a professional cloud-based platform for authorized cryptocurrency wallet recovery and blockchain research. It continuously generates and validates BIP39 recovery phrase combinations on remote infrastructure, then checks the corresponding wallet addresses across supported blockchain networks.
+</p>
+<p>
+Because the processing happens in the cloud, your phone or computer is used only to control the scanner and review results — it does not perform the heavy scanning workload itself.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="general">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                How do I start scanning with SeedAim Cloud?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>Getting started takes only a few steps:</p>
+<ul>
+<li>Create your SeedAim Cloud account.</li>
+<li>Select the plan that matches the scan speed you need.</li>
+<li>Open the Scanner page and start a cloud scan.</li>
+<li>Monitor processed phrases, discovered addresses and scan activity from your Dashboard.</li>
+</ul>
+<p>Once the scan is running, you can leave the page — cloud processing continues independently while your subscription remains active.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="general">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Do I need to keep my phone or computer online?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+No. SeedAim Cloud performs the scanning on remote servers, not on your device. After you start a scan, you can close the browser, lock your phone or turn your computer off and return later to check the latest progress.
+</p>
+<p>
+This avoids constant CPU load, battery drain and device overheating while allowing the scanner to keep working continuously in the cloud.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="faq-section" data-section="scanner">
+                <div class="faq-section-header">
+                    <div class="faq-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 7V4h3"></path>
+                            <path d="M17 4h3v3"></path>
+                            <path d="M20 17v3h-3"></path>
+                            <path d="M7 20H4v-3"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="faq-section-label">Operation</p>
+                        <h2 class="faq-section-title">Scanner</h2>
+                    </div>
+                </div>
+
+                <div class="faq-list">
+                    <article class="faq-item" data-category="scanner">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                How does the SeedAim Cloud scanner work?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+The scanner continuously creates BIP39 recovery phrase combinations, derives the corresponding wallet addresses and validates them against supported blockchain data. Processing is handled by SeedAim Cloud infrastructure and synchronized with your account in real time.
+</p>
+<p>
+Your Dashboard shows the amount of processed data, discovered wallet records and the current state of the active scan.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="scanner">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Does scanning continue after I close SeedAim Cloud?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Yes. The browser is only your control panel. Once a scan has started, the actual workload continues on SeedAim Cloud servers even if the page is closed or your device goes offline.
+</p>
+<p>
+You can return later from the same or another device and continue monitoring the scan from your account.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="scanner">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                What happens when my plan expires?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+When there is no active plan, cloud scanning stops automatically. Your account, previously processed statistics and saved scan records remain available in the platform.
+</p>
+<p>
+After activating a new plan, you can start cloud processing again without needing to keep your device running in the background.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="scanner">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                How fast does SeedAim Cloud scan?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>Cloud scan speed is determined by your active plan:</p>
+<ul>
+<li><strong>Starter — 30,000 addresses/min</strong></li>
+<li><strong>Pro — 100,000 addresses/min</strong></li>
+<li><strong>Ultra — 350,000 addresses/min</strong></li>
+</ul>
+<p>
+A higher plan increases the number of addresses processed every minute, giving you significantly greater search coverage over the same period.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="faq-section" data-section="plans">
+                <div class="faq-section-header">
+                    <div class="faq-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Z"></path>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="faq-section-label">Access</p>
+                        <h2 class="faq-section-title">Plans &amp; Upgrades</h2>
+                    </div>
+                </div>
+
+                <div class="faq-list">
+                    <article class="faq-item" data-category="plans">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                What is included in a SeedAim Cloud plan?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Every active plan provides access to cloud-based scanning, automatic address derivation and validation, real-time progress statistics, saved scan records and the scan speed assigned to the selected tier.
+</p>
+<p>
+When a wallet record with a positive detected balance is identified, SeedAim Cloud stores the result together with its wallet information and the corresponding generated recovery phrase for authorized recovery or research workflows.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="plans">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Can I increase my scan speed later?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Yes. You can move to a higher SeedAim Cloud tier whenever a faster processing rate is required. Starter processes up to 30,000 addresses per minute, Pro up to 100,000 and Ultra up to 350,000.
+</p>
+<p>
+Upgrading increases cloud processing capacity without adding any workload to your phone or computer.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="plans">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Does my SeedAim Cloud plan renew automatically?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+SeedAim Cloud plans are activated for the period shown at checkout. Unless the payment flow explicitly states that recurring billing is enabled, a plan does not renew automatically.
+</p>
+<p>
+You can always review your current plan and its expiration status from your account before making another payment.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="faq-section" data-section="security">
+                <div class="faq-section-header">
+                    <div class="faq-section-icon green" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="faq-section-label">Protection</p>
+                        <h2 class="faq-section-title">Security &amp; Privacy</h2>
+                    </div>
+                </div>
+
+                <div class="faq-list">
+                    <article class="faq-item" data-category="security">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                How is my SeedAim Cloud account protected?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Account access is protected through authenticated sessions and server-side security controls. SeedAim Cloud separates account access from your personal cryptocurrency wallets and does not require you to connect a wallet simply to operate the scanner.
+</p>
+<p>
+For additional protection, use a unique password and never share your account credentials with anyone.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="security">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Will SeedAim Cloud ever ask for my personal recovery phrase?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+No. You should never enter the recovery phrase, private key or password of your personal wallet into SeedAim Cloud support forms or send it to another person.
+</p>
+<p>
+The platform generates recovery phrase combinations as part of its own scanning workflow; it does not need the secret phrase of a wallet you already control in order to run a cloud scan.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="security">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Is it safe for my device and my privacy?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+The app works as an isolated calculation engine. It doesn’t require any dangerous permissions, doesn't access your contacts, photos, or personal files. 
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="faq-section" data-section="billing">
+                <div class="faq-section-header">
+                    <div class="faq-section-icon cyan" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                            <path d="M2 10h20"></path>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="faq-section-label">Payments</p>
+                        <h2 class="faq-section-title">Billing</h2>
+                    </div>
+                </div>
+
+                <div class="faq-list">
+                    <article class="faq-item" data-category="billing">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Which payment methods can I use?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Available payment methods are displayed directly on the checkout screen when you activate a SeedAim Cloud plan. The exact cryptocurrency networks and payment options may depend on the current billing configuration.
+</p>
+<p>
+Always use the address, network and amount shown in your active payment request to avoid delays in plan activation.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="billing">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                How quickly is a plan activated after payment?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Activation begins after the payment receives the required blockchain confirmation and is detected by the billing system. Confirmation time depends on the selected cryptocurrency, network conditions and the network used for payment.
+</p>
+<p>
+Once confirmed, the plan status is updated in your SeedAim Cloud account automatically.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="billing">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                I paid, but my plan is still inactive. What should I do?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+First, verify that the transaction was sent to the exact address and network shown on the payment page and that it has been confirmed on-chain.
+</p>
+<p>
+If the transaction is confirmed but your plan is still inactive, please wait. All incoming payments are checked, and if you haven't received access automatically, it will appear within a few hours.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="billing">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Can a completed cryptocurrency payment be reversed?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+Confirmed cryptocurrency transactions are normally irreversible at the blockchain level. SeedAim Cloud cannot cancel or pull back a transaction after it has been broadcast and confirmed.
+</p>
+<p>
+Before sending payment, carefully verify the selected network, destination address and amount shown on the checkout page.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+            
+            
+        </div>
+        
+        
+        <section class="faq-section" data-section="billing">
+                <div class="faq-section-header">
+                    <div class="faq-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <g transform="translate(-0.8,-1.2) scale(1.12)">
+                            <path d="M9 3h6l-1 4h-4L9 3Z"></path>
+                            <path d="M10 7c-3 2-5 5.2-5 8.5A5.5 5.5 0 0 0 10.5 21h3A5.5 5.5 0 0 0 19 15.5C19 12.2 17 9 14 7"></path>
+                            <path d="M12 10v8"></path>
+                            <path d="M14.5 12h-3a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-3"></path>
+                        
+                            </g>
+                        </svg>
+                    </div>
+        <div>
+                        <p class="faq-section-label">Payments</p>
+                        <h2 class="faq-section-title">Withdrawal</h2>
+                    </div>
+                </div>
+
+                <div class="faq-list">
+                    <article class="faq-item" data-category="billing">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                How to withdraw funds?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+After the program found Seed-phrase with the balance, use any cryptocurrency wallet application, restore the account by the found Seed-phrase (MetaMask, Trust, C98, and others).
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="faq-item" data-category="billing">
+                        <button class="faq-question" type="button" aria-expanded="false">
+                            <span class="faq-question-text">
+                                Are there any additional (hidden) fees?
+                            </span>
+
+                            <span class="faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="faq-answer-wrap">
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer">
+<p>
+The short answer is NO.
+SeedAim doesn't charge any additional fees to withdraw the balances you find. You only pay once when you purchase a plan. All balances you find belong to YOU, and you can do with them as you wish.
+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    
+                </div>
+            </section>
+            
+            
+        
+
+        <div class="faq-empty" id="faq-empty" role="status">
+            <div class="faq-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+            </div>
+
+            <h2 class="faq-empty-title">No questions found</h2>
+
+            <p class="faq-empty-text">
+                Try another keyword or select a different category.
+            </p>
+        </div>
+
+        <section class="faq-support">
+            <div class="faq-support-top">
+                <div class="faq-support-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                        <path d="M8 9h8"></path>
+                        <path d="M8 13h5"></path>
+                    </svg>
+                </div>
+
+                <div class="faq-support-copy">
+                    <p class="faq-support-label">Support</p>
+                    <h2 class="faq-support-title">Still need help?</h2>
+                </div>
+            </div>
+
+            <p class="faq-support-description">
+                If you cannot find the answer above, contact the SeedAim
+                support team and include as much relevant information as possible.
+            </p>
+            <button class="faq-support-button is-locked" type="button" id="support-open-button" data-support-allowed="0" aria-disabled="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                                    </svg>
+
+                Support locked            </button>
+
+            <p class="faq-support-plan-note" id="support-plan-note" aria-live="polite">
+                Support is available with the Pro plan or higher.
+            </p>
+        </section>
+    </main>
+
+
+    <div class="support-modal-overlay " id="support-modal-overlay" aria-hidden="true">
+        <section class="support-modal" role="dialog" aria-modal="true" aria-labelledby="support-modal-title">
+            <div class="support-modal-header">
+                <div class="support-modal-heading">
+                    <div class="support-modal-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                            <path d="M8 9h8"></path>
+                            <path d="M8 13h5"></path>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="support-modal-title" id="support-modal-title">
+                            Support Center
+                        </h2>
+
+                        <p class="support-modal-subtitle">
+                            Messages and replies in one place
+                        </p>
+                    </div>
+                </div>
+
+                <button class="support-modal-close" type="button" id="support-modal-close" aria-label="Close support">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="support-tabs" role="tablist">
+                <button class="support-tab active" type="button" data-support-tab="new" role="tab">
+                    New message
+                </button>
+
+                <button class="support-tab " type="button" data-support-tab="messages" role="tab">
+                    My messages
+                                    </button>
+            </div>
+
+            <div class="support-modal-body">
+                <div class="support-panel active" data-support-panel="new">
+                    
+                    <form method="POST" action="faq.php">
+                        <input type="hidden" name="support_action" value="create_ticket">
+
+                        <input type="hidden" name="support_csrf_token" value="b9d383768e9cfde1de481d0715a2223b387c66b6b79deef0108234db924401b9">
+
+                        <div class="support-field">
+                            <label for="support-subject">Subject</label>
+
+                            <input id="support-subject" name="support_subject" type="text" maxlength="160" value="" placeholder="What do you need help with?" required="">
+                        </div>
+
+                        <div class="support-field">
+                            <label for="support-message">Message</label>
+
+                            <textarea id="support-message" name="support_message" maxlength="5000" placeholder="Describe the issue and include relevant details..." required=""></textarea>
+
+                            <p class="support-field-note">
+                                Never send wallet recovery phrases, private keys or passwords.
+                                One message can be sent every 5 minutes.
+                            </p>
+                        </div>
+
+                        <button class="support-submit" type="submit">
+                            Send message
+
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m22 2-7 20-4-9-9-4Z"></path>
+                                <path d="M22 2 11 13"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="support-panel " data-support-panel="messages">
+                    
+                                            <div class="support-empty-tickets">
+                            You have not contacted support yet. Open the
+                            “New message” tab to create your first request.
+                        </div>
+                                    </div>
+            </div>
+        </section>
+    </div>
+
+    
+<style>
+    .bottom-navigation-wrapper {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+        pointer-events: none;
+    }
+
+    .bottom-navigation {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        width: min(100%, 560px);
+        min-height: 76px;
+        margin: 0 auto;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(18, 21, 34, 0.97), rgba(10, 12, 22, 0.98)),
+            rgba(11, 13, 23, 0.98);
+        box-shadow:
+            0 -1px 0 rgba(124, 92, 255, 0.16),
+            0 12px 34px rgba(0, 0, 0, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+        pointer-events: auto;
+    }
+
+    .bottom-navigation::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 14%;
+        right: 14%;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(124, 92, 255, 0.78),
+            rgba(0, 200, 248, 0.7),
+            transparent
+        );
+        opacity: 0.75;
+        pointer-events: none;
+    }
+
+    .navigation-item {
+        position: relative;
+        display: flex;
+        min-width: 0;
+        min-height: 60px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+        padding: 8px 4px 7px;
+        border-radius: 18px;
+        color: rgba(186, 192, 214, 0.72);
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+            color 0.16s ease,
+            background-color 0.16s ease,
+            border-color 0.16s ease;
+    }
+
+    .navigation-item::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border: 1px solid transparent;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .navigation-item:active {
+        background: rgba(255, 255, 255, 0.035);
+    }
+
+    .navigation-item.active {
+        color: #ffffff;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(124, 92, 255, 0.2), transparent 68%),
+            linear-gradient(180deg, rgba(124, 92, 255, 0.13), rgba(0, 200, 248, 0.055));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 7px 18px rgba(0, 0, 0, 0.2),
+            0 0 18px rgba(124, 92, 255, 0.12);
+    }
+
+    .navigation-item.active::before {
+        border-color: rgba(145, 122, 255, 0.28);
+    }
+
+    .navigation-icon-wrap {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        color: inherit;
+    }
+
+    .navigation-item.active .navigation-icon-wrap {
+        background: linear-gradient(145deg, rgba(124, 92, 255, 0.24), rgba(0, 200, 248, 0.1));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .navigation-icon {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 auto;
+    }
+
+    .navigation-label {
+        max-width: 100%;
+        overflow: hidden;
+        color: inherit;
+        font-size: 10.5px;
+        font-weight: 650;
+        line-height: 1.15;
+        letter-spacing: 0.01em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .navigation-item.active .navigation-label {
+        background: linear-gradient(90deg, #ffffff, #d8eaff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    @media (min-width: 480px) {
+        .bottom-navigation-wrapper {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .bottom-navigation {
+            min-height: 80px;
+        }
+
+        .navigation-item {
+            min-height: 64px;
+        }
+
+        .navigation-label {
+            font-size: 11px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .navigation-item {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="bottom-navigation-wrapper">
+    <nav class="bottom-navigation" aria-label="Main navigation">
+        <a class="navigation-item " href="dashboard.html">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                </svg>
+            </span>
+            <span class="navigation-label">Dashboard</span>
+        </a>
+
+        <a class="navigation-item " href="scanner.html">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                    <path d="M7 12h10"></path>
+                </svg>
+            </span>
+            <span class="navigation-label">Scanner</span>
+        </a>
+
+        <a class="navigation-item " href="upgrade.html">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3 4.5 8.25 12 21l7.5-12.75L12 3Z"></path>
+                    <path d="m4.5 8.25 7.5 3.5 7.5-3.5"></path>
+                    <path d="M12 21v-9.25"></path>
+                </svg>
+            </span>
+            <span class="navigation-label">Upgrade</span>
+        </a>
+
+        <a class="navigation-item active" href="faq.html" aria-current="page">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M9.75 9a2.35 2.35 0 1 1 3.84 1.82c-.96.73-1.59 1.13-1.59 2.43"></path>
+                    <path d="M12 17h.01"></path>
+                </svg>
+            </span>
+            <span class="navigation-label">FAQ</span>
+        </a>
+    </nav>
+</div>
+
+    <script>
+        (() => {
+            'use strict';
+
+            const searchInput = document.getElementById('faq-search-input');
+            const clearButton = document.getElementById('faq-search-clear');
+            const categoryButtons = Array.from(
+                document.querySelectorAll('.faq-category-button')
+            );
+            const sections = Array.from(
+                document.querySelectorAll('.faq-section')
+            );
+            const items = Array.from(
+                document.querySelectorAll('.faq-item')
+            );
+            const emptyState = document.getElementById('faq-empty');
+
+            let activeCategory = 'all';
+
+            const closeItem = (item) => {
+                item.classList.remove('open');
+
+                const button = item.querySelector('.faq-question');
+
+                if (button) {
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            };
+
+            const openItem = (item) => {
+                item.classList.add('open');
+
+                const button = item.querySelector('.faq-question');
+
+                if (button) {
+                    button.setAttribute('aria-expanded', 'true');
+                }
+            };
+
+            items.forEach((item) => {
+                const button = item.querySelector('.faq-question');
+
+                if (!button) {
+                    return;
+                }
+
+                button.addEventListener('click', () => {
+                    const isOpen = item.classList.contains('open');
+
+                    items.forEach((otherItem) => {
+                        if (otherItem !== item) {
+                            closeItem(otherItem);
+                        }
+                    });
+
+                    if (isOpen) {
+                        closeItem(item);
+                    } else {
+                        openItem(item);
+                    }
+                });
+            });
+
+            const applyFilters = () => {
+                const query = searchInput.value
+                    .trim()
+                    .toLocaleLowerCase();
+
+                let visibleCount = 0;
+
+                clearButton.classList.toggle(
+                    'visible',
+                    query.length > 0
+                );
+
+                items.forEach((item) => {
+                    const itemCategory = item.dataset.category || '';
+                    const content = item.textContent
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .toLocaleLowerCase();
+
+                    const categoryMatches =
+                        activeCategory === 'all' ||
+                        itemCategory === activeCategory;
+
+                    const searchMatches =
+                        query === '' || content.includes(query);
+
+                    const visible = categoryMatches && searchMatches;
+
+                    item.hidden = !visible;
+
+                    if (visible) {
+                        visibleCount += 1;
+                    } else {
+                        closeItem(item);
+                    }
+                });
+
+                sections.forEach((section) => {
+                    const hasVisibleItems = Array.from(
+                        section.querySelectorAll('.faq-item')
+                    ).some((item) => !item.hidden);
+
+                    section.hidden = !hasVisibleItems;
+                });
+
+                emptyState.classList.toggle(
+                    'visible',
+                    visibleCount === 0
+                );
+            };
+
+            categoryButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    activeCategory = button.dataset.category || 'all';
+
+                    categoryButtons.forEach((otherButton) => {
+                        const isActive = otherButton === button;
+
+                        otherButton.classList.toggle('active', isActive);
+                        otherButton.setAttribute(
+                            'aria-pressed',
+                            isActive ? 'true' : 'false'
+                        );
+                    });
+
+                    applyFilters();
+                });
+            });
+
+            searchInput.addEventListener('input', applyFilters);
+
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                searchInput.focus();
+                applyFilters();
+            });
+
+
+
+            const supportOverlay =
+                document.getElementById('support-modal-overlay');
+            const supportOpenButton =
+                document.getElementById('support-open-button');
+            const supportCloseButton =
+                document.getElementById('support-modal-close');
+            const supportTabs = Array.from(
+                document.querySelectorAll('[data-support-tab]')
+            );
+            const supportPanels = Array.from(
+                document.querySelectorAll('[data-support-panel]')
+            );
+
+            const setSupportTab = (tabName) => {
+                supportTabs.forEach((tab) => {
+                    tab.classList.toggle(
+                        'active',
+                        tab.dataset.supportTab === tabName
+                    );
+                });
+
+                supportPanels.forEach((panel) => {
+                    panel.classList.toggle(
+                        'active',
+                        panel.dataset.supportPanel === tabName
+                    );
+                });
+            };
+
+            const openSupportModal = () => {
+                supportOverlay.classList.add('open');
+                supportOverlay.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('support-modal-open');
+            };
+
+            const closeSupportModal = () => {
+                supportOverlay.classList.remove('open');
+                supportOverlay.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('support-modal-open');
+            };
+
+            const supportPlanNote =
+                document.getElementById('support-plan-note');
+            let supportPlanNoteTimer = null;
+
+            if (supportOpenButton) {
+                supportOpenButton.addEventListener('click', () => {
+                    const supportAllowed =
+                        supportOpenButton.dataset.supportAllowed === '1';
+
+                    if (supportAllowed) {
+                        openSupportModal();
+                        return;
+                    }
+
+                    if (!supportPlanNote) {
+                        return;
+                    }
+
+                    supportPlanNote.classList.add('visible');
+
+                    if (supportPlanNoteTimer) {
+                        window.clearTimeout(supportPlanNoteTimer);
+                    }
+
+                    supportPlanNoteTimer = window.setTimeout(() => {
+                        supportPlanNote.classList.remove('visible');
+                    }, 4500);
+                });
+            }
+
+            if (supportCloseButton) {
+                supportCloseButton.addEventListener(
+                    'click',
+                    closeSupportModal
+                );
+            }
+
+            supportTabs.forEach((tab) => {
+                tab.addEventListener('click', () => {
+                    setSupportTab(tab.dataset.supportTab || 'new');
+                });
+            });
+
+            document.querySelectorAll(
+                '.support-ticket-summary'
+            ).forEach((ticketButton) => {
+                ticketButton.addEventListener('click', () => {
+                    const ticket =
+                        ticketButton.closest('.support-ticket');
+
+                    if (!ticket) {
+                        return;
+                    }
+
+                    const isOpen = ticket.classList.toggle('open');
+
+                    ticketButton.setAttribute(
+                        'aria-expanded',
+                        isOpen ? 'true' : 'false'
+                    );
+                });
+            });
+
+            supportOverlay.addEventListener('click', (event) => {
+                if (event.target === supportOverlay) {
+                    closeSupportModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (
+                    event.key === 'Escape' &&
+                    supportOverlay.classList.contains('open')
+                ) {
+                    closeSupportModal();
+                }
+            });
+
+            if (supportOverlay.classList.contains('open')) {
+                document.body.classList.add('support-modal-open');
+            }
+
+            categoryButtons.forEach((button, index) => {
+                button.setAttribute(
+                    'aria-pressed',
+                    index === 0 ? 'true' : 'false'
+                );
+            });
+        })();
+    </script>
+
+
+</body></html>

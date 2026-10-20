@@ -1,0 +1,4762 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+
+    <meta name="theme-color" content="#060811">
+
+    <meta name="color-scheme" content="dark">
+
+    <meta name="description" content="SeedAim Cloud account dashboard.">
+
+    <title>Dashboard — SeedAim Cloud</title>
+
+    <link rel="stylesheet" href="assets/css/app.css">
+<style id="sd-dashboard-full-redesign">
+.sd-dashboard,
+.sd-dashboard * {
+    box-sizing: border-box;
+}
+
+.sd-dashboard {
+    --sd-bg: #080c13;
+    --sd-card: #0f1621;
+    --sd-card-deep: #090e16;
+    --sd-line: rgba(255,255,255,.075);
+    --sd-text: #f7f9fc;
+    --sd-muted: #7b8799;
+    --sd-cyan: 34,211,238;
+    --sd-blue: 59,130,246;
+    --sd-violet: 139,92,246;
+    --sd-pink: 236,72,153;
+    --sd-mint: 95,255,197;
+    --sd-gold: 245,196,81;
+
+    width: min(100%, 780px);
+    margin: 0 auto;
+    padding:
+        max(18px, env(safe-area-inset-top))
+        14px
+        calc(104px + env(safe-area-inset-bottom));
+
+    color: var(--sd-text);
+    font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.sd-dashboard :where(h1,h2,h3,p,small,strong,span) {
+    margin-top: 0;
+}
+
+.sd-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.sd-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.sd-brand-logo {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(var(--sd-cyan),.18);
+    border-radius: 14px;
+    background: linear-gradient(145deg,rgba(var(--sd-cyan),.09),rgba(var(--sd-violet),.06));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.sd-brand-logo img {
+    width: 29px;
+    height: 29px;
+    object-fit: contain;
+}
+
+.sd-brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sd-brand-name-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.sd-brand-name-row strong {
+    font-family: "Satoshi Black","Satoshi",sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -.45px;
+}
+
+.sd-brand-name-row span {
+    padding: 4px 6px;
+    border: 1px solid rgba(var(--sd-violet),.2);
+    border-radius: 999px;
+    background: rgba(var(--sd-violet),.055);
+    color: #c7b8ff;
+    font-size: 7px;
+    font-weight: 850;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: .55px;
+}
+
+.sd-brand-copy small {
+    color: #667386;
+    font-size: 8px;
+    font-weight: 650;
+}
+
+.sd-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 18px;
+    border: 1px solid rgba(var(--sd-cyan),.17);
+    border-radius: 22px;
+    background:
+        radial-gradient(80% 110% at 100% 0%,rgba(var(--sd-cyan),.11),transparent 62%),
+        radial-gradient(55% 85% at 0% 100%,rgba(var(--sd-blue),.065),transparent 68%),
+        linear-gradient(145deg,#111925,#090e16);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.04),
+        0 20px 54px rgba(0,0,0,.32);
+}
+
+.sd-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 22px;
+    left: 22px;
+    height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(var(--sd-cyan),.55),transparent);
+}
+
+.sd-hero-main {
+    display: grid;
+    grid-template-columns: 48px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.sd-user-avatar {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(var(--sd-cyan),.22);
+    border-radius: 15px;
+    background: linear-gradient(145deg,rgba(var(--sd-cyan),.13),rgba(var(--sd-blue),.055));
+    color: #82deed;
+}
+
+.sd-user-avatar svg {
+    width: 23px;
+    height: 23px;
+}
+
+.sd-user-copy {
+    min-width: 0;
+}
+
+.sd-user-copy p {
+    margin-bottom: 5px;
+    color: #7c899b;
+    font-size: 8px;
+    font-weight: 850;
+    letter-spacing: .95px;
+    text-transform: uppercase;
+}
+
+.sd-user-copy h1 {
+    margin-bottom: 0;
+    overflow: hidden;
+    color: #fff;
+    font-family: "Satoshi Black","Satoshi",sans-serif;
+    font-size: clamp(20px,5vw,27px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sd-scanner-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border: 1px solid rgba(148,163,184,.14);
+    border-radius: 999px;
+    background: rgba(148,163,184,.045);
+    color: #8f9bae;
+    font-size: 7px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.sd-scanner-status.is-running {
+    border-color: rgba(var(--sd-mint),.19);
+    background: rgba(var(--sd-mint),.05);
+    color: #72ffd0;
+}
+
+.sd-scanner-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.sd-plan-panel {
+    --plan-rgb: var(--sd-violet);
+    display: grid;
+    grid-template-columns: 46px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 13px;
+    border: 1px solid rgba(var(--plan-rgb),.18);
+    border-radius: 17px;
+    background:
+        radial-gradient(70% 110% at 100% 0%,rgba(var(--plan-rgb),.105),transparent 65%),
+        rgba(255,255,255,.018);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.sd-plan-trial { --plan-rgb: 148,163,184; }
+.sd-plan-starter { --plan-rgb: var(--sd-cyan); }
+.sd-plan-pro { --plan-rgb: var(--sd-violet); }
+.sd-plan-ultra { --plan-rgb: var(--sd-gold); }
+.sd-plan-inactive { --plan-rgb: 100,116,139; }
+
+.sd-plan-icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(var(--plan-rgb),.25);
+    border-radius: 14px;
+    background: rgba(var(--plan-rgb),.08);
+    color: rgb(var(--plan-rgb));
+}
+
+.sd-plan-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.sd-plan-copy {
+    min-width: 0;
+}
+
+.sd-plan-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sd-plan-heading span {
+    color: #788598;
+    font-size: 8px;
+    font-weight: 850;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.sd-plan-heading strong {
+    padding: 5px 7px;
+    border: 1px solid rgba(var(--plan-rgb),.18);
+    border-radius: 999px;
+    background: rgba(var(--plan-rgb),.05);
+    color: rgb(var(--plan-rgb));
+    font-size: 8px;
+    font-weight: 850;
+    line-height: 1;
+}
+
+.sd-plan-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 8px;
+}
+
+.sd-plan-status,
+.sd-plan-speed {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #9ba7b8;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.sd-plan-status {
+    color: #72ffd0;
+}
+
+.sd-plan-status svg {
+    width: 12px;
+    height: 12px;
+}
+
+.sd-plan-description {
+    margin: 7px 0 0;
+    color: #7d899a;
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.sd-plan-action {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#22d3ee,#6366f1 56%,#8b5cf6);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 850;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.17);
+}
+
+.sd-plan-action svg {
+    width: 14px;
+    height: 14px;
+}
+
+.sd-section {
+    margin-top: 24px;
+}
+
+.sd-section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 11px;
+}
+
+.sd-section-head p {
+    margin-bottom: 4px;
+    color: #687588;
+    font-size: 8px;
+    font-weight: 850;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.sd-section-head h2 {
+    margin-bottom: 0;
+    color: #f8fafc;
+    font-family: "Satoshi Black","Satoshi",sans-serif;
+    font-size: clamp(22px,4.5vw,28px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.75px;
+}
+
+.sd-section-head > span {
+    padding: 6px 9px;
+    border: 1px solid var(--sd-line);
+    border-radius: 999px;
+    background: rgba(255,255,255,.022);
+    color: #7f8b9d;
+    font-size: 8px;
+    font-weight: 750;
+}
+
+.sd-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px;
+}
+
+.sd-kpi {
+    --kpi-rgb: var(--sd-cyan);
+    position: relative;
+    overflow: hidden;
+    min-height: 145px;
+    padding: 14px;
+    border: 1px solid rgba(var(--kpi-rgb),.16);
+    border-radius: 18px;
+    background:
+        radial-gradient(105px 105px at 100% 0%,rgba(var(--kpi-rgb),.12),transparent 70%),
+        linear-gradient(145deg,#0f151f,#080c13);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 14px 34px rgba(0,0,0,.23);
+}
+
+.sd-kpi-mint { --kpi-rgb: var(--sd-mint); }
+
+.sd-kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sd-kpi-icon {
+    width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(var(--kpi-rgb),.2);
+    border-radius: 11px;
+    background: rgba(var(--kpi-rgb),.06);
+    color: rgb(var(--kpi-rgb));
+}
+
+.sd-kpi-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.sd-kpi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px;
+    border: 1px solid rgba(148,163,184,.11);
+    border-radius: 999px;
+    background: rgba(148,163,184,.035);
+    color: #8490a2;
+    font-size: 7px;
+    white-space: nowrap;
+}
+
+.sd-kpi-badge span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.sd-kpi-badge.is-running,
+.sd-kpi-badge-mint {
+    border-color: rgba(var(--sd-mint),.17);
+    background: rgba(var(--sd-mint),.045);
+    color: #72ffd0;
+}
+
+.sd-kpi-badge strong {
+    font-size: inherit;
+    font-weight: 800;
+}
+
+.sd-kpi > p {
+    margin: 14px 0 0;
+    color: #95a1b2;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.sd-kpi > div > strong {
+    display: block;
+    margin-top: 3px;
+    color: #fff;
+    font-family: "Satoshi Black","Satoshi",sans-serif;
+    font-size: clamp(29px,6vw,38px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1.1px;
+}
+
+.sd-kpi-mint > div > strong {
+    color: #72ffd0;
+}
+
+.sd-kpi > small {
+    display: block;
+    margin-top: 7px;
+    color: #657185;
+    font-size: 8px;
+    line-height: 1.35;
+}
+
+.sd-chart-card,
+.sd-setup-card,
+.sd-upgrade-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(var(--sd-blue),.15);
+    border-radius: 19px;
+    background: linear-gradient(145deg,#0d131d,#070b12);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03),0 16px 40px rgba(0,0,0,.25);
+}
+
+.sd-chart-card {
+    margin-top: 10px;
+    padding: 15px;
+}
+
+.sd-chart-card::before,
+.sd-setup-card::before,
+.sd-upgrade-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 18px;
+    left: 18px;
+    height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(var(--sd-blue),.42),transparent);
+}
+
+.sd-chart-head,
+.sd-setup-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sd-chart-head h3,
+.sd-setup-head h3 {
+    margin: 0;
+    color: #f8fafc;
+    font-family: "Satoshi Black","Satoshi",sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: -.45px;
+}
+
+.sd-chart-head p,
+.sd-setup-head p {
+    margin: 4px 0 0;
+    color: #6d798c;
+    font-size: 9px;
+}
+
+.sd-chart-legend {
+    display: flex;
+    gap: 10px;
+}
+
+.sd-chart-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #788598;
+    font-size: 7px;
+}
+
+.sd-chart-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 3px;
+    border-radius: 999px;
+}
+
+.sd-legend-bar {
+    background: #22d3ee;
+}
+
+.sd-legend-line {
+    height: 2px !important;
+    background: #72ffd0;
+}
+
+.sd-chart-wrap {
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,.04);
+    border-radius: 14px;
+    background: linear-gradient(145deg,rgba(var(--sd-blue),.03),rgba(255,255,255,.007));
+}
+
+.sd-chart-wrap canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.sd-setup-card {
+    padding: 15px;
+    border-color: rgba(var(--sd-cyan),.14);
+    background: linear-gradient(145deg,#0c141c,#070c12);
+}
+
+.sd-setup-card::before {
+    background: linear-gradient(90deg,transparent,rgba(var(--sd-cyan),.42),transparent);
+}
+
+.sd-setup-head > span {
+    padding: 5px 8px;
+    border: 1px solid rgba(var(--sd-cyan),.14);
+    border-radius: 999px;
+    background: rgba(var(--sd-cyan),.035);
+    color: #76dcea;
+    font-size: 7px;
+    font-weight: 800;
+}
+
+.sd-steps {
+    display: grid;
+    gap: 8px;
+    margin-top: 13px;
+}
+
+.sd-step {
+    display: grid;
+    grid-template-columns: 33px minmax(0,1fr) 18px;
+    align-items: center;
+    gap: 10px;
+    min-height: 62px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 13px;
+    background: rgba(255,255,255,.016);
+    color: inherit;
+    text-decoration: none;
+}
+
+.sd-step-number {
+    width: 33px;
+    height: 33px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(var(--sd-cyan),.19);
+    border-radius: 10px;
+    background: rgba(var(--sd-cyan),.05);
+    color: #76dcea;
+    font-size: 8px;
+    font-weight: 900;
+}
+
+.sd-step-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sd-step-copy strong {
+    overflow: hidden;
+    color: #edf2f7;
+    font-size: 10px;
+    font-weight: 850;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sd-step-copy small {
+    overflow: hidden;
+    color: #687487;
+    font-size: 8px;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sd-step-arrow {
+    width: 15px;
+    height: 15px;
+    color: #8290a3;
+}
+
+.sd-step-check {
+    width: 18px;
+    height: 18px;
+    color: #72ffd0;
+    filter: drop-shadow(0 0 7px rgba(var(--sd-mint),.18));
+}
+
+.sd-upgrade-card {
+    display: grid;
+    grid-template-columns: minmax(0,1.15fr) minmax(230px,.85fr);
+    gap: 14px;
+    padding: 16px;
+    border-color: rgba(var(--sd-gold),.17);
+    background:
+        radial-gradient(78% 110% at 100% 0%,rgba(var(--sd-gold),.09),transparent 64%),
+        linear-gradient(145deg,#18150e,#0c0b08);
+}
+
+.sd-upgrade-card::before {
+    background: linear-gradient(90deg,transparent,rgba(var(--sd-gold),.4),transparent);
+}
+
+.sd-upgrade-copy {
+    min-width: 0;
+}
+
+.sd-upgrade-eyebrow {
+    display: inline-flex;
+    padding: 5px 7px;
+    border: 1px solid rgba(var(--sd-gold),.16);
+    border-radius: 999px;
+    background: rgba(var(--sd-gold),.035);
+    color: #e9c865;
+    font-size: 7px;
+    font-weight: 850;
+    letter-spacing: .65px;
+    text-transform: uppercase;
+}
+
+.sd-upgrade-copy h3 {
+    margin: 10px 0 0;
+    color: #fffaf0;
+    font-family: "Satoshi Black","Satoshi",sans-serif;
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1.13;
+    letter-spacing: -.5px;
+}
+
+.sd-upgrade-copy p {
+    margin: 8px 0 0;
+    color: #8a806d;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.sd-upgrade-copy a {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 13px;
+    padding: 0 13px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#f5c451,#b7791f);
+    color: #17120a;
+    font-size: 9px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.sd-upgrade-copy a svg {
+    width: 14px;
+    height: 14px;
+}
+
+.sd-upgrade-benefits {
+    display: grid;
+    gap: 7px;
+}
+
+.sd-upgrade-benefits > div {
+    display: grid;
+    grid-template-columns: 31px minmax(0,1fr);
+    grid-template-rows: auto auto;
+    column-gap: 8px;
+    padding: 8px;
+    border: 1px solid rgba(var(--sd-gold),.09);
+    border-radius: 12px;
+    background: rgba(var(--sd-gold),.02);
+}
+
+.sd-upgrade-benefits > div > span {
+    grid-row: 1 / 3;
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(var(--sd-gold),.17);
+    border-radius: 9px;
+    background: rgba(var(--sd-gold),.045);
+    color: #e7c867;
+}
+
+.sd-upgrade-benefits svg {
+    width: 15px;
+    height: 15px;
+}
+
+.sd-upgrade-benefits strong {
+    color: #f4ede0;
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.sd-upgrade-benefits small {
+    color: #776e60;
+    font-size: 7px;
+}
+
+/* Make the new interface fully static */
+.sd-dashboard :where(
+    .sd-hero,
+    .sd-plan-panel,
+    .sd-kpi,
+    .sd-chart-card,
+    .sd-setup-card,
+    .sd-step,
+    .sd-upgrade-card,
+    .sd-upgrade-benefits > div
+),
+.sd-dashboard :where(
+    .sd-hero,
+    .sd-plan-panel,
+    .sd-kpi,
+    .sd-chart-card,
+    .sd-setup-card,
+    .sd-step,
+    .sd-upgrade-card,
+    .sd-upgrade-benefits > div
+):hover,
+.sd-dashboard :where(
+    .sd-hero,
+    .sd-plan-panel,
+    .sd-kpi,
+    .sd-chart-card,
+    .sd-setup-card,
+    .sd-step,
+    .sd-upgrade-card,
+    .sd-upgrade-benefits > div
+):active {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    filter: none !important;
+}
+
+@media (max-width: 620px) {
+    .sd-dashboard {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .sd-hero {
+        padding: 15px;
+        border-radius: 19px;
+    }
+
+    .sd-hero-main {
+        grid-template-columns: 44px minmax(0,1fr);
+    }
+
+    .sd-user-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+    }
+
+    .sd-scanner-status {
+        grid-column: 1 / -1;
+        justify-self: flex-start;
+        margin-top: 2px;
+    }
+
+    .sd-plan-panel {
+        grid-template-columns: 42px minmax(0,1fr);
+        gap: 10px;
+        padding: 11px;
+        border-radius: 15px;
+    }
+
+    .sd-plan-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+    }
+
+    .sd-plan-action {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .sd-kpi-grid {
+        gap: 8px;
+    }
+
+    .sd-kpi {
+        min-height: 137px;
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .sd-kpi-badge {
+        max-width: 86px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sd-chart-card,
+    .sd-setup-card {
+        padding: 13px;
+        border-radius: 17px;
+    }
+
+    .sd-chart-head {
+        flex-direction: column;
+    }
+
+    .sd-step {
+        grid-template-columns: 31px minmax(0,1fr) 18px;
+        gap: 8px;
+        min-height: 58px;
+        padding: 8px;
+    }
+
+    .sd-step-number {
+        width: 31px;
+        height: 31px;
+    }
+
+    .sd-upgrade-card {
+        grid-template-columns: 1fr;
+        padding: 14px;
+        border-radius: 17px;
+    }
+}
+
+@media (max-width: 380px) {
+    .sd-brand-copy small {
+        display: none;
+    }
+
+    .sd-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-kpi {
+        min-height: 128px;
+    }
+
+    .sd-step-copy small {
+        white-space: normal;
+    }
+}
+</style>
+
+<style id="sd-first-block-structure-fix">
+.sd-dashboard .sd-welcome-card{
+position:relative;overflow:hidden;display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:12px;padding:16px 17px;border:1px solid rgba(var(--sd-cyan),.16);border-radius:19px;background:radial-gradient(72% 130% at 100% 0%,rgba(var(--sd-cyan),.095),transparent 66%),linear-gradient(145deg,#101823,#090e16);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 15px 38px rgba(0,0,0,.27)
+}
+.sd-dashboard .sd-welcome-card::before{content:"";position:absolute;top:0;right:20px;left:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(var(--sd-cyan),.48),transparent)}
+.sd-dashboard .sd-plan-card{--plan-rgb:var(--sd-violet);position:relative;overflow:hidden;display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:12px;margin-top:10px;padding:14px 15px;border:1px solid rgba(var(--plan-rgb),.18);border-radius:18px;background:radial-gradient(76% 125% at 100% 0%,rgba(var(--plan-rgb),.11),transparent 66%),linear-gradient(145deg,#11151e,#090d14);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 14px 34px rgba(0,0,0,.25)}
+.sd-dashboard .sd-plan-card::before{content:"";position:absolute;top:0;right:18px;left:18px;height:1px;background:linear-gradient(90deg,transparent,rgba(var(--plan-rgb),.45),transparent)}
+.sd-dashboard .sd-plan-card.sd-plan-trial{--plan-rgb:148,163,184}
+.sd-dashboard .sd-plan-card.sd-plan-starter{--plan-rgb:var(--sd-cyan)}
+.sd-dashboard .sd-plan-card.sd-plan-pro{--plan-rgb:var(--sd-violet)}
+.sd-dashboard .sd-plan-card.sd-plan-ultra{--plan-rgb:var(--sd-gold)}
+.sd-dashboard .sd-plan-card.sd-plan-inactive{--plan-rgb:100,116,139}
+@media(max-width:620px){
+.sd-dashboard .sd-welcome-card{grid-template-columns:44px minmax(0,1fr);gap:10px;padding:14px;border-radius:17px}
+.sd-dashboard .sd-welcome-card .sd-scanner-status{grid-column:1/-1;justify-self:flex-start}
+.sd-dashboard .sd-plan-card{grid-template-columns:42px minmax(0,1fr);gap:10px;margin-top:9px;padding:12px;border-radius:16px}
+.sd-dashboard .sd-plan-card .sd-plan-action{grid-column:1/-1;width:100%}
+}
+</style>
+
+<style id="sd-unified-tariff-hero-final">
+/*
+|--------------------------------------------------------------------------
+| Unified account card — tariff page visual language
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-account-card {
+    --account-plan-rgb: var(--sd-violet);
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    width: 100%;
+    padding: 16px;
+
+    border: 1px solid rgba(var(--account-plan-rgb), .20);
+    border-radius: 21px;
+
+    background:
+        radial-gradient(
+            86% 74% at 96% -4%,
+            rgba(var(--account-plan-rgb), .145),
+            transparent 61%
+        ),
+        radial-gradient(
+            68% 62% at 0% 105%,
+            rgba(var(--sd-cyan), .07),
+            transparent 68%
+        ),
+        linear-gradient(
+            145deg,
+            #141a24 0%,
+            #0a0f17 100%
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .045),
+        0 18px 46px rgba(0, 0, 0, .31),
+        0 0 25px rgba(var(--account-plan-rgb), .035);
+
+    transform: none !important;
+    transition: none !important;
+}
+
+.sd-dashboard .sd-account-card::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    right: 20px;
+    left: 20px;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(var(--sd-cyan), .44),
+            rgba(var(--account-plan-rgb), .60),
+            rgba(var(--sd-pink), .27),
+            transparent
+        );
+}
+
+.sd-dashboard .sd-account-plan-trial {
+    --account-plan-rgb: 148, 163, 184;
+}
+
+.sd-dashboard .sd-account-plan-starter {
+    --account-plan-rgb: var(--sd-cyan);
+}
+
+.sd-dashboard .sd-account-plan-pro {
+    --account-plan-rgb: var(--sd-violet);
+}
+
+.sd-dashboard .sd-account-plan-ultra {
+    --account-plan-rgb: var(--sd-gold);
+}
+
+.sd-dashboard .sd-account-plan-inactive {
+    --account-plan-rgb: 100, 116, 139;
+}
+
+.sd-dashboard .sd-account-top {
+    display: grid;
+    grid-template-columns: 45px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+}
+
+.sd-dashboard .sd-account-top .sd-user-avatar {
+    width: 45px;
+    height: 45px;
+    border-color: rgba(var(--sd-cyan), .20);
+    border-radius: 14px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--sd-cyan), .12),
+            rgba(var(--sd-blue), .045)
+        );
+    color: #7edce9;
+}
+
+.sd-dashboard .sd-account-top .sd-user-avatar svg {
+    width: 21px;
+    height: 21px;
+}
+
+.sd-dashboard .sd-account-top .sd-user-copy p {
+    margin-bottom: 4px;
+    color: #748196;
+    font-size: 7.5px;
+    letter-spacing: .95px;
+}
+
+.sd-dashboard .sd-account-top .sd-user-copy h1 {
+    font-size: clamp(19px, 4.8vw, 25px);
+    letter-spacing: -.65px;
+}
+
+.sd-dashboard .sd-account-top .sd-scanner-status {
+    padding: 6px 8px;
+    background: rgba(255,255,255,.022);
+}
+
+.sd-dashboard .sd-account-divider {
+    width: 100%;
+    height: 1px;
+    margin: 13px 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.075) 15%,
+            rgba(var(--account-plan-rgb), .14) 50%,
+            rgba(255,255,255,.075) 85%,
+            transparent
+        );
+}
+
+.sd-dashboard .sd-account-plan {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-icon {
+    width: 42px;
+    height: 42px;
+
+    border-color: rgba(var(--account-plan-rgb), .28);
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--account-plan-rgb), .19),
+            rgba(var(--account-plan-rgb), .065)
+        );
+
+    color: rgb(var(--account-plan-rgb));
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.075),
+        0 7px 18px rgba(0,0,0,.18);
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-copy {
+    min-width: 0;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-heading span {
+    color: #758195;
+    font-size: 7.5px;
+    letter-spacing: .82px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-heading strong {
+    padding: 4px 7px;
+
+    border-color: rgba(var(--account-plan-rgb), .21);
+    background: rgba(var(--account-plan-rgb), .065);
+    color: rgb(var(--account-plan-rgb));
+
+    font-size: 7.5px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-meta {
+    gap: 9px;
+    margin-top: 7px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-status,
+.sd-dashboard .sd-account-plan .sd-plan-speed {
+    font-size: 7.8px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-description {
+    margin-top: 6px;
+    font-size: 8.5px;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-action {
+    min-width: 112px;
+    min-height: 39px;
+    padding: 0 11px;
+
+    border: 1px solid rgba(var(--account-plan-rgb), .22);
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(var(--sd-cyan), .92),
+            rgba(var(--sd-violet), .96) 58%,
+            rgba(var(--sd-pink), .90)
+        );
+
+    font-size: 8.5px;
+
+    box-shadow:
+        0 10px 22px rgba(0,0,0,.24),
+        inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-action svg {
+    width: 13px;
+    height: 13px;
+}
+
+/* Retire the separated-card styles */
+.sd-dashboard .sd-welcome-card,
+.sd-dashboard .sd-plan-card {
+    display: none !important;
+}
+
+@media (max-width: 620px) {
+    .sd-dashboard .sd-account-card {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .sd-dashboard .sd-account-top {
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+    }
+
+    .sd-dashboard .sd-account-top .sd-scanner-status {
+        grid-column: 1 / -1;
+        justify-self: flex-start;
+        margin-top: 1px;
+    }
+
+    .sd-dashboard .sd-account-divider {
+        margin: 11px 0;
+    }
+
+    .sd-dashboard .sd-account-plan {
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .sd-dashboard .sd-account-plan .sd-plan-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sd-dashboard .sd-account-plan .sd-plan-action {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-width: 0;
+        margin-top: 1px;
+    }
+}
+</style>
+
+
+<style id="sd-scanner-badge-one-line-final">
+/*
+|--------------------------------------------------------------------------
+| Mobile account header — scanner badge always stays on the right
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-account-top {
+    grid-template-columns: 45px minmax(0, 1fr) max-content !important;
+    align-items: center !important;
+}
+
+.sd-dashboard .sd-account-top .sd-user-copy {
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.sd-dashboard .sd-account-top .sd-user-copy h1 {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.sd-dashboard .sd-account-top .sd-scanner-status {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-self: end !important;
+
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+@media (max-width: 620px) {
+    .sd-dashboard .sd-account-top {
+        grid-template-columns: 40px minmax(0, 1fr) max-content !important;
+        gap: 8px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        border-radius: 12px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-avatar svg {
+        width: 19px !important;
+        height: 19px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-copy p {
+        margin-bottom: 3px !important;
+        font-size: 7px !important;
+        letter-spacing: .75px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-copy h1 {
+        font-size: clamp(15px, 4.2vw, 20px) !important;
+        letter-spacing: -.45px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-scanner-status {
+        grid-column: 3 !important;
+        grid-row: 1 !important;
+
+        align-self: center !important;
+        justify-self: end !important;
+
+        min-width: max-content !important;
+        margin: 0 !important;
+        padding: 5px 7px !important;
+
+        font-size: 6.5px !important;
+        line-height: 1 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-scanner-dot {
+        width: 5px !important;
+        height: 5px !important;
+        min-width: 5px !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .sd-dashboard .sd-account-card {
+        padding-right: 12px !important;
+        padding-left: 12px !important;
+    }
+
+    .sd-dashboard .sd-account-top {
+        grid-template-columns: 36px minmax(0, 1fr) max-content !important;
+        gap: 7px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-avatar {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-copy h1 {
+        font-size: 14px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-scanner-status {
+        padding: 5px 6px !important;
+        font-size: 6px !important;
+    }
+}
+
+@media (max-width: 340px) {
+    .sd-dashboard .sd-account-top {
+        grid-template-columns: 34px minmax(0, 1fr) max-content !important;
+        gap: 6px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-avatar {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-user-copy h1 {
+        font-size: 13px !important;
+    }
+
+    .sd-dashboard .sd-account-top .sd-scanner-status {
+        padding: 4px 5px !important;
+        font-size: 5.7px !important;
+    }
+}
+</style>
+
+
+<style id="sd-navigation-palette-final">
+/*
+|--------------------------------------------------------------------------
+| Dashboard palette synchronized with bottom navigation
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard {
+    --nav-violet: 124, 92, 255;
+    --nav-violet-light: 145, 122, 255;
+    --nav-cyan: 0, 200, 248;
+    --nav-panel-top: rgba(18, 21, 34, .97);
+    --nav-panel-bottom: rgba(10, 12, 22, .98);
+    --nav-panel-solid: rgba(11, 13, 23, .98);
+    --nav-line: rgba(255, 255, 255, .09);
+    --nav-text: rgba(186, 192, 214, .72);
+}
+
+/* Unified card foundation */
+.sd-dashboard :where(
+    .sd-account-card,
+    .sd-kpi,
+    .sd-chart-card,
+    .sd-setup-card,
+    .sd-upgrade-card
+) {
+    border-color: var(--nav-line) !important;
+
+    background:
+        radial-gradient(
+            circle at 82% 0%,
+            rgba(var(--nav-violet), .13),
+            transparent 62%
+        ),
+        radial-gradient(
+            circle at 8% 100%,
+            rgba(var(--nav-cyan), .055),
+            transparent 64%
+        ),
+        linear-gradient(
+            180deg,
+            var(--nav-panel-top),
+            var(--nav-panel-bottom)
+        ),
+        var(--nav-panel-solid) !important;
+
+    box-shadow:
+        0 -1px 0 rgba(var(--nav-violet), .14),
+        0 12px 34px rgba(0, 0, 0, .31),
+        inset 0 1px 0 rgba(255, 255, 255, .05) !important;
+}
+
+/* Shared top light line matching navigation */
+.sd-dashboard :where(
+    .sd-account-card,
+    .sd-chart-card,
+    .sd-setup-card,
+    .sd-upgrade-card
+)::before {
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(var(--nav-violet), .72),
+            rgba(var(--nav-cyan), .64),
+            transparent
+        ) !important;
+    opacity: .72 !important;
+}
+
+/* Account block */
+.sd-dashboard .sd-account-card {
+    border-color: rgba(var(--nav-violet-light), .24) !important;
+
+    background:
+        radial-gradient(
+            circle at 75% 0%,
+            rgba(var(--nav-violet), .18),
+            transparent 64%
+        ),
+        radial-gradient(
+            circle at 5% 100%,
+            rgba(var(--nav-cyan), .065),
+            transparent 65%
+        ),
+        linear-gradient(
+            180deg,
+            var(--nav-panel-top),
+            var(--nav-panel-bottom)
+        ) !important;
+
+    box-shadow:
+        0 -1px 0 rgba(var(--nav-violet), .16),
+        0 14px 36px rgba(0, 0, 0, .32),
+        inset 0 1px 0 rgba(255, 255, 255, .055),
+        0 0 20px rgba(var(--nav-violet), .055) !important;
+}
+
+.sd-dashboard .sd-account-top .sd-user-avatar {
+    border-color: rgba(var(--nav-violet-light), .24) !important;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--nav-violet), .22),
+            rgba(var(--nav-cyan), .09)
+        ) !important;
+    color: #ffffff !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 7px 18px rgba(0,0,0,.18) !important;
+}
+
+.sd-dashboard .sd-account-top .sd-user-copy p,
+.sd-dashboard .sd-account-plan .sd-plan-heading span,
+.sd-dashboard .sd-section-head p {
+    color: rgba(186, 192, 214, .67) !important;
+}
+
+.sd-dashboard .sd-account-divider {
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(var(--nav-violet), .21),
+            rgba(var(--nav-cyan), .15),
+            transparent
+        ) !important;
+}
+
+/* Subscription accent now uses the menu palette for every tariff */
+.sd-dashboard .sd-account-plan .sd-plan-icon {
+    border-color: rgba(var(--nav-violet-light), .27) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--nav-violet), .24),
+            rgba(var(--nav-cyan), .10)
+        ) !important;
+
+    color: #ffffff !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 7px 18px rgba(0,0,0,.18) !important;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-heading strong {
+    border-color: rgba(var(--nav-violet-light), .25) !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(var(--nav-violet), .18),
+            transparent 70%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(var(--nav-violet), .11),
+            rgba(var(--nav-cyan), .05)
+        ) !important;
+
+    color: #d8eaff !important;
+}
+
+.sd-dashboard .sd-account-plan .sd-plan-speed {
+    color: #aeb8cd !important;
+}
+
+/* Primary buttons match active navigation */
+.sd-dashboard :where(
+    .sd-plan-action,
+    .sd-upgrade-copy a
+) {
+    border: 1px solid rgba(var(--nav-violet-light), .28) !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(var(--nav-violet), .22),
+            transparent 68%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(var(--nav-violet), .84),
+            rgba(var(--nav-cyan), .48)
+        ) !important;
+
+    color: #ffffff !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.12),
+        0 8px 20px rgba(0,0,0,.23),
+        0 0 18px rgba(var(--nav-violet), .10) !important;
+}
+
+/* KPI cards */
+.sd-dashboard .sd-kpi {
+    --kpi-rgb: var(--nav-violet) !important;
+
+    border-color: rgba(var(--nav-violet-light), .20) !important;
+
+    background:
+        radial-gradient(
+            circle at 88% 0%,
+            rgba(var(--nav-violet), .16),
+            transparent 63%
+        ),
+        linear-gradient(
+            180deg,
+            var(--nav-panel-top),
+            var(--nav-panel-bottom)
+        ) !important;
+}
+
+.sd-dashboard .sd-kpi-mint {
+    --kpi-rgb: var(--nav-cyan) !important;
+
+    border-color: rgba(var(--nav-cyan), .18) !important;
+
+    background:
+        radial-gradient(
+            circle at 88% 0%,
+            rgba(var(--nav-cyan), .105),
+            transparent 63%
+        ),
+        linear-gradient(
+            180deg,
+            var(--nav-panel-top),
+            var(--nav-panel-bottom)
+        ) !important;
+}
+
+.sd-dashboard .sd-kpi-icon {
+    border-color: rgba(var(--kpi-rgb), .24) !important;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--kpi-rgb), .20),
+            rgba(255,255,255,.025)
+        ) !important;
+    color: #ffffff !important;
+}
+
+.sd-dashboard .sd-kpi-mint > div > strong {
+    color: #d8eaff !important;
+}
+
+/* Chart */
+.sd-dashboard .sd-chart-card {
+    border-color: rgba(var(--nav-violet-light), .20) !important;
+}
+
+.sd-dashboard .sd-chart-wrap {
+    border-color: rgba(255,255,255,.065) !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(var(--nav-violet), .08),
+            transparent 70%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(124,92,255,.035),
+            rgba(0,200,248,.018)
+        ) !important;
+}
+
+.sd-dashboard .sd-legend-bar {
+    background: rgb(var(--nav-violet)) !important;
+}
+
+.sd-dashboard .sd-legend-line {
+    background: rgb(var(--nav-cyan)) !important;
+}
+
+/* Quick Setup */
+.sd-dashboard .sd-setup-card {
+    border-color: rgba(var(--nav-violet-light), .20) !important;
+}
+
+.sd-dashboard .sd-setup-head > span {
+    border-color: rgba(var(--nav-violet-light), .20) !important;
+    background: rgba(var(--nav-violet), .07) !important;
+    color: #d8eaff !important;
+}
+
+.sd-dashboard .sd-step {
+    border-color: rgba(255,255,255,.065) !important;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(var(--nav-violet), .075),
+            transparent 68%
+        ),
+        rgba(255,255,255,.016) !important;
+}
+
+.sd-dashboard .sd-step-number {
+    border-color: rgba(var(--nav-violet-light), .22) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--nav-violet), .20),
+            rgba(var(--nav-cyan), .07)
+        ) !important;
+
+    color: #ffffff !important;
+}
+
+.sd-dashboard .sd-step-check {
+    color: rgb(var(--nav-cyan)) !important;
+    filter: drop-shadow(0 0 7px rgba(var(--nav-cyan), .20)) !important;
+}
+
+/* Upgrade block no longer uses a separate gold palette */
+.sd-dashboard .sd-upgrade-card {
+    border-color: rgba(var(--nav-violet-light), .20) !important;
+}
+
+.sd-dashboard .sd-upgrade-eyebrow {
+    border-color: rgba(var(--nav-violet-light), .22) !important;
+    background: rgba(var(--nav-violet), .07) !important;
+    color: #d8eaff !important;
+}
+
+.sd-dashboard .sd-upgrade-copy h3 {
+    color: #ffffff !important;
+}
+
+.sd-dashboard .sd-upgrade-copy p {
+    color: rgba(186,192,214,.64) !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits > div {
+    border-color: rgba(255,255,255,.065) !important;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(var(--nav-violet), .075),
+            transparent 68%
+        ),
+        rgba(255,255,255,.015) !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits > div > span {
+    border-color: rgba(var(--nav-violet-light), .22) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(var(--nav-violet), .20),
+            rgba(var(--nav-cyan), .07)
+        ) !important;
+
+    color: #ffffff !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits strong {
+    color: #f3f6fc !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits small {
+    color: rgba(186,192,214,.58) !important;
+}
+
+/* Section titles and secondary text */
+.sd-dashboard .sd-section-head h2,
+.sd-dashboard .sd-chart-head h3,
+.sd-dashboard .sd-setup-head h3,
+.sd-dashboard .sd-upgrade-copy h3 {
+    color: #ffffff !important;
+}
+
+.sd-dashboard :where(
+    .sd-chart-head p,
+    .sd-setup-head p,
+    .sd-kpi > small,
+    .sd-step-copy small
+) {
+    color: rgba(186,192,214,.58) !important;
+}
+</style>
+
+
+<style id="purple-button-refresh">
+.sd-plan-action{
+    background:linear-gradient(180deg,#8A63FF 0%,#704BFF 55%,#5B3DF2 100%) !important;
+    border:1px solid rgba(155,125,255,.26) !important;
+    color:#fff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.12),
+        0 10px 24px rgba(91,61,242,.28),
+        0 0 20px rgba(124,92,255,.12) !important;
+    background-image:linear-gradient(180deg,#8A63FF 0%,#704BFF 55%,#5B3DF2 100%) !important;
+}
+.sd-plan-action:hover,
+.sd-plan-action:focus,
+.sd-plan-action:active{
+    background:linear-gradient(180deg,#9471FF 0%,#7956FF 55%,#6546F5 100%) !important;
+    transform:none !important;
+}
+.sd-plan-action::before,
+.sd-plan-action::after{
+    display:none !important;
+    content:none !important;
+}
+</style>
+
+
+<style id="dashboard-app-container-header-fix">
+/*
+|--------------------------------------------------------------------------
+| Restore the same header context used on tariffs.php
+|--------------------------------------------------------------------------
+*/
+
+main.app.sd-dashboard {
+    width: min(100%, 780px) !important;
+    max-width: 780px !important;
+    margin: 0 auto !important;
+
+    padding:
+        max(18px, env(safe-area-inset-top))
+        14px
+        calc(104px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Header must use the original app.css design without dashboard overrides. */
+main.app.sd-dashboard > /* Old experimental header classes are no longer used. */
+main.app.sd-dashboard > .sd-topbar,
+main.app.sd-dashboard > .sd-brand {
+    display: none !important;
+}
+
+@media (max-width: 620px) {
+    main.app.sd-dashboard {
+        padding-right: 12px !important;
+        padding-left: 12px !important;
+    }
+}
+</style>
+
+
+<style id="sd-exact-tariffs-header-scope">
+/*
+|--------------------------------------------------------------------------
+| Exact tariffs header scope
+|--------------------------------------------------------------------------
+| The external CSS styles the header through .plans-app.
+| Only this wrapper receives that class, so the rest of dashboard is untouched.
+|--------------------------------------------------------------------------
+*/
+
+main.app.sd-dashboard > .sd-tariffs-header-scope {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: block !important;
+
+    background: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
+    overflow: visible !important;
+}
+
+/* Do not let dashboard typography modify the copied tariff header. */
+main.app.sd-dashboard > .sd-tariffs-header-scope .topbar,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand-mark,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand-text,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand-name-row,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand-name,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand-version,
+main.app.sd-dashboard > .sd-tariffs-header-scope .brand-tagline,
+main.app.sd-dashboard > .sd-tariffs-header-scope /* Header spacing remains exactly separated from dashboard content. */
+main.app.sd-dashboard > .sd-tariffs-header-scope + .sd-account-card {
+    margin-top: 0 !important;
+}
+</style>
+
+
+<style id="sd-dashboard-mobile-shell-final">
+/*
+|--------------------------------------------------------------------------
+| Permanent mobile shell
+|--------------------------------------------------------------------------
+| Dashboard and bottom navigation now share the same mobile width on every
+| device, including desktop browsers.
+|--------------------------------------------------------------------------
+*/
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+}
+
+body {
+    margin: 0;
+}
+
+main.app.sd-dashboard {
+    width: min(100%, 480px) !important;
+    max-width: 480px !important;
+    min-width: 0 !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+    overflow: hidden !important;
+}
+
+main.app.sd-dashboard,
+main.app.sd-dashboard > *,
+main.app.sd-dashboard section,
+main.app.sd-dashboard article,
+main.app.sd-dashboard div {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.sd-dashboard .sd-section,
+.sd-dashboard .sd-account-card,
+.sd-dashboard .sd-kpi-grid,
+.sd-dashboard .sd-kpi,
+.sd-dashboard .sd-chart-card,
+.sd-dashboard .sd-chart-wrap,
+.sd-dashboard .sd-setup-card,
+.sd-dashboard .sd-upgrade-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| KPI values never stretch their cards
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard #processed-value-container,
+.sd-dashboard #wallets-value-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.sd-dashboard #processed-total-value,
+.sd-dashboard #found-wallets-value {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.035em;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Chart cannot force horizontal overflow
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-chart-card {
+    overflow: hidden !important;
+}
+
+.sd-dashboard .sd-chart-wrap {
+    position: relative;
+    overflow: hidden !important;
+}
+
+.sd-dashboard .sd-chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Last dynamic section always uses the mobile composition
+|--------------------------------------------------------------------------
+| Its layout no longer depends on desktop viewport width.
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-upgrade-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    border-radius: 17px !important;
+}
+
+.sd-dashboard .sd-upgrade-copy,
+.sd-dashboard .sd-upgrade-benefits {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+.sd-dashboard .sd-upgrade-copy h3,
+.sd-dashboard .sd-upgrade-copy p,
+.sd-dashboard .sd-upgrade-benefits strong,
+.sd-dashboard .sd-upgrade-benefits small {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.sd-dashboard .sd-upgrade-copy a {
+    width: 100%;
+    max-width: 100%;
+}
+
+.sd-dashboard .sd-setup-card {
+    padding: 14px !important;
+    border-radius: 17px !important;
+}
+
+.sd-dashboard .sd-step {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+}
+
+.sd-dashboard .sd-step-copy {
+    min-width: 0 !important;
+}
+
+.sd-dashboard .sd-step-copy strong,
+.sd-dashboard .sd-step-copy small {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Very narrow screens
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 380px) {
+    main.app.sd-dashboard {
+        padding-right: 10px !important;
+        padding-left: 10px !important;
+    }
+
+    .sd-dashboard .sd-kpi-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+</style>
+
+
+<style id="sd-dashboard-readability-upgrade-final">
+/*
+|--------------------------------------------------------------------------
+| Readability improvements
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-section-head p {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+
+.sd-dashboard .sd-section-head h2 {
+    font-size: 19px !important;
+    line-height: 1.18 !important;
+}
+
+.sd-dashboard .sd-kpi-badge,
+.sd-dashboard .sd-chart-legend span,
+.sd-dashboard .sd-setup-head > span {
+    font-size: 9px !important;
+}
+
+.sd-dashboard .sd-kpi > small,
+.sd-dashboard .sd-chart-head p,
+.sd-dashboard .sd-setup-head p,
+.sd-dashboard .sd-step-copy small {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+
+.sd-dashboard .sd-step-copy strong {
+    font-size: 12px !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Upgrade block — unified final design
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-upgrade-card {
+    display: block !important;
+    width: 100% !important;
+    padding: 16px !important;
+    border: 1px solid rgba(139, 92, 246, .25) !important;
+    border-radius: 20px !important;
+    background:
+        radial-gradient(
+            90% 80% at 100% 0%,
+            rgba(139, 92, 246, .12),
+            transparent 62%
+        ),
+        linear-gradient(
+            145deg,
+            #111321 0%,
+            #090b13 100%
+        ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .035),
+        0 18px 42px rgba(0, 0, 0, .28) !important;
+}
+
+.sd-dashboard .sd-upgrade-card::before {
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(159, 247, 214, .55),
+            transparent
+        ) !important;
+}
+
+.sd-dashboard .sd-upgrade-copy {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+.sd-dashboard .sd-upgrade-eyebrow {
+    padding: 6px 9px !important;
+    border: 1px solid rgba(159, 247, 214, .20) !important;
+    background: rgba(159, 247, 214, .055) !important;
+    color: #9ff7d6 !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em !important;
+}
+
+.sd-dashboard .sd-upgrade-copy h3 {
+    margin-top: 11px !important;
+    color: #ffffff !important;
+    font-size: 21px !important;
+    line-height: 1.14 !important;
+    letter-spacing: -.55px !important;
+}
+
+.sd-dashboard .sd-upgrade-copy > p {
+    margin-top: 8px !important;
+    max-width: 100% !important;
+    color: #a4adbd !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 14px !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits > div {
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    column-gap: 9px !important;
+    min-width: 0 !important;
+    padding: 10px !important;
+    border: 1px solid rgba(255, 255, 255, .065) !important;
+    border-radius: 13px !important;
+    background: rgba(255, 255, 255, .025) !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits > div > span {
+    grid-row: 1 / 3 !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-color: rgba(139, 92, 246, .24) !important;
+    background: rgba(139, 92, 246, .09) !important;
+    color: #bca8ff !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits strong {
+    align-self: end;
+    color: #f5f7fb !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1.2 !important;
+}
+
+.sd-dashboard .sd-upgrade-benefits small {
+    align-self: start;
+    margin-top: 3px;
+    color: #8994a7 !important;
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+}
+
+.sd-dashboard .sd-upgrade-cta {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    margin-top: 14px !important;
+    padding: 0 15px !important;
+    border: 1px solid rgba(159, 247, 214, .18) !important;
+    border-radius: 13px !important;
+    background:
+        linear-gradient(
+            135deg,
+            #8b5cf6 0%,
+            #6d4ad8 100%
+        ) !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    box-shadow:
+        0 10px 24px rgba(109, 74, 216, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .14) !important;
+}
+
+.sd-dashboard .sd-upgrade-cta svg {
+    width: 15px !important;
+    height: 15px !important;
+}
+
+.sd-dashboard .sd-upgrade-note {
+    display: block;
+    margin-top: 8px;
+    color: #748094;
+    font-size: 9px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+@media (max-width: 360px) {
+    .sd-dashboard .sd-upgrade-benefits {
+        gap: 6px !important;
+    }
+
+    .sd-dashboard .sd-upgrade-benefits > div {
+        grid-template-columns: 30px minmax(0, 1fr) !important;
+        padding: 8px !important;
+    }
+
+    .sd-dashboard .sd-upgrade-benefits > div > span {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .sd-dashboard .sd-upgrade-benefits strong {
+        font-size: 10px !important;
+    }
+
+    .sd-dashboard .sd-upgrade-benefits small {
+        font-size: 8.5px !important;
+    }
+}
+</style>
+
+
+<style id="sd-access-subscription-final">
+/*
+|--------------------------------------------------------------------------
+| Access subscription — readability and unified CTA
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-account-card,
+.sd-dashboard .sd-access-card,
+.sd-dashboard [class*="subscription"] {
+    min-width: 0;
+}
+
+.sd-dashboard .sd-account-card h2,
+.sd-dashboard .sd-account-card h3,
+.sd-dashboard .sd-access-card h2,
+.sd-dashboard .sd-access-card h3 {
+    color: #ffffff !important;
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    letter-spacing: -.35px !important;
+}
+
+.sd-dashboard .sd-account-card p,
+.sd-dashboard .sd-access-card p,
+.sd-dashboard .sd-account-card small,
+.sd-dashboard .sd-access-card small {
+    color: #9ca7b8 !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+}
+
+.sd-dashboard .sd-account-card .label,
+.sd-dashboard .sd-access-card .label,
+.sd-dashboard .sd-account-card [class*="eyebrow"],
+.sd-dashboard .sd-access-card [class*="eyebrow"] {
+    color: #9ff7d6 !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em !important;
+}
+
+.sd-dashboard .sd-account-card a,
+.sd-dashboard .sd-account-card button,
+.sd-dashboard .sd-access-card a,
+.sd-dashboard .sd-access-card button,
+.sd-dashboard [class*="subscription"] a,
+.sd-dashboard [class*="subscription"] button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    min-height: 46px !important;
+    padding: 0 15px !important;
+    border: 1px solid rgba(159, 247, 214, .18) !important;
+    border-radius: 13px !important;
+    background:
+        linear-gradient(
+            135deg,
+            #8b5cf6 0%,
+            #6d4ad8 100%
+        ) !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    box-shadow:
+        0 10px 24px rgba(109, 74, 216, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .14) !important;
+}
+
+.sd-dashboard .sd-account-card a:hover,
+.sd-dashboard .sd-account-card button:hover,
+.sd-dashboard .sd-access-card a:hover,
+.sd-dashboard .sd-access-card button:hover,
+.sd-dashboard [class*="subscription"] a:hover,
+.sd-dashboard [class*="subscription"] button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.sd-dashboard .sd-account-card svg,
+.sd-dashboard .sd-access-card svg,
+.sd-dashboard [class*="subscription"] a svg,
+.sd-dashboard [class*="subscription"] button svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex: 0 0 auto;
+}
+
+/*
+ * Keep informational rows readable without enlarging the card.
+ */
+.sd-dashboard .sd-account-card [class*="meta"],
+.sd-dashboard .sd-access-card [class*="meta"],
+.sd-dashboard .sd-account-card [class*="info"],
+.sd-dashboard .sd-access-card [class*="info"] {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+}
+</style>
+
+
+<style id="sd-premium-account-card-final">
+.sd-dashboard .sd-premium-account-card {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 16px;
+    border: 1px solid rgba(139, 92, 246, .22);
+    border-radius: 22px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 21, 34, .98) 0%,
+            rgba(9, 11, 19, .99) 100%
+        );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .04),
+        0 20px 48px rgba(0, 0, 0, .30);
+}
+
+.sd-dashboard .sd-premium-account-glow {
+    position: absolute;
+    top: -90px;
+    right: -70px;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, .14);
+    filter: blur(48px);
+    pointer-events: none;
+}
+
+.sd-dashboard .sd-premium-account-head,
+.sd-dashboard .sd-premium-plan-main,
+.sd-dashboard .sd-premium-plan-stats,
+.sd-dashboard .sd-premium-plan-action,
+.sd-dashboard .sd-premium-max-plan {
+    position: relative;
+    z-index: 1;
+}
+
+.sd-dashboard .sd-premium-account-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sd-dashboard .sd-premium-user {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 10px;
+}
+
+.sd-dashboard .sd-premium-avatar,
+.sd-dashboard .sd-premium-plan-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .035);
+}
+
+.sd-dashboard .sd-premium-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    color: #c9bcff;
+}
+
+.sd-dashboard .sd-premium-avatar svg {
+    width: 17px;
+    height: 17px;
+}
+
+.sd-dashboard .sd-premium-user-copy {
+    min-width: 0;
+}
+
+.sd-dashboard .sd-premium-user-copy span,
+.sd-dashboard .sd-premium-plan-label,
+.sd-dashboard .sd-premium-plan-stats span {
+    display: block;
+    color: #8f9aae;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: .035em;
+}
+
+.sd-dashboard .sd-premium-user-copy strong {
+    display: block;
+    max-width: 230px;
+    margin-top: 3px;
+    overflow: hidden;
+    color: #f7f8fc;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sd-dashboard .sd-premium-scanner-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 0 9px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .03);
+    color: #9aa5b7;
+    font-size: 9px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.sd-dashboard .sd-premium-state-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6b7280;
+    box-shadow: 0 0 0 4px rgba(107, 114, 128, .08);
+}
+
+.sd-dashboard .sd-premium-scanner-state.is-running {
+    color: #9ff7d6;
+    border-color: rgba(159, 247, 214, .16);
+    background: rgba(159, 247, 214, .045);
+}
+
+.sd-dashboard .sd-premium-scanner-state.is-running .sd-premium-state-dot {
+    background: #72e9b1;
+    box-shadow: 0 0 0 4px rgba(114, 233, 177, .10);
+}
+
+.sd-dashboard .sd-premium-plan-main {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid rgba(139, 92, 246, .16);
+    border-radius: 17px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(139, 92, 246, .075),
+            rgba(255, 255, 255, .018)
+        );
+}
+
+.sd-dashboard .sd-premium-plan-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    color: #bca8ff;
+    border-color: rgba(139, 92, 246, .22);
+    background: rgba(139, 92, 246, .09);
+}
+
+.sd-dashboard .sd-premium-plan-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.sd-dashboard .sd-premium-plan-copy {
+    min-width: 0;
+}
+
+.sd-dashboard .sd-premium-plan-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.sd-dashboard .sd-premium-plan-title-row h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 21px;
+    font-weight: 950;
+    line-height: 1.08;
+    letter-spacing: -.5px;
+}
+
+.sd-dashboard .sd-premium-active-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 8px;
+    border: 1px solid rgba(159, 247, 214, .16);
+    border-radius: 999px;
+    background: rgba(159, 247, 214, .06);
+    color: #9ff7d6;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+.sd-dashboard .sd-premium-plan-copy p {
+    margin: 7px 0 0;
+    color: #9ca7b8;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.sd-dashboard .sd-premium-plan-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.sd-dashboard .sd-premium-plan-stats > div {
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid rgba(255, 255, 255, .065);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .025);
+}
+
+.sd-dashboard .sd-premium-plan-stats strong {
+    display: block;
+    margin-top: 5px;
+    overflow: hidden;
+    color: #f4f6fb;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sd-dashboard .sd-premium-plan-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 46px;
+    margin-top: 11px;
+    padding: 0 15px;
+    border: 1px solid rgba(159, 247, 214, .18);
+    border-radius: 13px;
+    background:
+        linear-gradient(
+            135deg,
+            #8b5cf6 0%,
+            #6d4ad8 100%
+        );
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+    text-decoration: none;
+    box-shadow:
+        0 10px 24px rgba(109, 74, 216, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+
+.sd-dashboard .sd-premium-plan-action svg {
+    width: 15px;
+    height: 15px;
+}
+
+.sd-dashboard .sd-premium-max-plan {
+    margin-top: 11px;
+    padding: 12px;
+    border: 1px solid rgba(159, 247, 214, .12);
+    border-radius: 13px;
+    background: rgba(159, 247, 214, .04);
+    color: #9ff7d6;
+    font-size: 11px;
+    font-weight: 850;
+    text-align: center;
+}
+
+@media (max-width: 360px) {
+    .sd-dashboard .sd-premium-account-head {
+        align-items: flex-start;
+    }
+
+    .sd-dashboard .sd-premium-user-copy strong {
+        max-width: 170px;
+    }
+
+    .sd-dashboard .sd-premium-scanner-state {
+        padding: 0 8px;
+    }
+
+    .sd-dashboard .sd-premium-plan-main {
+        grid-template-columns: 48px minmax(0, 1fr);
+        padding: 12px;
+    }
+
+    .sd-dashboard .sd-premium-plan-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .sd-dashboard .sd-premium-plan-title-row h1 {
+        font-size: 19px;
+    }
+}
+</style>
+
+
+    <link rel="stylesheet" href="assets/css/header.css">
+
+<style id="sd-premium-account-top-gradient-fix">
+/* Welcome back card — top gradient line, matching the other dashboard cards */
+.sd-dashboard .sd-premium-account-card {
+    position: relative !important;
+    isolation: isolate !important;
+}
+
+.sd-dashboard .sd-premium-account-card::before {
+    content: "" !important;
+    position: absolute !important;
+    z-index: 3 !important;
+
+    top: 0 !important;
+    right: 20px !important;
+    left: 20px !important;
+
+    width: auto !important;
+    height: 1px !important;
+
+    display: block !important;
+
+    border: 0 !important;
+    border-radius: 999px !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(34, 211, 238, .44) 24%,
+            rgba(139, 92, 246, .72) 54%,
+            rgba(236, 72, 153, .30) 78%,
+            transparent 100%
+        ) !important;
+
+    box-shadow:
+        0 0 10px rgba(139, 92, 246, .16) !important;
+
+    pointer-events: none !important;
+}
+
+.sd-dashboard .sd-premium-account-glow {
+    z-index: 0 !important;
+}
+</style>
+
+
+<style id="sd-welcome-menu-gradient-final">
+/*
+|--------------------------------------------------------------------------
+| Welcome back top line — exact colors from bottom navigation
+|--------------------------------------------------------------------------
+*/
+
+.sd-dashboard .sd-premium-account-card::before {
+    content: "" !important;
+    position: absolute !important;
+    z-index: 50 !important;
+
+    top: 0 !important;
+    left: 14% !important;
+    right: 14% !important;
+
+    width: auto !important;
+    height: 1px !important;
+
+    display: block !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(124, 92, 255, 0.78),
+        rgba(0, 200, 248, 0.70),
+        transparent
+    ) !important;
+
+    opacity: 0.75 !important;
+    box-shadow: none !important;
+    filter: none !important;
+
+    pointer-events: none !important;
+}
+</style>
+
+
+<style id="dashboard-current-access-tariff-icons">
+.sd-dashboard .sd-premium-plan-icon svg {
+    width: 30px !important;
+    height: 30px !important;
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+.sd-dashboard .sd-premium-plan-icon svg path,
+.sd-dashboard .sd-premium-plan-icon svg line,
+.sd-dashboard .sd-premium-plan-icon svg polyline,
+.sd-dashboard .sd-premium-plan-icon svg polygon,
+.sd-dashboard .sd-premium-plan-icon svg circle,
+.sd-dashboard .sd-premium-plan-icon svg rect {
+    stroke: #ffffff !important;
+}
+</style>
+
+
+<style id="dashboard-exact-scanner-container">
+/*
+|--------------------------------------------------------------------------
+| Dashboard container — exact Scanner width and horizontal spacing
+|--------------------------------------------------------------------------
+*/
+
+main.app.sd-dashboard {
+    width: 100% !important;
+    max-width: var(--page-width) !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+}
+
+@media (max-width: 390px) {
+    main.app.sd-dashboard {
+        padding-right: 16px !important;
+        padding-left: 16px !important;
+    }
+}
+</style>
+
+
+<style id="dashboard-exact-scanner-spacing-final">
+/* Dashboard spacing — exact Scanner container values */
+main.app.sd-dashboard {
+    width: 100% !important;
+    max-width: var(--page-width) !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+
+    padding-top: max(16px, env(safe-area-inset-top)) !important;
+    padding-right: 16px !important;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+    padding-left: 16px !important;
+}
+</style>
+
+
+<style id="dashboard-kpi-layout-final">
+.sd-dashboard .sd-kpi-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.sd-dashboard .sd-kpi-wide {
+    width: 100%;
+    min-width: 0;
+}
+
+.sd-dashboard .sd-kpi-secondary-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.sd-dashboard .sd-kpi-secondary-row .sd-kpi {
+    min-width: 0;
+}
+
+.sd-dashboard #wallet-value-usd-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.sd-dashboard #found-wallets-usd-value {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.035em;
+}
+
+.sd-dashboard .sd-kpi-value .sd-kpi-icon {
+    color: #c9bcff !important;
+}
+
+.sd-dashboard .sd-kpi-badge-value {
+    color: #c8bdff !important;
+    border-color: rgba(139, 92, 246, .22) !important;
+    background: rgba(139, 92, 246, .08) !important;
+}
+
+@media (max-width: 370px) {
+    .sd-dashboard .sd-kpi-secondary-row {
+        gap: 9px;
+    }
+
+    .sd-dashboard .sd-kpi-secondary-row .sd-kpi {
+        padding-right: 12px !important;
+        padding-left: 12px !important;
+    }
+
+    .sd-dashboard .sd-kpi-secondary-row .sd-kpi > p {
+        font-size: 10px !important;
+    }
+
+    .sd-dashboard .sd-kpi-secondary-row .sd-kpi > small {
+        font-size: 8.5px !important;
+    }
+}
+</style>
+
+
+<style id="dashboard-wallet-value-font-match-final">
+.sd-dashboard #found-wallets-value,
+.sd-dashboard #found-wallets-usd-value {
+    font-family: inherit !important;
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.035em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+</style>
+
+
+<style id="dashboard-wallet-usd-exact-font-final">
+.sd-dashboard #wallets-value-container,
+.sd-dashboard #wallet-value-usd-container {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+.sd-dashboard #found-wallets-value,
+.sd-dashboard #found-wallets-usd-value {
+    display: block !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+    white-space: nowrap !important;
+
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.035em !important;
+    font-variant-numeric: tabular-nums !important;
+}
+</style>
+
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+</head>
+
+<body class="seedaim-background">
+<main class="app sd-dashboard">
+    
+<style id="sdh-support-action-styles">
+.sdh-header__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.sdh-support-action {
+    position: relative;
+    isolation: isolate;
+
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid rgba(139, 92, 246, .28);
+    border-radius: 13px;
+
+    background:
+        radial-gradient(
+            circle at 75% 20%,
+            rgba(96, 165, 250, .17),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(139, 92, 246, .16),
+            rgba(59, 130, 246, .07)
+        );
+
+    color: #c4b8ff;
+    text-decoration: none;
+
+    box-shadow:
+        0 9px 24px rgba(0, 0, 0, .20),
+        0 0 18px rgba(124, 92, 255, .09),
+        inset 0 1px 0 rgba(255, 255, 255, .075);
+
+    transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+
+    animation: sdhSupportFloat 3.2s ease-in-out infinite;
+}
+
+.sdh-support-action::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 5px;
+
+    border: 1px solid rgba(167, 139, 250, .18);
+    border-radius: 9px;
+
+    opacity: .72;
+}
+
+.sdh-support-action::after {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    inset: -5px;
+
+    border: 1px solid rgba(124, 92, 255, .16);
+    border-radius: 17px;
+
+    opacity: 0;
+    transform: scale(.86);
+
+    animation: sdhSupportPulse 3.2s ease-out infinite;
+}
+
+.sdh-support-action:hover {
+    transform: translateY(-1px);
+    border-color: rgba(167, 139, 250, .48);
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, .24),
+        0 0 22px rgba(124, 92, 255, .15),
+        inset 0 1px 0 rgba(255, 255, 255, .10);
+}
+
+.sdh-support-action:active {
+    transform: scale(.96);
+}
+
+.sdh-support-action svg {
+    width: 20px;
+    height: 20px;
+
+    filter:
+        drop-shadow(0 0 5px rgba(167, 139, 250, .24));
+}
+
+
+.sdh-support-action.is-locked {
+    border-color: rgba(255, 255, 255, .09);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, .055),
+            rgba(255, 255, 255, .025)
+        );
+    color: #7f899b;
+    box-shadow:
+        0 9px 22px rgba(0, 0, 0, .18),
+        inset 0 1px 0 rgba(255, 255, 255, .045);
+    animation: none;
+}
+
+.sdh-support-action.is-locked::after {
+    display: none;
+    animation: none;
+}
+
+.sdh-support-action.is-locked:hover {
+    transform: none;
+    border-color: rgba(255, 255, 255, .13);
+    box-shadow:
+        0 9px 22px rgba(0, 0, 0, .18),
+        inset 0 1px 0 rgba(255, 255, 255, .045);
+}
+
+.sdh-support-action.is-locked .sdh-support-action__dot {
+    display: none;
+}
+
+.sdh-support-access-note {
+    position: absolute;
+    z-index: 50;
+    top: calc(100% + 9px);
+    right: 0;
+
+    width: max-content;
+    max-width: min(260px, calc(100vw - 28px));
+
+    padding: 9px 11px;
+
+    border: 1px solid rgba(139, 92, 246, .22);
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 23, 38, .98),
+            rgba(8, 12, 22, .99)
+        );
+
+    color: #b9adff;
+
+    font-family:
+        "Satoshi",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, .36),
+        0 0 20px rgba(124, 92, 255, .09);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+
+    transition:
+        opacity 170ms ease,
+        visibility 170ms ease,
+        transform 170ms ease;
+}
+
+.sdh-support-access-note.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.sdh-support-action__dot {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+
+    width: 6px;
+    height: 6px;
+
+    border: 1px solid rgba(255, 255, 255, .48);
+    border-radius: 50%;
+
+    background: #61e8b2;
+
+    box-shadow:
+        0 0 0 3px rgba(97, 232, 178, .08),
+        0 0 8px rgba(97, 232, 178, .42);
+}
+
+@keyframes sdhSupportFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-1.5px);
+    }
+}
+
+@keyframes sdhSupportPulse {
+    0%,
+    48% {
+        opacity: 0;
+        transform: scale(.88);
+    }
+
+    66% {
+        opacity: .48;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.12);
+    }
+}
+
+@media (max-width: 390px) {
+    .sdh-support-action {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+        border-radius: 12px;
+    }
+
+    .sdh-support-action svg {
+        width: 19px;
+        height: 19px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sdh-support-action,
+    .sdh-support-action::after {
+        animation: none !important;
+    }
+}
+</style>
+
+<header class="sdh-header">
+    <div class="sdh-brand">
+        <div class="sdh-logo-wrap" aria-hidden="true">
+            <img src="img/l18.png" alt="" class="sdh-logo">
+        </div>
+
+        <div class="sdh-copy">
+            <div class="sdh-title-row">
+                <p class="sdh-title">SeedAim</p>
+                <span class="sdh-version">Cloud</span>
+            </div>
+
+            <p class="sdh-tagline">
+                New Era of Crypto Mining
+            </p>
+        </div>
+    </div>
+
+    <div class="sdh-header__actions">
+                    <button class="sdh-support-action is-locked" type="button" id="sdh-support-locked-button" aria-label="Support access information" aria-describedby="sdh-support-access-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                    <path d="M8 9h8"></path>
+                    <path d="M8 13h5"></path>
+                </svg>
+            </button>
+
+            <div class="sdh-support-access-note" id="sdh-support-access-note" role="status" aria-live="polite">
+                Support is available to users of paid plans.
+            </div>
+            </div>
+</header>
+
+<script>
+(() => {
+    const button = document.getElementById('sdh-support-locked-button');
+    const note = document.getElementById('sdh-support-access-note');
+
+    if (!button || !note) {
+        return;
+    }
+
+    let hideTimer = null;
+
+    button.addEventListener('click', () => {
+        note.classList.add('is-visible');
+
+        if (hideTimer) {
+            window.clearTimeout(hideTimer);
+        }
+
+        hideTimer = window.setTimeout(() => {
+            note.classList.remove('is-visible');
+        }, 4500);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (
+            event.target !== button &&
+            !button.contains(event.target) &&
+            !note.contains(event.target)
+        ) {
+            note.classList.remove('is-visible');
+        }
+    });
+})();
+</script>
+
+
+    <section class="sd-premium-account-card sd-account-plan-inactive">
+        <div class="sd-premium-account-glow" aria-hidden="true"></div>
+
+        <div class="sd-premium-account-head">
+            <div class="sd-premium-user">
+                <div class="sd-premium-avatar" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21a8 8 0 0 0-16 0"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+
+                <div class="sd-premium-user-copy">
+                    <span>Welcome back</span>
+                    <strong id="dashboard-user-email">Loading...</strong>
+                </div>
+            </div>
+
+            <div class="sd-premium-scanner-state " id="welcome-scanner-status">
+                <span class="sd-premium-state-dot"></span>
+
+                <span id="welcome-scanner-status-text">Scanner Stopped</span>
+            </div>
+        </div>
+
+        <div class="sd-premium-plan-main">
+            <div class="sd-premium-plan-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+                        <path d="M3 10h18"></path>
+                    </svg>
+                            </div>
+
+            <div class="sd-premium-plan-copy">
+                <span class="sd-premium-plan-label">
+                    Current access
+                </span>
+
+                <div class="sd-premium-plan-title-row">
+                    <h1>No active plan</h1>
+
+                                    </div>
+
+                                    <p>
+                        Choose a plan to unlock cloud processing and start scanning.
+                    </p>
+                            </div>
+        </div>
+
+        <div class="sd-premium-plan-stats">
+            <div>
+                <span>Access period</span>
+                <strong>
+                    Not activated                </strong>
+            </div>
+
+            <div>
+                <span>Processing speed</span>
+                <strong>
+                    Locked                </strong>
+            </div>
+        </div>
+
+                    <a class="sd-premium-plan-action" href="upgrade.html">
+                Choose a plan
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m13 6 6 6-6 6"></path>
+                </svg>
+            </a>
+            </section>
+
+    <section class="sd-section">
+        <div class="sd-section-head">
+            <div>
+                <p>Performance</p>
+                <h2>Scanner analytics</h2>
+            </div>
+
+            <span>Last 7 days</span>
+        </div>
+
+        <div class="sd-kpi-layout">
+            <article class="sd-kpi sd-kpi-processed sd-kpi-wide">
+                <div class="sd-kpi-top">
+                    <span class="sd-kpi-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                            <rect x="8" y="8" width="8" height="8" rx="1"></rect>
+                            <path d="M9 1v3"></path>
+                            <path d="M15 1v3"></path>
+                            <path d="M9 20v3"></path>
+                            <path d="M15 20v3"></path>
+                        </svg>
+                    </span>
+
+                    
+                </div>
+
+                <p>Processed phrases</p>
+
+                <div id="processed-value-container">
+                    <strong id="processed-total-value" style="font-size: 26px;">0</strong>
+                </div>
+
+                <small>Total processed by cloud scanner</small>
+            </article>
+
+            <div class="sd-kpi-secondary-row">
+                <article class="sd-kpi sd-kpi-mint">
+                    <div class="sd-kpi-top">
+                        <span class="sd-kpi-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+                                <path d="M16 10h5v4h-5a2 2 0 0 1 0-4Z"></path>
+                                <path d="M7 9h4"></path>
+                            </svg>
+                        </span>
+
+                        <span class="sd-kpi-badge sd-kpi-badge-mint">
+                            Unlocked
+                        </span>
+                    </div>
+
+                    <p>Found wallets</p>
+
+                    <div id="wallets-value-container">
+                        <strong id="found-wallets-value" style="font-size: 26px;">0</strong>
+                    </div>
+
+                    <small>Unlocked scanner results</small>
+                </article>
+
+                <article class="sd-kpi sd-kpi-value">
+                    <div class="sd-kpi-top">
+                        <span class="sd-kpi-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M16 8.5c-.8-.8-2-1.3-3.4-1.3-2 0-3.6 1-3.6 2.5 0 3.7 7 1.7 7 5 0 1.5-1.6 2.6-3.8 2.6-1.5 0-2.9-.5-3.8-1.5"></path>
+                                <path d="M12 5.4v13.2"></path>
+                            </svg>
+                        </span>
+
+                        <span class="sd-kpi-badge sd-kpi-badge-value">
+                            Total
+                        </span>
+                    </div>
+
+                    <p>Wallet value</p>
+
+                    <div id="wallet-value-usd-container">
+                        <strong id="found-wallets-usd-value">$0.00</strong>
+                    </div>
+
+                    <small>Total value of unlocked addresses</small>
+                </article>
+            </div>
+        </div>
+
+        <article class="sd-chart-card">
+            <div class="sd-chart-head">
+                <div>
+                    <h3>Processing activity</h3>
+                    <p>Daily scanner performance</p>
+                </div>
+
+                <div class="sd-chart-legend">
+                    <span><i class="sd-legend-bar"></i>Processed</span>
+                    <span><i class="sd-legend-line"></i>Wallets</span>
+                </div>
+            </div>
+
+            <div class="sd-chart-wrap">
+                <canvas id="scanner-analytics-chart" aria-label="Scanner processing chart" width="412" height="236" style="width: 412px; height: 236px;"></canvas>
+            </div>
+        </article>
+    </section>
+
+            <section class="sd-section">
+            <div class="sd-section-head">
+                <div>
+                    <p>Getting started</p>
+                    <h2>Start in three steps</h2>
+                </div>
+            </div>
+
+            <article class="sd-setup-card">
+                <div class="sd-setup-head">
+                    <div>
+                        <h3>Quick Setup</h3>
+                        <p>Complete these steps to start scanning.</p>
+                    </div>
+
+                    <span>3 steps</span>
+                </div>
+
+                <div class="sd-steps">
+                    <a class="sd-step" href="upgrade.html">
+                        <span class="sd-step-number">01</span>
+
+                        <span class="sd-step-copy">
+                            <strong>Choose a subscription</strong>
+                            <small>Select a plan and activate cloud processing</small>
+                        </span>
+
+                        <svg class="sd-step-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </a>
+
+                    <a class="sd-step" href="scanner.html">
+                        <span class="sd-step-number">02</span>
+
+                        <span class="sd-step-copy">
+                            <strong>Open Scanner &amp; start scanning</strong>
+                            <small>Configure and launch your first session</small>
+                        </span>
+
+                        <svg class="sd-step-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </a>
+
+                    <div class="sd-step sd-step-complete">
+                        <span class="sd-step-number">03</span>
+
+                        <span class="sd-step-copy">
+                            <strong>Find your first wallet</strong>
+                            <small>Unlocked results will appear in Records</small>
+                        </span>
+
+                        <svg class="sd-step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Complete">
+                            <path d="m6.5 12.5 3.4 3.4 7.6-8"></path>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    
+<style>
+    .bottom-navigation-wrapper {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+        pointer-events: none;
+    }
+
+    .bottom-navigation {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        width: min(100%, 560px);
+        min-height: 76px;
+        margin: 0 auto;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(18, 21, 34, 0.97), rgba(10, 12, 22, 0.98)),
+            rgba(11, 13, 23, 0.98);
+        box-shadow:
+            0 -1px 0 rgba(124, 92, 255, 0.16),
+            0 12px 34px rgba(0, 0, 0, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+        pointer-events: auto;
+    }
+
+    .bottom-navigation::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 14%;
+        right: 14%;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(124, 92, 255, 0.78),
+            rgba(0, 200, 248, 0.7),
+            transparent
+        );
+        opacity: 0.75;
+        pointer-events: none;
+    }
+
+    .navigation-item {
+        position: relative;
+        display: flex;
+        min-width: 0;
+        min-height: 60px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+        padding: 8px 4px 7px;
+        border-radius: 18px;
+        color: rgba(186, 192, 214, 0.72);
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+            color 0.16s ease,
+            background-color 0.16s ease,
+            border-color 0.16s ease;
+    }
+
+    .navigation-item::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border: 1px solid transparent;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .navigation-item:active {
+        background: rgba(255, 255, 255, 0.035);
+    }
+
+    .navigation-item.active {
+        color: #ffffff;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(124, 92, 255, 0.2), transparent 68%),
+            linear-gradient(180deg, rgba(124, 92, 255, 0.13), rgba(0, 200, 248, 0.055));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 7px 18px rgba(0, 0, 0, 0.2),
+            0 0 18px rgba(124, 92, 255, 0.12);
+    }
+
+    .navigation-item.active::before {
+        border-color: rgba(145, 122, 255, 0.28);
+    }
+
+    .navigation-icon-wrap {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        color: inherit;
+    }
+
+    .navigation-item.active .navigation-icon-wrap {
+        background: linear-gradient(145deg, rgba(124, 92, 255, 0.24), rgba(0, 200, 248, 0.1));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .navigation-icon {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 auto;
+    }
+
+    .navigation-label {
+        max-width: 100%;
+        overflow: hidden;
+        color: inherit;
+        font-size: 10.5px;
+        font-weight: 650;
+        line-height: 1.15;
+        letter-spacing: 0.01em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .navigation-item.active .navigation-label {
+        background: linear-gradient(90deg, #ffffff, #d8eaff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    @media (min-width: 480px) {
+        .bottom-navigation-wrapper {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .bottom-navigation {
+            min-height: 80px;
+        }
+
+        .navigation-item {
+            min-height: 64px;
+        }
+
+        .navigation-label {
+            font-size: 11px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .navigation-item {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="bottom-navigation-wrapper">
+    <nav class="bottom-navigation" aria-label="Main navigation">
+        <a class="navigation-item active" href="dashboard.html" aria-current="page">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                </svg>
+            </span>
+            <span class="navigation-label">Dashboard</span>
+        </a>
+
+        <a class="navigation-item " href="scanner.html">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                    <path d="M7 12h10"></path>
+                </svg>
+            </span>
+            <span class="navigation-label">Scanner</span>
+        </a>
+
+        <a class="navigation-item " href="upgrade.html">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3 4.5 8.25 12 21l7.5-12.75L12 3Z"></path>
+                    <path d="m4.5 8.25 7.5 3.5 7.5-3.5"></path>
+                    <path d="M12 21v-9.25"></path>
+                </svg>
+            </span>
+            <span class="navigation-label">Upgrade</span>
+        </a>
+
+        <a class="navigation-item " href="faq.html">
+            <span class="navigation-icon-wrap" aria-hidden="true">
+                <svg class="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M9.75 9a2.35 2.35 0 1 1 3.84 1.82c-.96.73-1.59 1.13-1.59 2.43"></path>
+                    <path d="M12 17h.01"></path>
+                </svg>
+            </span>
+            <span class="navigation-label">FAQ</span>
+        </a>
+    </nav>
+</div>
+
+    <script>
+        const analyticsCanvas =
+            document.getElementById(
+                'scanner-analytics-chart'
+            );
+
+        const processedTotalValue =
+            document.getElementById(
+                'processed-total-value'
+            );
+
+        const processedValueContainer =
+            document.getElementById(
+                'processed-value-container'
+            );
+
+        const foundWalletsValue =
+            document.getElementById(
+                'found-wallets-value'
+            );
+
+        const walletsValueContainer =
+            document.getElementById(
+                'wallets-value-container'
+            );
+
+        const foundWalletsUsdValue =
+            document.getElementById(
+                'found-wallets-usd-value'
+            );
+
+        const walletValueUsdContainer =
+            document.getElementById(
+                'wallet-value-usd-container'
+            );
+
+        const scannerActivityBadge =
+            document.getElementById(
+                'scanner-activity-badge'
+            );
+
+        const scannerActivityText =
+            document.getElementById(
+                'scanner-activity-text'
+            );
+
+        const welcomeScannerStatus =
+            document.getElementById(
+                'welcome-scanner-status'
+            );
+
+        const welcomeScannerStatusText =
+            document.getElementById(
+                'welcome-scanner-status-text'
+            );
+
+        let chartData =
+            {"processed_total":0,"found_wallets_total":0,"found_wallets_usd_total":0,"scanner_status":"stopped","labels":["Wed","Thu","Fri","Sat","Sun","Mon","Tue"],"full_labels":["Oct 14","Oct 15","Oct 16","Oct 17","Oct 18","Oct 19","Oct 20"],"processed_values":[0,0,0,0,0,0,0],"found_values":[0,0,0,0,0,0,0]};
+
+        /*
+        |--------------------------------------------------------------------------
+        | Number formatting
+        |--------------------------------------------------------------------------
+        */
+
+        function formatCompactNumber(value) {
+            const number =
+                Number(value) || 0;
+
+            if (number >= 1000000000000) {
+                return (
+                    number / 1000000000000
+                ).toFixed(1)
+                    .replace('.0', '') + 'T';
+            }
+
+            if (number >= 1000000000) {
+                return (
+                    number / 1000000000
+                ).toFixed(1)
+                    .replace('.0', '') + 'B';
+            }
+
+            if (number >= 1000000) {
+                return (
+                    number / 1000000
+                ).toFixed(1)
+                    .replace('.0', '') + 'M';
+            }
+
+            if (number >= 1000) {
+                return (
+                    number / 1000
+                ).toFixed(1)
+                    .replace('.0', '') + 'K';
+            }
+
+            return String(
+                Math.round(number)
+            );
+        }
+
+        function formatFullNumber(value) {
+            return new Intl.NumberFormat(
+                'en-US'
+            ).format(
+                Number(value) || 0
+            );
+        }
+
+        function formatUsdValue(value) {
+            return new Intl.NumberFormat(
+                'en-US',
+                {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            ).format(
+                Number(value) || 0
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dynamically reduce value font size
+        |--------------------------------------------------------------------------
+        |
+        | Starts at 26px and decreases one pixel at a time.
+        | Minimum allowed size is 8px.
+        |
+        */
+
+        function fitValueToContainer(
+            element,
+            container,
+            maximumSize = 26,
+            minimumSize = 8
+        ) {
+            if (
+                !element ||
+                !container
+            ) {
+                return;
+            }
+
+            element.style.fontSize =
+                `${maximumSize}px`;
+
+            let currentSize =
+                maximumSize;
+
+            const availableWidth =
+                container.clientWidth;
+
+            while (
+                element.scrollWidth >
+                    availableWidth &&
+                currentSize >
+                    minimumSize
+            ) {
+                currentSize -= 1;
+
+                element.style.fontSize =
+                    `${currentSize}px`;
+            }
+        }
+
+        function fitAllStatisticValues() {
+            fitValueToContainer(
+                processedTotalValue,
+                processedValueContainer,
+                26,
+                6
+            );
+
+            fitValueToContainer(
+                foundWalletsValue,
+                walletsValueContainer,
+                26,
+                6
+            );
+        }
+
+        if ('ResizeObserver' in window) {
+            const statisticResizeObserver =
+                new ResizeObserver(function () {
+                    window.requestAnimationFrame(
+                        fitAllStatisticValues
+                    );
+                });
+
+            if (processedValueContainer) {
+                statisticResizeObserver.observe(
+                    processedValueContainer
+                );
+            }
+
+            if (walletsValueContainer) {
+                statisticResizeObserver.observe(
+                    walletsValueContainer
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rounded rectangle fallback
+        |--------------------------------------------------------------------------
+        */
+
+        function drawRoundedRectangle(
+            context,
+            x,
+            y,
+            width,
+            height,
+            radius
+        ) {
+            const safeRadius =
+                Math.min(
+                    radius,
+                    width / 2,
+                    height / 2
+                );
+
+            context.beginPath();
+
+            context.moveTo(
+                x + safeRadius,
+                y
+            );
+
+            context.lineTo(
+                x + width - safeRadius,
+                y
+            );
+
+            context.quadraticCurveTo(
+                x + width,
+                y,
+                x + width,
+                y + safeRadius
+            );
+
+            context.lineTo(
+                x + width,
+                y + height - safeRadius
+            );
+
+            context.quadraticCurveTo(
+                x + width,
+                y + height,
+                x + width - safeRadius,
+                y + height
+            );
+
+            context.lineTo(
+                x + safeRadius,
+                y + height
+            );
+
+            context.quadraticCurveTo(
+                x,
+                y + height,
+                x,
+                y + height - safeRadius
+            );
+
+            context.lineTo(
+                x,
+                y + safeRadius
+            );
+
+            context.quadraticCurveTo(
+                x,
+                y,
+                x + safeRadius,
+                y
+            );
+
+            context.closePath();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics chart
+        |--------------------------------------------------------------------------
+        */
+
+        function drawAnalyticsChart() {
+            if (!analyticsCanvas) {
+                return;
+            }
+
+            const context =
+                analyticsCanvas.getContext('2d');
+
+            if (!context) {
+                return;
+            }
+
+            const wrapper =
+                analyticsCanvas.parentElement;
+
+            const width =
+                wrapper.clientWidth;
+
+            const height =
+                wrapper.clientHeight;
+
+            if (
+                width <= 0 ||
+                height <= 0
+            ) {
+                return;
+            }
+
+            const pixelRatio =
+                Math.max(
+                    1,
+                    window.devicePixelRatio || 1
+                );
+
+            analyticsCanvas.width =
+                Math.round(
+                    width * pixelRatio
+                );
+
+            analyticsCanvas.height =
+                Math.round(
+                    height * pixelRatio
+                );
+
+            analyticsCanvas.style.width =
+                `${width}px`;
+
+            analyticsCanvas.style.height =
+                `${height}px`;
+
+            context.setTransform(
+                pixelRatio,
+                0,
+                0,
+                pixelRatio,
+                0,
+                0
+            );
+
+            context.clearRect(
+                0,
+                0,
+                width,
+                height
+            );
+
+            const processedValues =
+                Array.isArray(
+                    chartData.processed_values
+                )
+                    ? chartData.processed_values
+                    : [];
+
+            const foundValues =
+                Array.isArray(
+                    chartData.found_values
+                )
+                    ? chartData.found_values
+                    : [];
+
+            const labels =
+                Array.isArray(
+                    chartData.labels
+                )
+                    ? chartData.labels
+                    : [];
+
+            const padding = {
+                top: 11,
+                right: 10,
+                bottom: 26,
+                left: 36
+            };
+
+            const chartWidth =
+                Math.max(
+                    1,
+                    width -
+                    padding.left -
+                    padding.right
+                );
+
+            const chartHeight =
+                Math.max(
+                    1,
+                    height -
+                    padding.top -
+                    padding.bottom
+                );
+
+            const processedMaximum =
+                Math.max(
+                    1,
+                    ...processedValues.map(
+                        (value) =>
+                            Number(value) || 0
+                    )
+                );
+
+            const foundMaximum =
+                Math.max(
+                    1,
+                    ...foundValues.map(
+                        (value) =>
+                            Number(value) || 0
+                    )
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Horizontal grid
+            |--------------------------------------------------------------------------
+            */
+
+            context.lineWidth = 1;
+
+            context.strokeStyle =
+                'rgba(255, 255, 255, 0.05)';
+
+            context.fillStyle =
+                'rgba(145, 153, 175, 0.68)';
+
+            context.font =
+                '8px -apple-system, BlinkMacSystemFont, sans-serif';
+
+            context.textAlign =
+                'right';
+
+            context.textBaseline =
+                'middle';
+
+            const gridLines = 4;
+
+            for (
+                let index = 0;
+                index <= gridLines;
+                index++
+            ) {
+                const ratio =
+                    index / gridLines;
+
+                const y =
+                    padding.top +
+                    chartHeight -
+                    chartHeight * ratio;
+
+                context.beginPath();
+
+                context.moveTo(
+                    padding.left,
+                    y
+                );
+
+                context.lineTo(
+                    width - padding.right,
+                    y
+                );
+
+                context.stroke();
+
+                context.fillText(
+                    formatCompactNumber(
+                        processedMaximum * ratio
+                    ),
+                    padding.left - 6,
+                    y
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Processed bars
+            |--------------------------------------------------------------------------
+            */
+
+            const valuesCount =
+                Math.max(
+                    1,
+                    processedValues.length
+                );
+
+            const itemWidth =
+                chartWidth /
+                valuesCount;
+
+            const barWidth =
+                Math.min(
+                    21,
+                    itemWidth * 0.46
+                );
+
+            processedValues.forEach(
+                (rawValue, index) => {
+                    const value =
+                        Number(rawValue) || 0;
+
+                    const normalized =
+                        value /
+                        processedMaximum;
+
+                    const barHeight =
+                        Math.max(
+                            value > 0 ? 3 : 0,
+                            chartHeight * normalized
+                        );
+
+                    const x =
+                        padding.left +
+                        itemWidth * index +
+                        itemWidth / 2 -
+                        barWidth / 2;
+
+                    const y =
+                        padding.top +
+                        chartHeight -
+                        barHeight;
+
+                    const gradient =
+                        context.createLinearGradient(
+                            0,
+                            y,
+                            0,
+                            y + barHeight
+                        );
+
+                    gradient.addColorStop(
+                        0,
+                        'rgba(155, 125, 255, 0.98)'
+                    );
+
+                    gradient.addColorStop(
+                        0.45,
+                        'rgba(124, 92, 255, 0.78)'
+                    );
+
+                    gradient.addColorStop(
+                        1,
+                        'rgba(91, 62, 228, 0.25)'
+                    );
+
+                    context.fillStyle =
+                        gradient;
+
+                    context.shadowColor =
+                        'rgba(124, 92, 255, 0.18)';
+
+                    context.shadowBlur = 8;
+
+                    drawRoundedRectangle(
+                        context,
+                        x,
+                        y,
+                        barWidth,
+                        barHeight,
+                        Math.min(
+                            6,
+                            barWidth / 2
+                        )
+                    );
+
+                    context.fill();
+
+                    context.shadowBlur = 0;
+                }
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Found wallets line
+            |--------------------------------------------------------------------------
+            */
+
+            const points =
+                foundValues.map(
+                    (rawValue, index) => {
+                        const value =
+                            Number(rawValue) || 0;
+
+                        const normalized =
+                            value /
+                            foundMaximum;
+
+                        return {
+                            x:
+                                padding.left +
+                                itemWidth * index +
+                                itemWidth / 2,
+
+                            y:
+                                padding.top +
+                                chartHeight -
+                                chartHeight * normalized,
+
+                            value
+                        };
+                    }
+                );
+
+            if (points.length > 0) {
+                context.lineWidth = 2;
+
+                context.strokeStyle =
+                    '#27e0a3';
+
+                context.shadowColor =
+                    'rgba(39, 224, 163, 0.32)';
+
+                context.shadowBlur = 7;
+
+                context.beginPath();
+
+                points.forEach(
+                    (point, index) => {
+                        if (index === 0) {
+                            context.moveTo(
+                                point.x,
+                                point.y
+                            );
+                        } else {
+                            context.lineTo(
+                                point.x,
+                                point.y
+                            );
+                        }
+                    }
+                );
+
+                context.stroke();
+
+                context.shadowBlur = 0;
+
+                points.forEach((point) => {
+                    context.beginPath();
+
+                    context.arc(
+                        point.x,
+                        point.y,
+                        point.value > 0
+                            ? 3.3
+                            : 2.2,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    context.fillStyle =
+                        point.value > 0
+                            ? '#27e0a3'
+                            : '#1b6b55';
+
+                    context.fill();
+
+                    context.lineWidth = 2;
+
+                    context.strokeStyle =
+                        '#0b111e';
+
+                    context.stroke();
+                });
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Day labels
+            |--------------------------------------------------------------------------
+            */
+
+            context.fillStyle =
+                'rgba(145, 153, 175, 0.72)';
+
+            context.font =
+                '8px -apple-system, BlinkMacSystemFont, sans-serif';
+
+            context.textAlign =
+                'center';
+
+            context.textBaseline =
+                'top';
+
+            labels.forEach(
+                (label, index) => {
+                    const x =
+                        padding.left +
+                        itemWidth * index +
+                        itemWidth / 2;
+
+                    context.fillText(
+                        String(label),
+                        x,
+                        height -
+                        padding.bottom +
+                        8
+                    );
+                }
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update interface
+        |--------------------------------------------------------------------------
+        */
+
+        function updateScannerStatus(
+            scannerRunning
+        ) {
+            scannerActivityBadge
+                ?.classList.toggle(
+                    'running',
+                    scannerRunning
+                );
+
+            welcomeScannerStatus
+                ?.classList.toggle(
+                    'running',
+                    scannerRunning
+                );
+
+            if (scannerActivityText) {
+                scannerActivityText.textContent =
+                    scannerRunning
+                        ? 'Scanner Running'
+                        : 'Scanner Stopped';
+            }
+
+            if (welcomeScannerStatusText) {
+                welcomeScannerStatusText.textContent =
+                    scannerRunning
+                        ? 'Scanner Running'
+                        : 'Scanner Stopped';
+            }
+        }
+
+        function updateDashboardStatistics(
+            statistics
+        ) {
+            chartData = statistics;
+
+            if (processedTotalValue) {
+                processedTotalValue.textContent =
+                    formatFullNumber(
+                        statistics.processed_total
+                    );
+            }
+
+            if (foundWalletsValue) {
+                foundWalletsValue.textContent =
+                    formatFullNumber(
+                        statistics.found_wallets_total
+                    );
+            }
+
+            if (foundWalletsUsdValue) {
+                foundWalletsUsdValue.textContent =
+                    formatUsdValue(
+                        statistics.found_wallets_usd_total
+                    );
+            }
+
+            updateScannerStatus(
+                statistics.scanner_status ===
+                    'running'
+            );
+
+            window.requestAnimationFrame(
+                () => {
+                    fitAllStatisticValues();
+                    drawAnalyticsChart();
+                }
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh statistics
+        |--------------------------------------------------------------------------
+        */
+
+        async function refreshDashboardStatistics() {
+            try {
+                const response =
+                    await fetch(
+                        'dashboard.php?api=statistics',
+                        {
+                            method: 'GET',
+                            credentials: 'same-origin',
+                            cache: 'no-store',
+                            headers: {
+                                Accept:
+                                    'application/json'
+                            }
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (
+                    !response.ok ||
+                    !data.success ||
+                    !data.statistics
+                ) {
+                    throw new Error(
+                        'Unable to update statistics.'
+                    );
+                }
+
+                updateDashboardStatistics(
+                    data.statistics
+                );
+            } catch (error) {
+                console.error(
+                    'Dashboard statistics update failed:',
+                    error
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resize handling
+        |--------------------------------------------------------------------------
+        */
+
+        let resizeTimer = null;
+
+        window.addEventListener(
+            'resize',
+            () => {
+                window.clearTimeout(
+                    resizeTimer
+                );
+
+                resizeTimer =
+                    window.setTimeout(
+                        () => {
+                            fitAllStatisticValues();
+                            drawAnalyticsChart();
+                        },
+                        120
+                    );
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh when returning to application
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (
+                    document.visibilityState ===
+                    'visible'
+                ) {
+                    refreshDashboardStatistics();
+                }
+            }
+        );
+
+        window.addEventListener(
+            'pageshow',
+            () => {
+                refreshDashboardStatistics();
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Initial render
+        |--------------------------------------------------------------------------
+        */
+
+        window.requestAnimationFrame(
+            () => {
+                fitAllStatisticValues();
+                drawAnalyticsChart();
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh every five minutes
+        |--------------------------------------------------------------------------
+        */
+
+        window.setInterval(
+            refreshDashboardStatistics,
+            5 * 60 * 1000
+        );
+    </script>
+
+
+
+    <!-- SeedAim Dashboard Auth & Data Script -->
+    <script>
+    (async () => {
+        'use strict';
+
+        // Redirect to login if not authenticated
+        const session = await window.requireAuth();
+        if (!session) return;
+
+        // Load user profile from Supabase
+        const profile = await window.getProfile();
+
+        // --- Fill in user email ---
+        const emailEl = document.getElementById('dashboard-user-email');
+        if (emailEl && session.user.email) {
+            emailEl.textContent = session.user.email;
+        }
+
+        // --- Update plan display if profile loaded ---
+        if (profile) {
+            // Find plan-related elements and update them
+            const planSection = document.querySelector('.sd-premium-account-card');
+            if (planSection) {
+                // Remove existing plan classes and set correct one
+                planSection.classList.remove(
+                    'sd-account-plan-trial',
+                    'sd-account-plan-starter',
+                    'sd-account-plan-pro',
+                    'sd-account-plan-ultra',
+                    'sd-account-plan-inactive'
+                );
+                planSection.classList.add('sd-account-plan-' + (profile.plan || 'trial'));
+            }
+
+            // Update plan title
+            const planTitle = document.querySelector('.sd-premium-plan-copy h1');
+            if (planTitle) {
+                const planLabels = {
+                    trial: 'Trial Plan',
+                    starter: 'Starter Plan',
+                    pro: 'Pro Plan',
+                    ultra: 'Ultra Plan'
+                };
+                planTitle.textContent = planLabels[profile.plan] || 'Trial Plan';
+            }
+
+            // Update scans used in KPI cards
+            const processedEl = document.getElementById('processed-total-value');
+            if (processedEl && profile.scans_used !== undefined) {
+                processedEl.textContent = profile.scans_used;
+            }
+        }
+
+        // --- Wire up logout buttons ---
+        document.querySelectorAll('[data-logout], [href*="logout"], [data-action="signout"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.signOut();
+            });
+        });
+
+        // Also handle any element with text "Sign Out" or "Log Out"
+        document.querySelectorAll('a, button').forEach(el => {
+            const text = el.textContent.trim().toLowerCase();
+            if (text === 'sign out' || text === 'log out' || text === 'logout') {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.signOut();
+                });
+            }
+        });
+
+    })();
+    </script>
+</body></html>
