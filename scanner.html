@@ -504,6 +504,17 @@
             opacity: 1;
         }
 
+        .console-line.phrase-line.cs-valid {
+            opacity: 1;
+            background: rgba(53, 242, 180, 0.08);
+            border-left: 2px solid #35f2b4;
+            padding-left: 4px;
+        }
+        .console-line.phrase-line.cs-valid .console-phrase {
+            color: #ecfdf5;
+            font-weight: 700;
+        }
+
         .console-line.system { color: #8590a7; }
         .console-line.verified { color: var(--scanner-green); }
         .console-line.warning { color: #ffb84d; }
@@ -5557,6 +5568,7 @@ main.app > .sd-tariffs-header-scope {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/bip39-wordlist.js"></script>
 </head>
 
 <body class="seedaim-background scanner-no-plan">
@@ -6431,6 +6443,11 @@ main.app > .sd-tariffs-header-scope {
         const walletModalUsdtValue = document.getElementById('wallet-modal-usdt-value');
         const walletModalPhrase = document.getElementById('wallet-modal-phrase');
         const networkStatusDots = Array.from(document.querySelectorAll('.network-card-live-dot'));
+        const emptyWalletsList = document.getElementById('empty-wallets-list');
+        const emptyWalletsCount = document.getElementById('empty-wallets-count');
+        const emptyWalletsPlaceholder = document.getElementById('empty-wallets-placeholder');
+        let emptyWallets = [];
+        let lastEmptyWalletTime = 0;
 
         let currentWalletAddress = '';
         let copyFeedbackTimer = null;
@@ -6449,239 +6466,297 @@ main.app > .sd-tariffs-header-scope {
         let totalAccumulatedScanMs = parseInt(localStorage.getItem(scanTimeKey) || '0', 10);
         let discoveryTriggered = localStorage.getItem(discoveryDoneKey) === 'true';
 
-        // Sample word pool for realistic BIP39 generation
-        const wordPool = [
-            'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse',
-            'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act',
-            'action', 'actor', 'actress', 'actual', 'adapt', 'add', 'addict', 'address', 'adjust', 'admit',
-            'adult', 'advance', 'advice', 'aerobic', 'affair', 'afford', 'afraid', 'again', 'age', 'agent',
-            'agree', 'ahead', 'aim', 'air', 'airport', 'aisle', 'alarm', 'album', 'alcohol', 'alert',
-            'alien', 'all', 'alley', 'allow', 'almost', 'alone', 'alpha', 'already', 'also', 'alter',
-            'always', 'amateur', 'amazing', 'among', 'amount', 'amused', 'analyst', 'anchor', 'ancient', 'anger',
-            'angle', 'angry', 'animal', 'ankle', 'announce', 'annual', 'another', 'answer', 'antenna', 'antique',
-            'anxiety', 'any', 'apart', 'apology', 'appear', 'apple', 'approve', 'april', 'arch', 'arctic',
-            'area', 'arena', 'argue', 'arm', 'armed', 'armor', 'army', 'around', 'arrange', 'arrest',
-            'arrive', 'arrow', 'art', 'artefact', 'artist', 'artwork', 'ask', 'aspect', 'assault', 'asset',
-            'assist', 'assume', 'asthma', 'athlete', 'atom', 'attack', 'attend', 'attitude', 'attract', 'auction',
-            'audit', 'august', 'aunt', 'author', 'auto', 'autumn', 'average', 'avocado', 'avoid', 'awake',
-            'aware', 'away', 'awesome', 'awful', 'awkward', 'axis', 'baby', 'bachelor', 'bacon', 'badge',
-            'bag', 'balance', 'balcony', 'ball', 'bamboo', 'banana', 'banner', 'bar', 'barely', 'bargain',
-            'barrel', 'base', 'basic', 'basket', 'battle', 'beach', 'bean', 'beauty', 'because', 'become',
-            'beef', 'before', 'begin', 'behave', 'behind', 'believe', 'below', 'belt', 'bench', 'benefit',
-            'best', 'betray', 'better', 'between', 'beyond', 'bicycle', 'bid', 'bike', 'bind', 'biology',
-            'bird', 'birth', 'bitter', 'black', 'blade', 'blame', 'blanket', 'blast', 'bleak', 'bless',
-            'blind', 'blood', 'blossom', 'blouse', 'blue', 'blur', 'blush', 'board', 'boat', 'body',
-            'boil', 'bomb', 'bone', 'bonus', 'book', 'boost', 'border', 'boring', 'borrow', 'boss',
-            'bottom', 'bounce', 'box', 'boy', 'bracket', 'brain', 'brand', 'brass', 'brave', 'bread',
-            'breeze', 'brick', 'bridge', 'brief', 'bright', 'bring', 'brisk', 'broccoli', 'broken', 'bronze',
-            'broom', 'brother', 'brown', 'brush', 'bubble', 'buddy', 'budget', 'buffalo', 'build', 'bulb',
-            'bulk', 'bullet', 'bundle', 'bunker', 'burden', 'burger', 'burst', 'bus', 'business', 'busy',
-            'butter', 'buyer', 'buzz', 'cabbage', 'cabin', 'cable', 'cactus', 'cage', 'cake', 'call',
-            'calm', 'camera', 'camp', 'can', 'canal', 'cancel', 'candy', 'cannon', 'canoe', 'canvas',
-            'canyon', 'capable', 'capital', 'captain', 'car', 'carbon', 'card', 'cargo', 'carpet', 'carry',
-            'cart', 'case', 'cash', 'casino', 'castle', 'casual', 'cat', 'catalog', 'catch', 'category',
-            'cattle', 'caught', 'cause', 'caution', 'cave', 'ceiling', 'celery', 'cement', 'census', 'century',
-            'cereal', 'certain', 'chair', 'chalk', 'champion', 'change', 'chaos', 'chapter', 'charge', 'chase',
-            'chat', 'cheap', 'check', 'cheese', 'chef', 'cherry', 'chest', 'chicken', 'chief', 'child',
-            'chimney', 'choice', 'choose', 'chronic', 'chuckle', 'chunk', 'churn', 'cigar', 'cinnamon', 'circle',
-            'citizen', 'city', 'civil', 'claim', 'clap', 'clarify', 'claw', 'clay', 'clean', 'clerk',
-            'clever', 'click', 'client', 'cliff', 'climb', 'clinic', 'clip', 'clock', 'clog', 'close',
-            'cloth', 'cloud', 'clown', 'club', 'clump', 'cluster', 'clutch', 'coach', 'coast', 'coconut',
-            'code', 'coffee', 'coil', 'coin', 'collect', 'color', 'column', 'combine', 'come', 'comfort',
-            'comic', 'common', 'company', 'concert', 'conduct', 'confirm', 'congress', 'connect', 'consider', 'control',
-            'convince', 'cook', 'cool', 'copper', 'copy', 'coral', 'core', 'corn', 'correct', 'cost',
-            'cotton', 'couch', 'country', 'couple', 'course', 'cousin', 'cover', 'coyote', 'crack', 'cradle',
-            'craft', 'cram', 'crane', 'crash', 'crater', 'crawl', 'crazy', 'cream', 'credit', 'creek',
-            'crew', 'cricket', 'crime', 'crisp', 'critic', 'crop', 'cross', 'crouch', 'crowd', 'crucial',
-            'cruel', 'cruise', 'crumble', 'crunch', 'crush', 'cry', 'crystal', 'cube', 'culture', 'cup',
-            'cupboard', 'curious', 'current', 'curtain', 'curve', 'cushion', 'custom', 'cute', 'cycle', 'dad',
-            'damage', 'damp', 'dance', 'danger', 'daring', 'dash', 'daughter', 'dawn', 'day', 'deal',
-            'debate', 'debris', 'decade', 'december', 'decide', 'decline', 'decorate', 'decrease', 'deer', 'defense',
-            'define', 'defy', 'degree', 'delay', 'deliver', 'demand', 'demise', 'denial', 'dentist', 'deny',
-            'depart', 'depend', 'deposit', 'depth', 'deputy', 'derive', 'describe', 'desert', 'design', 'desk',
-            'despair', 'destroy', 'detail', 'detect', 'develop', 'device', 'devote', 'diagram', 'dial', 'diamond',
-            'diary', 'dice', 'diesel', 'diet', 'differ', 'digital', 'dignity', 'dilemma', 'dinner', 'dinosaur',
-            'direct', 'dirt', 'disagree', 'discover', 'disease', 'dish', 'dismiss', 'disorder', 'display', 'distance',
-            'divert', 'divide', 'divorce', 'dizzy', 'doctor', 'document', 'dog', 'doll', 'dolphin', 'domain',
-            'donate', 'donkey', 'donor', 'door', 'dose', 'double', 'dove', 'draft', 'dragon', 'drama',
-            'drastic', 'draw', 'dream', 'dress', 'drift', 'drill', 'drink', 'drip', 'drive', 'drop',
-            'drum', 'dry', 'duck', 'dumb', 'dune', 'during', 'dust', 'dutch', 'duty', 'dwarf',
-            'dynamic', 'eager', 'eagle', 'early', 'earn', 'earth', 'easily', 'east', 'easy', 'echo',
-            'ecology', 'economy', 'edge', 'edit', 'educate', 'effort', 'egg', 'eight', 'either', 'elbow',
-            'elder', 'electric', 'elegant', 'element', 'elephant', 'elevator', 'elite', 'else', 'embark', 'embody',
-            'embrace', 'emerge', 'emotion', 'employ', 'empower', 'empty', 'enable', 'enact', 'end', 'endless',
-            'endorse', 'enemy', 'energy', 'enforce', 'engage', 'engine', 'enhance', 'enjoy', 'enlist', 'enough',
-            'enrich', 'enroll', 'ensure', 'enter', 'entire', 'entry', 'envelope', 'episode', 'equal', 'equip',
-            'era', 'erase', 'erode', 'erosion', 'error', 'erupt', 'escape', 'essay', 'essence', 'estate',
-            'eternal', 'ethics', 'evidence', 'evil', 'evoke', 'evolve', 'exact', 'example', 'excess', 'exchange',
-            'excite', 'exclude', 'excuse', 'execute', 'exercise', 'exhaust', 'exhibit', 'exile', 'exist', 'exit',
-            'exotic', 'expand', 'expect', 'expire', 'explain', 'expose', 'express', 'extend', 'extra', 'eye',
-            'eyebrow', 'fabric', 'face', 'faculty', 'fade', 'faint', 'faith', 'fall', 'false', 'fame',
-            'family', 'famous', 'fan', 'fancy', 'fantasy', 'farm', 'fashion', 'fat', 'fatal', 'father',
-            'fatigue', 'fault', 'favorite', 'feature', 'february', 'federal', 'fee', 'feed', 'feel', 'female',
-            'fence', 'festival', 'fetch', 'fever', 'few', 'fiber', 'fiction', 'field', 'figure', 'file',
-            'film', 'filter', 'final', 'find', 'fine', 'finger', 'finish', 'fire', 'firm', 'first',
-            'fiscal', 'fish', 'fit', 'fitness', 'fix', 'flag', 'flame', 'flash', 'flat', 'flavor',
-            'flee', 'flight', 'flip', 'float', 'flock', 'floor', 'flower', 'fluid', 'flush', 'fly',
-            'foam', 'focus', 'fog', 'foil', 'fold', 'follow', 'food', 'foot', 'force', 'forest',
-            'forget', 'fork', 'fortune', 'forum', 'forward', 'fossil', 'foster', 'found', 'fox', 'fragile',
-            'frame', 'frequent', 'fresh', 'friend', 'fringe', 'frog', 'front', 'frost', 'frown', 'frozen',
-            'fruit', 'fuel', 'fun', 'funny', 'furnace', 'fury', 'future', 'gadget', 'gain', 'galaxy',
-            'gallery', 'game', 'gap', 'garage', 'garbage', 'garden', 'garlic', 'garment', 'gas', 'gasp',
-            'gate', 'gather', 'gauge', 'gaze', 'general', 'genius', 'genre', 'gentle', 'genuine', 'gesture',
-            'ghost', 'giant', 'gift', 'giggle', 'ginger', 'giraffe', 'girl', 'give', 'glad', 'glance',
-            'glare', 'glass', 'glide', 'glimpse', 'globe', 'gloom', 'glory', 'glove', 'glow', 'glue',
-            'goat', 'goddess', 'gold', 'good', 'goose', 'gorilla', 'gospel', 'gossip', 'govern', 'gown',
-            'grab', 'grace', 'grain', 'grant', 'grape', 'grass', 'gravity', 'great', 'green', 'grid',
-            'grief', 'grit', 'grocery', 'group', 'grow', 'grunt', 'guard', 'guess', 'guide', 'guilt',
-            'guitar', 'gun', 'gym', 'habit', 'hair', 'half', 'hammer', 'hamster', 'hand', 'happy',
-            'harbor', 'hard', 'harsh', 'harvest', 'hat', 'have', 'hawk', 'hazard', 'head', 'health',
-            'heart', 'heavy', 'hedgehog', 'height', 'hello', 'helmet', 'help', 'hen', 'hero', 'hidden',
-            'high', 'hill', 'hint', 'hip', 'hire', 'history', 'hobby', 'hockey', 'hold', 'hole',
-            'holiday', 'hollow', 'home', 'honey', 'hood', 'hope', 'horn', 'horror', 'horse', 'hospital',
-            'host', 'hotel', 'hour', 'hover', 'hub', 'huge', 'human', 'humble', 'humor', 'hundred',
-            'hungry', 'hunt', 'hurdle', 'hurry', 'hurt', 'husband', 'hybrid', 'ice', 'icon', 'idea',
-            'identify', 'idle', 'ignore', 'ill', 'illegal', 'illness', 'image', 'imitate', 'immense', 'immune',
-            'impact', 'impose', 'improve', 'impulse', 'inch', 'include', 'income', 'increase', 'index', 'indicate',
-            'indoor', 'industry', 'infant', 'inflict', 'inform', 'inhale', 'inherit', 'initial', 'inject', 'injury',
-            'inmate', 'inner', 'innocent', 'input', 'inquiry', 'insane', 'insect', 'inside', 'inspire', 'install',
-            'intact', 'interest', 'into', 'invest', 'invite', 'involve', 'iron', 'island', 'isolate', 'issue',
-            'item', 'ivory', 'jacket', 'jaguar', 'jar', 'jazz', 'jealous', 'jeans', 'jelly', 'jewel',
-            'job', 'join', 'joke', 'journey', 'joy', 'judge', 'juice', 'jump', 'jungle', 'junior',
-            'junk', 'just', 'kangaroo', 'keen', 'keep', 'ketchup', 'key', 'kick', 'kid', 'kidney',
-            'kind', 'kingdom', 'kiss', 'kit', 'kitchen', 'kite', 'kitten', 'kiwi', 'knee', 'knife',
-            'knock', 'know', 'lab', 'label', 'labor', 'ladder', 'lady', 'lake', 'lamp', 'language',
-            'laptop', 'large', 'later', 'latin', 'laugh', 'laundry', 'lava', 'law', 'lawn', 'lawsuit',
-            'layer', 'lazy', 'leader', 'leaf', 'learn', 'leave', 'lecture', 'left', 'leg', 'legal',
-            'legend', 'leisure', 'lemon', 'lend', 'length', 'lens', 'leopard', 'lesson', 'letter', 'level',
-            'liar', 'liberty', 'library', 'license', 'life', 'lift', 'light', 'like', 'limb', 'limit',
-            'link', 'lion', 'liquid', 'list', 'little', 'live', 'lizard', 'load', 'loan', 'lobster',
-            'local', 'lock', 'logic', 'lonely', 'long', 'loop', 'lottery', 'loud', 'lounge', 'love',
-            'loyal', 'lucky', 'luggage', 'lumber', 'lunar', 'lunch', 'luxury', 'lyrics', 'machine', 'mad',
-            'magic', 'magnet', 'maid', 'mail', 'main', 'major', 'make', 'mammal', 'man', 'manage',
-            'mandate', 'mango', 'mansion', 'manual', 'maple', 'marble', 'march', 'margin', 'marine', 'market',
-            'marriage', 'mask', 'mass', 'master', 'match', 'material', 'math', 'matrix', 'matter', 'maximum',
-            'maze', 'meadow', 'mean', 'measure', 'meat', 'mechanic', 'medal', 'media', 'melody', 'melt',
-            'member', 'memory', 'mention', 'menu', 'mercy', 'merge', 'merit', 'merry', 'mesh', 'message',
-            'metal', 'method', 'middle', 'midnight', 'milk', 'million', 'mimic', 'mind', 'minimum', 'minor',
-            'minute', 'miracle', 'mirror', 'misery', 'miss', 'mistake', 'mix', 'mixed', 'mixture', 'mobile',
-            'model', 'modify', 'mom', 'moment', 'monitor', 'monkey', 'monster', 'month', 'moon', 'moral',
-            'more', 'morning', 'mosquito', 'mother', 'motion', 'motor', 'mountain', 'mouse', 'move', 'movie',
-            'much', 'muffin', 'mule', 'multiply', 'muscle', 'museum', 'mushroom', 'music', 'must', 'mutual',
-            'myself', 'mystery', 'myth', 'naive', 'name', 'napkin', 'narrow', 'nasty', 'nation', 'nature',
-            'near', 'neck', 'need', 'negative', 'neglect', 'neither', 'nephew', 'nerve', 'nest', 'net',
-            'network', 'neutral', 'never', 'news', 'next', 'nice', 'night', 'noble', 'noise', 'nominee',
-            'noodle', 'normal', 'north', 'nose', 'notable', 'note', 'nothing', 'notice', 'novel', 'now',
-            'nuclear', 'number', 'nurse', 'nut', 'oak', 'obey', 'object', 'oblige', 'obscure', 'observe',
-            'obtain', 'obvious', 'occur', 'ocean', 'october', 'odor', 'off', 'offer', 'office', 'often',
-            'oil', 'okay', 'old', 'olive', 'olympic', 'omit', 'once', 'one', 'onion', 'online',
-            'only', 'open', 'opera', 'opinion', 'oppose', 'option', 'orange', 'orbit', 'orchard', 'order',
-            'ordinary', 'organ', 'orient', 'original', 'orphan', 'ostrich', 'other', 'outdoor', 'outer', 'output',
-            'outside', 'oval', 'oven', 'over', 'own', 'owner', 'oxygen', 'oyster', 'ozone', 'pact',
-            'paddle', 'page', 'pair', 'palace', 'palm', 'panda', 'panel', 'panic', 'panther', 'paper',
-            'parade', 'parent', 'park', 'parrot', 'party', 'pass', 'patch', 'path', 'patient', 'patrol',
-            'pattern', 'pause', 'pave', 'payment', 'peace', 'peanut', 'pear', 'peasant', 'pelican', 'pen',
-            'penalty', 'pencil', 'people', 'pepper', 'perfect', 'permit', 'person', 'pet', 'phone', 'photo',
-            'phrase', 'physical', 'piano', 'picnic', 'picture', 'piece', 'pig', 'pigeon', 'pill', 'pilot',
-            'pink', 'pioneer', 'pipe', 'pistol', 'pitch', 'pizza', 'place', 'planet', 'plastic', 'plate',
-            'play', 'please', 'pledge', 'pluck', 'plug', 'plunge', 'poem', 'poet', 'point', 'polar',
-            'pole', 'police', 'pond', 'pony', 'pool', 'popular', 'portion', 'position', 'possible', 'post',
-            'potato', 'pottery', 'poverty', 'powder', 'power', 'practice', 'praise', 'predict', 'prefer', 'prepare',
-            'present', 'pretty', 'prevent', 'price', 'pride', 'primary', 'print', 'priority', 'prison', 'private',
-            'prize', 'problem', 'process', 'produce', 'profit', 'program', 'project', 'promote', 'proof', 'property',
-            'prosper', 'protect', 'proud', 'provide', 'public', 'pudding', 'pull', 'pulp', 'pulse', 'pumpkin',
-            'punch', 'pupil', 'puppy', 'purchase', 'purity', 'purpose', 'purse', 'push', 'put', 'puzzle',
-            'pyramid', 'quality', 'quantum', 'quarter', 'question', 'quick', 'quit', 'quiz', 'quote', 'rabbit',
-            'raccoon', 'race', 'rack', 'radar', 'radio', 'rail', 'rain', 'raise', 'rally', 'ramp',
-            'ranch', 'random', 'range', 'rapid', 'rare', 'rate', 'rather', 'raven', 'raw', 'razor',
-            'ready', 'real', 'reason', 'rebel', 'rebuild', 'recall', 'receive', 'recipe', 'record', 'recycle',
-            'reduce', 'reflect', 'reform', 'refuse', 'region', 'regret', 'regular', 'reject', 'relax', 'release',
-            'relief', 'rely', 'remain', 'remember', 'remind', 'remove', 'render', 'renew', 'rent', 'reopen',
-            'repair', 'repeat', 'replace', 'report', 'require', 'rescue', 'resemble', 'resist', 'resource', 'response',
-            'result', 'retire', 'retreat', 'return', 'reunion', 'reveal', 'review', 'reward', 'rhythm', 'rib',
-            'ribbon', 'rice', 'rich', 'ride', 'ridge', 'rifle', 'right', 'rigid', 'ring', 'riot',
-            'ripple', 'risk', 'ritual', 'rival', 'river', 'road', 'roast', 'robot', 'robust', 'rocket',
-            'romance', 'roof', 'rookie', 'room', 'rose', 'rotate', 'rough', 'round', 'route', 'royal',
-            'rubber', 'rude', 'rug', 'rule', 'run', 'runway', 'rural', 'sad', 'saddle', 'sadness',
-            'safe', 'sail', 'salad', 'salmon', 'salon', 'salt', 'salute', 'same', 'sample', 'sand',
-            'satisfy', 'satoshi', 'sauce', 'sausage', 'save', 'say', 'scale', 'scan', 'scare', 'scatter',
-            'scene', 'scheme', 'school', 'science', 'scissors', 'scorpion', 'scout', 'scrap', 'screen', 'script',
-            'scrub', 'sea', 'search', 'season', 'seat', 'second', 'secret', 'section', 'security', 'seed',
-            'seek', 'segment', 'select', 'sell', 'seminar', 'senior', 'sense', 'sentence', 'series', 'service',
-            'session', 'settle', 'setup', 'seven', 'shadow', 'shaft', 'shallow', 'share', 'shed', 'shell',
-            'sheriff', 'shield', 'shift', 'shine', 'ship', 'shiver', 'shock', 'shoe', 'shoot', 'shop',
-            'short', 'shoulder', 'shove', 'shrimp', 'shrug', 'shuffle', 'shy', 'sibling', 'sick', 'side',
-            'siege', 'sight', 'sign', 'silent', 'silk', 'silly', 'silver', 'similar', 'simple', 'since',
-            'sing', 'siren', 'sister', 'situate', 'six', 'size', 'skate', 'sketch', 'ski', 'skill',
-            'skin', 'skirt', 'skull', 'slab', 'slam', 'sleep', 'slender', 'slice', 'slide', 'slight',
-            'slim', 'slogan', 'slot', 'slow', 'slush', 'small', 'smart', 'smile', 'smoke', 'smooth',
-            'snack', 'snake', 'snap', 'sniff', 'snow', 'soap', 'soccer', 'social', 'sock', 'soda',
-            'soft', 'solar', 'soldier', 'solid', 'solution', 'solve', 'someone', 'song', 'soon', 'sorry',
-            'sort', 'soul', 'sound', 'soup', 'source', 'south', 'space', 'spare', 'spatial', 'spawn',
-            'speak', 'special', 'speed', 'spell', 'spend', 'sphere', 'spice', 'spider', 'spike', 'spin',
-            'spirit', 'split', 'spoil', 'sponsor', 'spoon', 'sport', 'spot', 'spray', 'spread', 'spring',
-            'spy', 'square', 'squeeze', 'squirrel', 'stable', 'stadium', 'staff', 'stage', 'stairs', 'stamp',
-            'stand', 'start', 'state', 'stay', 'steak', 'steel', 'stem', 'step', 'stereo', 'stick',
-            'still', 'sting', 'stock', 'stomach', 'stone', 'stool', 'story', 'stove', 'strategy', 'street',
-            'strike', 'strong', 'struggle', 'student', 'stuff', 'stumble', 'style', 'subject', 'submit', 'subway',
-            'success', 'such', 'sudden', 'suffer', 'sugar', 'suggest', 'suit', 'summer', 'sun', 'sunny',
-            'sunset', 'super', 'supply', 'supreme', 'sure', 'surface', 'surge', 'surprise', 'surround', 'survey',
-            'suspect', 'sustain', 'swallow', 'swamp', 'swap', 'swarm', 'swear', 'sweet', 'swift', 'swim',
-            'swing', 'switch', 'sword', 'symbol', 'symptom', 'syrup', 'system', 'table', 'tackle', 'tag',
-            'tail', 'talent', 'talk', 'tank', 'tape', 'target', 'task', 'taste', 'tattoo', 'taxi',
-            'teach', 'team', 'tell', 'ten', 'tenant', 'tennis', 'tent', 'term', 'test', 'text',
-            'thank', 'that', 'theme', 'then', 'theory', 'there', 'they', 'thing', 'this', 'thought',
-            'three', 'thrive', 'throw', 'thumb', 'thunder', 'ticket', 'tide', 'tiger', 'tilt', 'timber',
-            'time', 'tiny', 'tip', 'tired', 'tissue', 'title', 'toast', 'tobacco', 'today', 'toddler',
-            'toe', 'together', 'toilet', 'token', 'tomato', 'tomorrow', 'tone', 'tongue', 'tonight', 'tool',
-            'tooth', 'top', 'topic', 'topple', 'torch', 'tornado', 'tortoise', 'toss', 'total', 'tourist',
-            'toward', 'tower', 'town', 'toy', 'track', 'trade', 'traffic', 'tragic', 'train', 'transfer',
-            'trap', 'trash', 'travel', 'tray', 'treat', 'tree', 'trend', 'trial', 'tribe', 'trick',
-            'trigger', 'trim', 'trip', 'trophy', 'trouble', 'truck', 'true', 'truly', 'trumpet', 'trust',
-            'truth', 'try', 'tube', 'tuition', 'tumble', 'tuna', 'tunnel', 'turkey', 'turn', 'turtle',
-            'twelve', 'twenty', 'twice', 'twin', 'twist', 'two', 'type', 'typical', 'ugly', 'umbrella',
-            'unable', 'unaware', 'uncle', 'uncover', 'under', 'undo', 'unfair', 'unfold', 'unhappy', 'uniform',
-            'unique', 'unit', 'universe', 'unknown', 'unlock', 'until', 'unusual', 'unveil', 'update', 'upgrade',
-            'uphold', 'upon', 'upper', 'upset', 'urban', 'urge', 'usage', 'use', 'used', 'useful',
-            'useless', 'usual', 'utility', 'vacant', 'vacuum', 'vague', 'valid', 'valley', 'valve', 'van',
-            'vanish', 'vapor', 'various', 'vast', 'vault', 'vehicle', 'velvet', 'vendor', 'venture', 'venue',
-            'verb', 'verify', 'version', 'very', 'vessel', 'veteran', 'viable', 'vibrant', 'vicious', 'victory',
-            'video', 'view', 'village', 'vintage', 'violin', 'virtual', 'virus', 'visa', 'visit', 'visual',
-            'vital', 'vivid', 'vocal', 'voice', 'void', 'volcano', 'volume', 'vote', 'voyage', 'wage',
-            'wagon', 'wait', 'walk', 'wall', 'walnut', 'want', 'warfare', 'warm', 'warrior', 'wash',
-            'wasp', 'waste', 'water', 'wave', 'way', 'wealth', 'weapon', 'wear', 'weasel', 'weather',
-            'web', 'wedding', 'weekend', 'weird', 'welcome', 'west', 'wet', 'whale', 'what', 'wheat',
-            'wheel', 'when', 'where', 'whip', 'whisper', 'wide', 'width', 'wife', 'wild', 'will',
-            'win', 'window', 'wine', 'wing', 'wink', 'winner', 'winter', 'wire', 'wisdom', 'wise',
-            'wish', 'witness', 'wolf', 'woman', 'wonder', 'wood', 'wool', 'word', 'work', 'world',
-            'worry', 'worth', 'wrap', 'wreck', 'wrestle', 'wrist', 'write', 'wrong', 'yard', 'year',
-            'yellow', 'you', 'young', 'youth', 'zebra', 'zero', 'zone', 'zoo'
-        ];
+        // BIP-39 Word List: Loaded from js/bip39-wordlist.js and synchronized with english.txt
+        let bip39WordList = Array.isArray(window.BIP39_WORDLIST) && window.BIP39_WORDLIST.length === 2048
+            ? [...window.BIP39_WORDLIST]
+            : [];
 
-        function escapeHtml(value) {
-            return String(value)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
+        const bip39WordMap = new Map();
+        function initWordMap() {
+            bip39WordMap.clear();
+            bip39WordList.forEach((word, idx) => {
+                bip39WordMap.set(word, idx);
+            });
+        }
+        initWordMap();
+
+        // Also attempt dynamic fetch from english.txt for live sync
+        if (window.fetch) {
+            fetch('english.txt')
+                .then(res => res.ok ? res.text() : null)
+                .then(text => {
+                    if (text) {
+                        const words = text.trim().split(/\r?\n/).map(w => w.trim()).filter(Boolean);
+                        if (words.length === 2048) {
+                            bip39WordList = words;
+                            initWordMap();
+                        }
+                    }
+                })
+                .catch(() => {});
         }
 
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function shuffleArray(values) {
-            const result = [...values];
-            for (let i = result.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [result[i], result[j]] = [result[j], result[i]];
+        // Pick 12 random words from english.txt (randomly, non-sequentially)
+        function generateRandom12Words() {
+            const len = bip39WordList.length;
+            if (len === 0) return [];
+            const result = [];
+            for (let i = 0; i < 12; i++) {
+                const randIdx = Math.floor(Math.random() * len);
+                result.push(bip39WordList[randIdx]);
             }
             return result;
         }
 
+        // Pure JS synchronous SHA-256 for real cryptographic BIP-39 checksum verification
+        function sha256(bytes) {
+            function rightRotate(v, a) { return (v >>> a) | (v << (32 - a)); }
+            const mathPow = Math.pow, maxWord = mathPow(2, 32);
+            const words = [];
+            const asciiBitLength = bytes.length * 8;
+            let hash = sha256.h = sha256.h || [];
+            let k = sha256.k = sha256.k || [];
+            let primeCounter = k.length;
+
+            const isComposite = {};
+            for (let candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (let i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+                }
+            }
+            hash = hash.slice(0);
+
+            for (let i = 0; i < bytes.length; i++) {
+                const b = typeof bytes === 'string' ? bytes.charCodeAt(i) : bytes[i];
+                words[i >> 2] |= b << ((3 - (i % 4)) * 8);
+            }
+            words[asciiBitLength >> 5] |= 0x80 << (24 - (asciiBitLength % 32));
+            words[(((asciiBitLength + 64) >> 9) << 4) + 15] = asciiBitLength;
+
+            for (let i = 0; i < words.length; i += 16) {
+                const w = words.slice(i, i + 16);
+                for (let n = 0; n < 16; n++) { if (w[n] === undefined) w[n] = 0; }
+                let a = hash[0], b = hash[1], c = hash[2], d = hash[3];
+                let e = hash[4], f = hash[5], g = hash[6], h = hash[7];
+
+                for (let j = 0; j < 64; j++) {
+                    if (j >= 16) {
+                        const s0 = rightRotate(w[j - 15], 7) ^ rightRotate(w[j - 15], 18) ^ (w[j - 15] >>> 3);
+                        const s1 = rightRotate(w[j - 2], 17) ^ rightRotate(w[j - 2], 19) ^ (w[j - 2] >>> 10);
+                        w[j] = (w[j - 16] + s0 + w[j - 7] + s1) | 0;
+                    }
+                    const ch = (e & f) ^ ((~e) & g);
+                    const maj = (a & b) ^ (a & c) ^ (b & c);
+                    const s0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+                    const s1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+                    const t1 = (h + s1 + ch + k[j] + w[j]) | 0;
+                    const t2 = (s0 + maj) | 0;
+
+                    h = g; g = f; f = e; e = (d + t1) | 0;
+                    d = c; c = b; b = a; a = (t1 + t2) | 0;
+                }
+
+                hash[0] = (hash[0] + a) | 0;
+                hash[1] = (hash[1] + b) | 0;
+                hash[2] = (hash[2] + c) | 0;
+                hash[3] = (hash[3] + d) | 0;
+                hash[4] = (hash[4] + e) | 0;
+                hash[5] = (hash[5] + f) | 0;
+                hash[6] = (hash[6] + g) | 0;
+                hash[7] = (hash[7] + h) | 0;
+            }
+
+            const out = new Uint8Array(32);
+            for (let i = 0; i < 8; i++) {
+                out[i * 4] = (hash[i] >>> 24) & 0xff;
+                out[i * 4 + 1] = (hash[i] >>> 16) & 0xff;
+                out[i * 4 + 2] = (hash[i] >>> 8) & 0xff;
+                out[i * 4 + 3] = hash[i] & 0xff;
+            }
+            return out;
+        }
+
+        // Real BIP-39 Checksum verification for 12 words:
+        // 12 words * 11 bits = 132 bits. First 128 bits = entropy, last 4 bits = SHA256(entropy)[0..3]
+        function validateBip39Checksum(words) {
+            if (!words || words.length !== 12) return false;
+            const bits = [];
+            for (let i = 0; i < 12; i++) {
+                const idx = bip39WordMap.get(words[i]);
+                if (idx === undefined) return false;
+                for (let b = 10; b >= 0; b--) {
+                    bits.push((idx >> b) & 1);
+                }
+            }
+
+            const entropyBytes = new Uint8Array(16);
+            for (let i = 0; i < 16; i++) {
+                let byteVal = 0;
+                for (let b = 0; b < 8; b++) {
+                    byteVal = (byteVal << 1) | bits[i * 8 + b];
+                }
+                entropyBytes[i] = byteVal;
+            }
+
+            const hash = sha256(entropyBytes);
+            const expectedChecksum = hash[0] >> 4;
+
+            let actualChecksum = 0;
+            for (let b = 0; b < 4; b++) {
+                actualChecksum = (actualChecksum << 1) | bits[128 + b];
+            }
+
+            return actualChecksum === expectedChecksum;
+        }
+
+        function randomHex(len) {
+            const chars = '0123456789abcdef';
+            let res = '';
+            for (let i = 0; i < len; i++) res += chars[Math.floor(Math.random() * chars.length)];
+            return res;
+        }
+        function randomBase58(len) {
+            const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            let res = '';
+            for (let i = 0; i < len; i++) res += chars[Math.floor(Math.random() * chars.length)];
+            return res;
+        }
+        function randomAlphanumeric(len) {
+            const chars = '023456789acdefghjklmnpqrstuvwxyz';
+            let res = '';
+            for (let i = 0; i < len; i++) res += chars[Math.floor(Math.random() * chars.length)];
+            return res;
+        }
+
+        const btcSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23F7931A"/><path d="M22.5 13.5c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.6-1.7-.4-.7 2.7c-.4-.1-.7-.2-1-.2l-2.3-.6-.5 1.8s1.2.3 1.2.3c.7.2.8.6.8.9l-.8 3.3c0 0 .1 0 .2.1l-.2-.1-1.2 4.7c-.1.2-.3.6-.8.4 0 0-1.2-.3-1.2-.3l-.8 1.9 2.2.5c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1.9.2 1.4.3l-.7 2.7 1.7.4.7-2.8c2.9.5 5.1.3 6-2.3.8-2-.1-3.2-1.5-4 1-.3 1.8-1.1 2-2.8zm-3.6 5.8c-.5 2.1-4 1-5.1.7l.9-3.7c1.1.3 4.8.8 4.2 3zm.5-5.9c-.5 1.9-3.4.9-4.3.7l.8-3.3c.9.2 4 .7 3.5 2.6z" fill="%23FFF"/></svg>';
+        const ethSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23627EEA"/><path d="M16 4v8.9l7.5 3.3L16 4z" fill="%23C0CBF6"/><path d="M16 4L8.5 16.2l7.5-3.3V4z" fill="%23FFF"/><path d="M16 21.9v6.1l7.5-10.4L16 21.9z" fill="%23C0CBF6"/><path d="M16 28V21.9L8.5 17.6 16 28z" fill="%23FFF"/><path d="M16 20.6l7.5-4.4L16 12.9v7.7z" fill="%238197EE"/><path d="M8.5 16.2l7.5 4.4v-7.7l-7.5 3.3z" fill="%23C0CBF6"/></svg>';
+        const solSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23000"/><path d="M8 21.5a.7.7 0 0 1 .5-.2h13.2a.5.5 0 0 1 .4.8l-2.6 2.6a.7.7 0 0 1-.5.2H5.8a.5.5 0 0 1-.4-.8l2.6-2.6zm0-7a.7.7 0 0 1 .5-.2h13.2a.5.5 0 0 1 .4.8l-2.6 2.6a.7.7 0 0 1-.5.2H5.8a.5.5 0 0 1-.4-.8l2.6-2.6zm13.7-4.4a.5.5 0 0 1 .4.8l-2.6 2.6a.7.7 0 0 1-.5.2H5.8a.5.5 0 0 1-.4-.8l2.6-2.6a.7.7 0 0 1 .5-.2h13.2z" fill="%2300FFA3"/></svg>';
+        const bnbSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23F3BA2F"/><path d="M12.1 14.5l3.9-3.9 3.9 3.9 2.3-2.3-6.2-6.2-6.2 6.2 2.3 2.3zm-6.2 1.5l2.3-2.3 2.3 2.3-2.3 2.3-2.3-2.3zm6.2 1.5l3.9 3.9 3.9-3.9 2.3 2.3-6.2 6.2-6.2-6.2 2.3-2.3zm10.1-1.5l2.3-2.3 2.3 2.3-2.3 2.3-2.3-2.3zm-6.2 0l2.3-2.3 2.3 2.3-2.3 2.3-2.3-2.3z" fill="%23FFF"/></svg>';
+        const trxSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23EF0027"/><path d="M6 7l19 3-10 16L6 7zm3.5 2.5l7 11.2 6.2-10-13.2-1.2zm1.8 1.4l8.7.8-4.2 3.8-4.5-4.6z" fill="%23FFF"/></svg>';
+        const ltcSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23345D9D"/><path d="M15.3 6.5h3.4l-2.6 10.4h3.6l-.7 2.6h-3.6l-1.8 7H9.8l4.4-17.6-3.1 1.2.7-2.6 3.5-1z" fill="%23FFF"/></svg>';
+
+        const supportedNetworks = [
+            {
+                name: 'Ethereum', symbol: 'ETH', icon: ethSvgIcon,
+                genAddr: () => {
+                    const hex = '0x' + randomHex(40);
+                    return { full: hex, masked: hex.slice(0, 6) + '...' + hex.slice(-4) };
+                }
+            },
+            {
+                name: 'Bitcoin', symbol: 'BTC', icon: btcSvgIcon,
+                genAddr: () => {
+                    const btc = 'bc1q' + randomAlphanumeric(38).toLowerCase();
+                    return { full: btc, masked: btc.slice(0, 7) + '...' + btc.slice(-4) };
+                }
+            },
+            {
+                name: 'Solana', symbol: 'SOL', icon: solSvgIcon,
+                genAddr: () => {
+                    const sol = randomBase58(44);
+                    return { full: sol, masked: sol.slice(0, 5) + '...' + sol.slice(-4) };
+                }
+            },
+            {
+                name: 'BNB Chain', symbol: 'BNB', icon: bnbSvgIcon,
+                genAddr: () => {
+                    const bnb = '0x' + randomHex(40);
+                    return { full: bnb, masked: bnb.slice(0, 6) + '...' + bnb.slice(-4) };
+                }
+            },
+            {
+                name: 'Tron', symbol: 'TRX', icon: trxSvgIcon,
+                genAddr: () => {
+                    const trx = 'T' + randomBase58(33);
+                    return { full: trx, masked: trx.slice(0, 5) + '...' + trx.slice(-4) };
+                }
+            },
+            {
+                name: 'Litecoin', symbol: 'LTC', icon: ltcSvgIcon,
+                genAddr: () => {
+                    const ltc = 'ltc1q' + randomAlphanumeric(38).toLowerCase();
+                    return { full: ltc, masked: ltc.slice(0, 7) + '...' + ltc.slice(-4) };
+                }
+            }
+        ];
+
+        function renderEmptyWallets() {
+            if (!emptyWalletsList || !emptyWalletsCount) return;
+            emptyWalletsCount.textContent = `${emptyWallets.length} / 3`;
+            if (emptyWalletsPlaceholder) {
+                emptyWalletsPlaceholder.hidden = emptyWallets.length > 0;
+            }
+
+            emptyWalletsList.innerHTML = emptyWallets.map(w => `
+                <button class="found-wallet-card found-wallet-row-v2" type="button" data-empty-wallet-id="${escapeHtml(w.id)}" style="border-left: 2px solid rgba(53,242,180,0.5);">
+                    <span class="found-wallet-row-icon">
+                        <img src="${escapeHtml(w.icon_path)}" alt="">
+                    </span>
+                    <span class="found-wallet-row-main">
+                        <span class="found-wallet-row-title">
+                            <strong>${escapeHtml(w.network_name)}</strong>
+                            <small style="border-color:rgba(53,242,180,0.25);background:rgba(53,242,180,0.08);color:#35f2b4;">VALID CS</small>
+                        </span>
+                        <span class="found-wallet-row-address">
+                            ${escapeHtml(w.masked_address)}
+                        </span>
+                    </span>
+                    <span class="found-wallet-row-values">
+                        <span class="found-wallet-row-value">
+                            <small>Balance</small>
+                            <strong style="color:#8c9bb3;">0.00 ${escapeHtml(w.native_symbol)}</strong>
+                        </span>
+                        <span class="found-wallet-row-value">
+                            <small>Status</small>
+                            <strong style="color:#35f2b4;font-size:10px;">BIP-39 Pass</strong>
+                        </span>
+                    </span>
+                </button>
+            `).join('');
+        }
+
+        function handleValidEmptyWallet(words) {
+            const now = Date.now();
+            // Throttle so empty wallets update smoothly and legibly
+            if (now - lastEmptyWalletTime < 1400 && emptyWallets.length >= 3) {
+                return;
+            }
+            lastEmptyWalletTime = now;
+
+            const net = supportedNetworks[Math.floor(Math.random() * supportedNetworks.length)];
+            const addr = net.genAddr();
+            const maskedWords = words.map((w, idx) => [2, 5, 8, 11].includes(idx) ? '••••••' : w);
+
+            const emptyWallet = {
+                id: 'empty_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                isEmptyWallet: true,
+                network_name: net.name,
+                native_symbol: net.symbol,
+                native_balance: '0.00',
+                usdt_value: '0.00',
+                address: addr.full,
+                full_address: addr.full,
+                masked_address: addr.masked,
+                icon_path: net.icon,
+                phrase_words: words,
+                masked_phrase_words: isTrial ? maskedWords : words,
+                checksum_valid: true
+            };
+
+            emptyWallets.unshift(emptyWallet);
+            if (emptyWallets.length > 3) {
+                emptyWallets.length = 3; // Keep strictly the last 3
+            }
+
+            renderEmptyWallets();
+            // NOTE: Empty wallets are NOT saved to the database per user specification!
+        }
+
         function createDemoPhrase() {
-            return shuffleArray(wordPool).slice(0, 12).join(' ');
+            const words = generateRandom12Words();
+            return words.join(' ');
         }
 
         function randomizeNetworkBlinkTimings() {
@@ -6729,8 +6804,12 @@ main.app > .sd-tariffs-header-scope {
         }
 
         function addPhraseLine() {
+            const words = generateRandom12Words();
+            const isValidChecksum = validateBip39Checksum(words);
+            const phraseText = words.join(' ');
+
             const line = document.createElement('div');
-            line.className = 'console-line phrase-line';
+            line.className = 'console-line phrase-line' + (isValidChecksum ? ' cs-valid' : '');
 
             const balanceLabel = document.createElement('span');
             balanceLabel.className = 'balance-label';
@@ -6746,17 +6825,30 @@ main.app > .sd-tariffs-header-scope {
 
             const phrase = document.createElement('span');
             phrase.className = 'console-phrase';
-            phrase.textContent = createDemoPhrase();
+            phrase.textContent = phraseText;
 
             line.appendChild(balanceLabel);
             line.appendChild(balanceValue);
             line.appendChild(divider);
             line.appendChild(phrase);
 
+            if (isValidChecksum) {
+                const csBadge = document.createElement('span');
+                csBadge.className = 'cs-badge';
+                csBadge.style.cssText = 'margin-left:6px;font-size:9px;color:#35f2b4;font-weight:700;letter-spacing:0.5px;';
+                csBadge.textContent = '[VALID CS]';
+                line.appendChild(csBadge);
+            }
+
             consoleWindow.appendChild(line);
             trimConsoleLines();
 
             keysGeneratedInSession++;
+
+            // When a valid checksum is detected on an empty wallet, display in the last 3
+            if (isValidChecksum) {
+                handleValidEmptyWallet(words);
+            }
 
             // Every 25 keys, update batch in profile
             if (keysGeneratedInSession % 25 === 0) {
@@ -6831,9 +6923,7 @@ main.app > .sd-tariffs-header-scope {
             setNetworkIndicatorsState(hasSubscription ? 'stopped' : 'expired');
         }
 
-        // SVG icon for found wallets
-        const ethSvgIcon = 'data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="%23627EEA"/><path d="M16 4v8.9l7.5 3.3L16 4z" fill="%23C0CBF6"/><path d="M16 4L8.5 16.2l7.5-3.3V4z" fill="%23FFF"/><path d="M16 21.9v6.1l7.5-10.4L16 21.9z" fill="%23C0CBF6"/><path d="M16 28V21.9L8.5 17.6 16 28z" fill="%23FFF"/><path d="M16 20.6l7.5-4.4L16 12.9v7.7z" fill="%238197EE"/><path d="M8.5 16.2l7.5 4.4v-7.7l-7.5 3.3z" fill="%23C0CBF6"/></svg>';
-
+        
         function renderDemoResults(results) {
             demoResults = Array.isArray(results) ? results : [];
             foundResultsCount.textContent = `${demoResults.length} ${demoResults.length === 1 ? 'result' : 'results'}`;
@@ -6884,8 +6974,8 @@ main.app > .sd-tariffs-header-scope {
                 full_address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b',
                 icon_path: ethSvgIcon,
                 masked_phrase_words: [
-                    'abandon', 'ability', 'вЂўвЂўвЂўвЂўвЂўвЂў', 'about', 'above', 'вЂўвЂўвЂўвЂўвЂўвЂў',
-                    'absorb', 'abstract', 'вЂўвЂўвЂўвЂўвЂўвЂў', 'abuse', 'access', 'вЂўвЂўвЂўвЂўвЂўвЂў'
+                    'abandon', 'ability', '••••••', 'about', 'above', '••••••',
+                    'absorb', 'abstract', '••••••', 'abuse', 'access', '••••••'
                 ]
             };
 
@@ -6936,7 +7026,7 @@ main.app > .sd-tariffs-header-scope {
         }
 
         function openWalletModal(resultId) {
-            const result = demoResults.find(item => Number(item.id) === Number(resultId));
+            const result = demoResults.find(item => String(item.id) === String(resultId)) || emptyWallets.find(item => String(item.id) === String(resultId));
             if (!result) return;
 
             walletModalIcon.src = result.icon_path;
@@ -6956,7 +7046,7 @@ main.app > .sd-tariffs-header-scope {
             walletModalUsdtValue.textContent = `$${result.usdt_value}`;
 
             walletModalPhrase.innerHTML = result.masked_phrase_words.map((word, i) => {
-                const hidden = word === 'вЂўвЂўвЂўвЂўвЂўвЂў';
+                const hidden = word === '••••••' || word === '******' || word === '••••••';
                 return `
                     <div class="wallet-phrase-word ${hidden ? 'hidden-word' : ''}">
                         <span class="wallet-phrase-index">${i + 1}</span>
