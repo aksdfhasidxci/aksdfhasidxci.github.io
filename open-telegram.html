@@ -124,6 +124,13 @@
     </div>
 
     <script>
+        // If already in Telegram or has cached user, return to dashboard
+        try {
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user || localStorage.getItem('sa_tg_user')) {
+                window.location.href = 'dashboard.html';
+            }
+        } catch (_) {}
+
         // Try to auto-redirect to Telegram deep link with the Mini App
         const tgLink = document.getElementById('tg-link');
 

@@ -543,7 +543,7 @@
 
         const msgs = ['Connecting to Telegram...', 'Verifying identity...', 'Loading secure modules...'];
         let mi = 0;
-        const msgTimer = setInterval(() => { if(loaderStatus) loaderStatus.textContent = msgs[++mi % msgs.length]; }, 400);
+        const msgTimer = setInterval(() => { if(loaderStatus) loaderStatus.textContent = msgs[++mi % msgs.length]; }, 350);
 
         function hideLoader() {
             clearInterval(msgTimer);
@@ -551,31 +551,37 @@
             if(authShell) authShell.style.display = '';
         }
 
-        if (window.tg) { window.tg.expand(); window.tg.ready(); }
+        if (window.tg) {
+            try { window.tg.expand(); window.tg.ready(); } catch(_) {}
+        }
 
-        if (!window.isInTelegram()) {
+        // If definitely outside Telegram and no saved user
+        if (!window.isInTelegram() && !window.getTelegramUser()) {
+            clearInterval(msgTimer);
             window.location.href = 'open-telegram.html';
             return;
         }
 
         const result = await window.signInWithTelegram();
-        if (!result) {
-            clearInterval(msgTimer);
-            if(loaderStatus) loaderStatus.textContent = 'Auth failed. Restart the app.';
-            return;
+        clearInterval(msgTimer);
+
+        if (result) {
+            const tgUser = window.getTelegramUser();
+            const displayName = [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(' ') || tgUser?.username || 'User';
+            if(document.getElementById('tg-display-name')) document.getElementById('tg-display-name').textContent = displayName;
+            if(tgUser?.username && document.getElementById('tg-display-username')) document.getElementById('tg-display-username').textContent = '@' + tgUser.username;
+            if(tgUserCard) tgUserCard.style.display = 'block';
+            if(enterBtn) enterBtn.style.display = 'flex';
+
+            hideLoader();
+
+            // Seamless forward to dashboard
+            setTimeout(() => { window.goTo('dashboard.html'); }, 600);
+            if(enterBtn) enterBtn.addEventListener('click', () => { window.goTo('dashboard.html'); });
+        } else {
+            // Forward to dashboard
+            window.goTo('dashboard.html');
         }
-
-        const tgUser = window.getTelegramUser();
-        const displayName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username || 'User';
-        if(document.getElementById('tg-display-name')) document.getElementById('tg-display-name').textContent = displayName;
-        if(tgUser.username && document.getElementById('tg-display-username')) document.getElementById('tg-display-username').textContent = '@' + tgUser.username;
-        if(tgUserCard) tgUserCard.style.display = 'block';
-        if(enterBtn) enterBtn.style.display = 'flex';
-
-        hideLoader();
-
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
-        if(enterBtn) enterBtn.addEventListener('click', () => { window.location.href = 'dashboard.html'; });
     })();
     </script>
 </body>

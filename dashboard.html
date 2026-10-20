@@ -2986,6 +2986,7 @@ main.app.sd-dashboard {
 
 
 <!-- Supabase JS SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
@@ -4697,10 +4698,17 @@ main.app.sd-dashboard {
         // Load user profile from Supabase
         const profile = await window.getProfile();
 
-        // --- Fill in user email ---
+        // --- Fill in user name / handle ---
         const emailEl = document.getElementById('dashboard-user-email');
-        if (emailEl && session.user.email) {
-            emailEl.textContent = session.user.email;
+        if (emailEl) {
+            const tgUser = window.getTelegramUser();
+            const displayName = profile?.tg_first_name 
+                || (profile?.tg_username ? '@' + profile.tg_username : null)
+                || [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(' ')
+                || (tgUser?.username ? '@' + tgUser.username : null)
+                || session?.user?.email
+                || 'Telegram User';
+            emailEl.textContent = displayName;
         }
 
         // --- Update plan display if profile loaded ---

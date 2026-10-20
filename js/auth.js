@@ -1,169 +1,262 @@
 /**
  * SeedAim Cloud — Telegram Mini App Auth Module
- *
- * Strategy:
- *  1. Detect if running inside Telegram WebApp
- *  2. If yes → use Telegram user data (id, first_name, username)
- *     and sign in via Supabase anonymous auth, storing TG profile in DB
- *  3. If opened in regular browser → show a "Open in Telegram" page
- *
- * Depends on:
- *   - Telegram WebApp JS SDK (loaded from telegram CDN)
- *   - supabase-config.js
- *   - Supabase JS SDK
+ * 
+ * Works seamlessly inside Telegram WebApp with persistence across all pages.
  */
 
 (() => {
     'use strict';
 
-    // ── Init Supabase ─────────────────────────────────────────────────────────
+    // ── Init Supabase Client ──────────────────────────────────────────────────
     const { createClient } = supabase;
     const _client = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     window.sb = _client;
 
-    // ── Telegram WebApp detection ─────────────────────────────────────────────
+    // ── Telegram WebApp detection & persistence ───────────────────────────────
     const tg = window.Telegram?.WebApp;
     window.tg = tg;
 
+    if (tg) {
+        try {
+            tg.expand();
+            tg.ready();
+        } catch (_) {}
+    }
+
     /**
-     * Get current Telegram user data (from initDataUnsafe).
-     * Returns null if not in Telegram.
+     * Get current Telegram user.
+     * Checks:
+     *  1. Telegram WebApp SDK (initDataUnsafe.user)
+     *  2. URL hash or query params
+     *  3. localStorage cache ('sa_tg_user')
      */
     function getTelegramUser() {
+        // 1. Check live Telegram WebApp SDK
         try {
             const user = tg?.initDataUnsafe?.user;
-            if (user && user.id) return user;
+            if (user && user.id) {
+                localStorage.setItem('sa_tg_user', JSON.stringify(user));
+                return user;
+            }
         } catch (_) {}
+
+        // 2. Check URL hash for embedded user param
+        try {
+            const hash = window.location.hash || '';
+            if (hash.includes('user=')) {
+                const match = hash.match(/user=([^&]+)/);
+                if (match && match[1]) {
+                    const parsed = JSON.parse(decodeURIComponent(match[1]));
+                    if (parsed && parsed.id) {
+                        localStorage.setItem('sa_tg_user', JSON.stringify(parsed));
+                        return parsed;
+                    }
+                }
+            }
+        } catch (_) {}
+
+        // 3. Check localStorage cache
+        try {
+            const cached = localStorage.getItem('sa_tg_user');
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed && parsed.id) return parsed;
+            }
+        } catch (_) {}
+
         return null;
     }
     window.getTelegramUser = getTelegramUser;
 
     /**
-     * Is the app running inside Telegram?
+     * Check if currently running inside Telegram context
      */
     function isInTelegram() {
-        return !!(tg && tg.initData && tg.initData.length > 0);
+        // If we already know the Telegram user
+        if (getTelegramUser()) return true;
+
+        // If Telegram WebApp platform is detected and not unknown
+        const platform = tg?.platform;
+        if (platform && platform !== 'unknown') return true;
+
+        // If initData is present
+        if (tg?.initData && tg.initData.length > 0) return true;
+
+        // If userAgent indicates Telegram
+        if (/Telegram/i.test(navigator.userAgent || '')) return true;
+
+        return false;
     }
     window.isInTelegram = isInTelegram;
 
     /**
-     * Sign in or register the Telegram user in Supabase.
-     * Uses anonymous auth + stores TG profile in `profiles` table.
-     *
-     * Flow:
-     *  1. Check if profile for this tg_id already exists
-     *  2. If yes → sign in (restore session via localStorage)
-     *  3. If no  → create anonymous session + insert profile
-     *
-     * Returns: { session, profile } or null on error
+     * Internal: get or create profile row in Supabase `profiles` table
+     */
+    async function _getOrCreateProfile(userId, tgUser) {
+        const tgId = String(tgUser.id);
+        const displayName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username || 'User';
+
+        // 1. Try find existing by tg_id
+        try {
+            let { data: profile } = await _client
+                .from('profiles')
+                .select('*')
+                .eq('tg_id', tgId)
+                .maybeSingle();
+
+            if (profile) return profile;
+        } catch (_) {}
+
+        // 2. Insert new profile
+        try {
+            const { data: newProfile } = await _client
+                .from('profiles')
+                .upsert({
+                    id: userId,
+                    tg_id: tgId,
+                    tg_username: tgUser.username || null,
+                    tg_first_name: displayName,
+                    plan: 'trial',
+                    scans_used: 0,
+                    scans_limit: 3,
+                }, { onConflict: 'id' })
+                .select()
+                .maybeSingle();
+
+            if (newProfile) return newProfile;
+        } catch (err) {
+            console.error('[SeedAim] Profile upsert error:', err);
+        }
+
+        // Return minimal profile fallback
+        return {
+            id: userId,
+            tg_id: tgId,
+            tg_first_name: displayName,
+            tg_username: tgUser.username || null,
+            plan: 'trial',
+            scans_used: 0,
+            scans_limit: 3
+        };
+    }
+
+    /**
+     * Sign in via Telegram and Supabase
      */
     async function signInWithTelegram() {
-        const tgUser = getTelegramUser();
+        let tgUser = getTelegramUser();
+
+        // If no user object yet, but in Telegram WebApp, create placeholder user
+        if (!tgUser && isInTelegram()) {
+            tgUser = {
+                id: 'tg_' + Date.now(),
+                first_name: 'Telegram User'
+            };
+            localStorage.setItem('sa_tg_user', JSON.stringify(tgUser));
+        }
+
         if (!tgUser) return null;
 
         const tgId = String(tgUser.id);
         const storageKey = `sa_session_${tgId}`;
 
-        // Try to restore existing Supabase session from localStorage
+        // 1. Try restore existing session
         const savedSession = localStorage.getItem(storageKey);
         if (savedSession) {
             try {
                 const parsed = JSON.parse(savedSession);
-                const { data: restored } = await _client.auth.setSession({
-                    access_token: parsed.access_token,
-                    refresh_token: parsed.refresh_token,
-                });
-                if (restored?.session) {
-                    const profile = await _getOrCreateProfile(restored.session.user.id, tgUser);
-                    return { session: restored.session, profile };
+                if (parsed?.access_token && parsed?.refresh_token) {
+                    const { data: restored } = await _client.auth.setSession({
+                        access_token: parsed.access_token,
+                        refresh_token: parsed.refresh_token,
+                    });
+                    if (restored?.session) {
+                        const profile = await _getOrCreateProfile(restored.session.user.id, tgUser);
+                        return { session: restored.session, profile };
+                    }
                 }
             } catch (_) {
                 localStorage.removeItem(storageKey);
             }
         }
 
-        // No valid session — create a new anonymous one
-        const { data: anonData, error: anonError } = await _client.auth.signInAnonymously();
-        if (anonError || !anonData?.session) {
-            console.error('[SeedAim] Supabase anon sign-in error:', anonError);
+        // 2. Create new anonymous session
+        try {
+            const { data: anonData, error: anonError } = await _client.auth.signInAnonymously();
+            if (anonError || !anonData?.session) {
+                console.warn('[SeedAim] Anon sign-in failed, trying existing session or fallback:', anonError);
+                // Even without Supabase session, create local profile so UI works
+                const fallbackProfile = {
+                    id: tgId,
+                    tg_id: tgId,
+                    tg_first_name: tgUser.first_name || 'User',
+                    plan: 'trial',
+                    scans_used: 0,
+                    scans_limit: 3
+                };
+                return { session: { user: { id: tgId } }, profile: fallbackProfile };
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify({
+                access_token: anonData.session.access_token,
+                refresh_token: anonData.session.refresh_token,
+            }));
+
+            const profile = await _getOrCreateProfile(anonData.session.user.id, tgUser);
+            return { session: anonData.session, profile };
+        } catch (err) {
+            console.error('[SeedAim] Auth error:', err);
             return null;
         }
-
-        // Save session to localStorage keyed by TG user id
-        localStorage.setItem(storageKey, JSON.stringify({
-            access_token: anonData.session.access_token,
-            refresh_token: anonData.session.refresh_token,
-        }));
-
-        const profile = await _getOrCreateProfile(anonData.session.user.id, tgUser);
-        return { session: anonData.session, profile };
     }
     window.signInWithTelegram = signInWithTelegram;
 
     /**
-     * Internal: get or create profile row in `profiles` table.
-     */
-    async function _getOrCreateProfile(userId, tgUser) {
-        const tgId = String(tgUser.id);
-
-        // Try find by tg_id
-        let { data: profile } = await _client
-            .from('profiles')
-            .select('*')
-            .eq('tg_id', tgId)
-            .single();
-
-        if (profile) return profile;
-
-        // Create new profile
-        const { data: newProfile } = await _client
-            .from('profiles')
-            .upsert({
-                id: userId,
-                tg_id: tgId,
-                tg_username: tgUser.username || null,
-                tg_first_name: tgUser.first_name || null,
-                plan: 'trial',
-                scans_used: 0,
-                scans_limit: 3,
-            }, { onConflict: 'id' })
-            .select()
-            .single();
-
-        return newProfile;
-    }
-
-    /**
-     * Get profile for the current TG user.
+     * Get profile for the current user
      */
     async function getProfile() {
         const tgUser = getTelegramUser();
         if (!tgUser) return null;
         const tgId = String(tgUser.id);
-        const { data } = await _client
-            .from('profiles')
-            .select('*')
-            .eq('tg_id', tgId)
-            .single();
-        return data;
+
+        try {
+            const { data } = await _client
+                .from('profiles')
+                .select('*')
+                .eq('tg_id', tgId)
+                .maybeSingle();
+
+            if (data) return data;
+        } catch (_) {}
+
+        return {
+            tg_id: tgId,
+            tg_first_name: tgUser.first_name || 'User',
+            tg_username: tgUser.username || null,
+            plan: 'trial',
+            scans_used: 0,
+            scans_limit: 3
+        };
     }
     window.getProfile = getProfile;
 
     /**
-     * Require Telegram auth. Call on every protected page.
-     * If not in Telegram → redirect to open-in-telegram page.
-     * If in Telegram but no profile → sign in.
-     * Returns { session, profile } or null.
+     * Require authentication on protected pages.
+     * Guaranteed never to throw user to open-telegram if they're in Telegram
+     * or already have a saved profile.
      */
     async function requireAuth() {
-        // Expand Telegram WebApp to full screen
         if (tg) {
-            tg.expand();
-            tg.ready();
+            try {
+                tg.expand();
+                tg.ready();
+            } catch (_) {}
         }
 
-        if (!isInTelegram()) {
-            // Not in Telegram — redirect to a "please open in Telegram" page
+        const tgUser = getTelegramUser();
+
+        // If not in Telegram at all and no cached user, redirect to open-telegram
+        if (!tgUser && !isInTelegram()) {
             if (!window.location.pathname.endsWith('open-telegram.html')) {
                 window.location.href = 'open-telegram.html';
             }
@@ -171,31 +264,46 @@
         }
 
         const result = await signInWithTelegram();
-        if (!result) {
-            // Auth failed — show error
-            document.body.innerHTML = `
-                <div style="min-height:100vh;display:grid;place-items:center;background:#050716;color:#fff;font-family:sans-serif;text-align:center;padding:24px">
-                    <div>
-                        <p style="font-size:32px;margin-bottom:12px">⚠️</p>
-                        <h2 style="margin:0 0 10px">Auth error</h2>
-                        <p style="color:#7f88ad">Could not connect to SeedAim.<br>Please close and reopen the app.</p>
-                    </div>
-                </div>`;
-            return null;
-        }
-        return result;
+        return result?.session || null;
     }
     window.requireAuth = requireAuth;
 
     /**
-     * Sign out (clears local session).
+     * Navigation helper that preserves URL hash across pages
+     */
+    function goTo(url) {
+        const hash = window.location.hash || '';
+        window.location.href = url + hash;
+    }
+    window.goTo = goTo;
+
+    /**
+     * Auto-preserve hash on all internal links
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash || '';
+        if (hash) {
+            document.querySelectorAll('a[href$=".html"]').forEach(a => {
+                const href = a.getAttribute('href');
+                if (href && !href.includes('#') && !href.startsWith('http')) {
+                    a.setAttribute('href', href + hash);
+                }
+            });
+        }
+    });
+
+    /**
+     * Sign out
      */
     async function signOut() {
         const tgUser = getTelegramUser();
         if (tgUser) {
             localStorage.removeItem(`sa_session_${tgUser.id}`);
         }
-        await _client.auth.signOut();
+        localStorage.removeItem('sa_tg_user');
+        try {
+            await _client.auth.signOut();
+        } catch (_) {}
         window.location.href = 'index.html';
     }
     window.signOut = signOut;
