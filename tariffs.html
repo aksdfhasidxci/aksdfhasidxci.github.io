@@ -6491,11 +6491,11 @@ letter-spacing:-0.6px!important;
 
                 </div>
 
-                <form method="POST" action="payment.html" class="payment-form" data-payment-form="" novalidate="">
+                <form method="GET" action="payment.html" class="payment-form" data-payment-form="" novalidate="">
 
                     <input type="hidden" name="csrf_token" value="2971ff588a2f436ae508476ac3440fe65868a1337c37977be5eea074606e868d">
 
-                    <input type="hidden" name="plan_code" value="starter">
+                    <input type="hidden" name="plan" value="starter">
 
                     <div class="payment-field">
 
@@ -6505,7 +6505,7 @@ letter-spacing:-0.6px!important;
 
                         </label>
 
-                        <input class="payment-email" id="payment-email-starter" type="email" name="email" value="" placeholder="Telegram User" readonly="">
+                        <input class="payment-email" id="payment-email-starter" type="text" name="email" value="" placeholder="@username" readonly="">
 
                     </div>
 
@@ -6522,7 +6522,7 @@ letter-spacing:-0.6px!important;
                             
     <label class="payment-method" data-method-type="crypto">
 
-        <input type="radio" name="payment_method" value="usdt_trc20" required="">
+        <input type="radio" name="payment_method" value="usdt_trc20" required="" checked="">
 
         <span class="payment-method-card">
 
@@ -6763,7 +6763,7 @@ letter-spacing:-0.6px!important;
 
     <label class="payment-terms-label">
 
-        <input class="payment-terms-input" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox="" required="">
+        <input class="payment-terms-input" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox="" required="" checked="">
 
         <span class="payment-terms-checkbox">
 
@@ -6791,7 +6791,7 @@ letter-spacing:-0.6px!important;
 
 </div>
 
-                    <button class="button button-primary payment-submit" type="submit" data-payment-submit="" disabled="">
+                    <button class="button button-primary payment-submit" type="submit" data-payment-submit="">
 
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -6910,11 +6910,11 @@ letter-spacing:-0.6px!important;
 
                 </div>
 
-                <form method="POST" action="payment.html" class="payment-form" data-payment-form="" novalidate="">
+                <form method="GET" action="payment.html" class="payment-form" data-payment-form="" novalidate="">
 
                     <input type="hidden" name="csrf_token" value="2971ff588a2f436ae508476ac3440fe65868a1337c37977be5eea074606e868d">
 
-                    <input type="hidden" name="plan_code" value="pro">
+                    <input type="hidden" name="plan" value="pro">
 
                     <div class="payment-field">
 
@@ -6924,7 +6924,7 @@ letter-spacing:-0.6px!important;
 
                         </label>
 
-                        <input class="payment-email" id="payment-email-pro" type="email" name="email" value="" placeholder="Telegram User" readonly="">
+                        <input class="payment-email" id="payment-email-pro" type="text" name="email" value="" placeholder="@username" readonly="">
 
                     </div>
 
@@ -6941,7 +6941,7 @@ letter-spacing:-0.6px!important;
                             
     <label class="payment-method" data-method-type="crypto">
 
-        <input type="radio" name="payment_method" value="usdt_trc20" required="">
+        <input type="radio" name="payment_method" value="usdt_trc20" required="" checked="">
 
         <span class="payment-method-card">
 
@@ -7182,7 +7182,7 @@ letter-spacing:-0.6px!important;
 
     <label class="payment-terms-label">
 
-        <input class="payment-terms-input" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox="" required="">
+        <input class="payment-terms-input" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox="" required="" checked="">
 
         <span class="payment-terms-checkbox">
 
@@ -7210,7 +7210,7 @@ letter-spacing:-0.6px!important;
 
 </div>
 
-                    <button class="button button-primary payment-submit" type="submit" data-payment-submit="" disabled="">
+                    <button class="button button-primary payment-submit" type="submit" data-payment-submit="">
 
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -7331,11 +7331,11 @@ letter-spacing:-0.6px!important;
 
                 </div>
 
-                <form method="POST" action="payment.html" class="payment-form" data-payment-form="" novalidate="">
+                <form method="GET" action="payment.html" class="payment-form" data-payment-form="" novalidate="">
 
                     <input type="hidden" name="csrf_token" value="2971ff588a2f436ae508476ac3440fe65868a1337c37977be5eea074606e868d">
 
-                    <input type="hidden" name="plan_code" value="ultra">
+                    <input type="hidden" name="plan" value="ultra">
 
                     <div class="payment-field">
 
@@ -7345,7 +7345,7 @@ letter-spacing:-0.6px!important;
 
                         </label>
 
-                        <input class="payment-email" id="payment-email-ultra" type="email" name="email" value="" placeholder="Telegram User" readonly="">
+                        <input class="payment-email" id="payment-email-ultra" type="text" name="email" value="" placeholder="@username" readonly="">
 
                     </div>
 
@@ -7362,7 +7362,7 @@ letter-spacing:-0.6px!important;
                             
     <label class="payment-method" data-method-type="crypto">
 
-        <input type="radio" name="payment_method" value="usdt_trc20" required="">
+        <input type="radio" name="payment_method" value="usdt_trc20" required="" checked="">
 
         <span class="payment-method-card">
 
@@ -7603,7 +7603,7 @@ letter-spacing:-0.6px!important;
 
     <label class="payment-terms-label">
 
-        <input class="payment-terms-input" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox="" required="">
+        <input class="payment-terms-input" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox="" required="" checked="">
 
         <span class="payment-terms-checkbox">
 
@@ -7631,7 +7631,7 @@ letter-spacing:-0.6px!important;
 
 </div>
 
-                    <button class="button button-primary payment-submit" type="submit" data-payment-submit="" disabled="">
+                    <button class="button button-primary payment-submit" type="submit" data-payment-submit="">
 
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -7894,46 +7894,14 @@ letter-spacing:-0.6px!important;
         let activePaymentModal = null;
         let modalTriggerButton = null;
 
-        const PLAN_DETAILS = {
-            starter: { name: 'Starter Plan', price: '29.00', days: 30 },
-            pro: { name: 'Pro Plan', price: '50.00', days: 30 },
-            ultra: { name: 'Ultra Plan', price: '99.00', days: 30 }
-        };
-
-                const METHOD_DETAILS = {
-            usdt_trc20: {
-                name: 'USDT (TRC20)',
-                network: 'TRON Mainnet',
-                address: 'TXbYdE5VFWWeYxr4rqsrMsDoS9SgQ4SacZ',
-                icon: 'img/trx.png'
-            },
-            usdt_bep20: {
-                name: 'USDT (BEP20)',
-                network: 'BNB Smart Chain',
-                address: '0x442b5B2EC83752Ee4Cde71f36e8C912c91152898',
-                icon: 'img/bsc.png'
-            },
-            usdt_erc20: {
-                name: 'USDT (ERC20)',
-                network: 'Ethereum Mainnet',
-                address: '0x442b5B2EC83752Ee4Cde71f36e8C912c91152898',
-                icon: 'img/eth.png'
-            },
-            usdt_solana: {
-                name: 'USDT (Solana)',
-                network: 'Solana Mainnet',
-                address: '2Kc6u1UgsUwcmvUrTAkFqhgdy5i5Y86d6J6cUTcDAAPL',
-                icon: 'img/sol.png'
-            },
-            usdt_ton: {
-                name: 'USDT (TON)',
-                network: 'TON Mainnet',
-                address: 'UQATFuWaQcvLbn9MilZuT84J6C1G5Ot95A_v0VbZQKLW5zg5',
-                icon: 'img/ton.png'
-            }
-        };
-
-        let invoiceTimerInterval = null;
+        function updateDisplayUser(profile = null) {
+            const displayName = window.getTelegramDisplayName ? window.getTelegramDisplayName(null, profile) : '@seedaim_user';
+            document.querySelectorAll('.payment-email').forEach(inp => {
+                inp.value = displayName;
+                inp.placeholder = displayName;
+            });
+        }
+        updateDisplayUser();
 
         function updatePaymentFormState(paymentForm) {
             if (!paymentForm) return;
@@ -7952,6 +7920,8 @@ letter-spacing:-0.6px!important;
             const modal = document.getElementById(modalId);
             if (!modal) return;
 
+            updateDisplayUser();
+
             if (activePaymentModal && activePaymentModal !== modal) {
                 closePaymentModal(activePaymentModal, false);
             }
@@ -7969,12 +7939,7 @@ letter-spacing:-0.6px!important;
                 updatePaymentFormState(paymentForm);
             }
 
-            const invoiceView = modal.querySelector('.payment-invoice-view');
-            if (invoiceView) {
-                invoiceView.style.display = 'none';
-            }
-
-            const firstRadio = modal.querySelector('input[name="payment_method"]');
+            const firstRadio = modal.querySelector('input[name="payment_method"]:checked') || modal.querySelector('input[name="payment_method"]');
             window.setTimeout(() => { firstRadio?.focus(); }, 100);
         }
 
@@ -7982,11 +7947,6 @@ letter-spacing:-0.6px!important;
             if (!modal) return;
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
-
-            if (invoiceTimerInterval) {
-                clearInterval(invoiceTimerInterval);
-                invoiceTimerInterval = null;
-            }
 
             if (activePaymentModal === modal) activePaymentModal = null;
             if (!document.querySelector('.payment-modal.active')) {
@@ -7998,155 +7958,13 @@ letter-spacing:-0.6px!important;
             modalTriggerButton = null;
         }
 
-        function renderInvoice(modal, planCode, methodKey) {
-            const plan = PLAN_DETAILS[planCode] || PLAN_DETAILS.starter;
-            const method = METHOD_DETAILS[methodKey] || METHOD_DETAILS.usdt_trc20;
-            const form = modal.querySelector('[data-payment-form]');
-            if (!form) return;
-
-            form.style.display = 'none';
-
-            let invoiceContainer = modal.querySelector('.payment-invoice-view');
-            if (!invoiceContainer) {
-                invoiceContainer = document.createElement('div');
-                invoiceContainer.className = 'payment-invoice-view';
-                form.parentNode.insertBefore(invoiceContainer, form.nextSibling);
-            }
-            invoiceContainer.style.display = 'flex';
-
-            const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
-            const tgId = tgUser && tgUser.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
-            const botUrl = 'https://t.me/SeedAimBuyBot?start=pay_' + planCode + '_' + tgId;
-            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(method.address) + '&bgcolor=090e18&color=ffffff&margin=1';
-
-            invoiceContainer.innerHTML = `
-                <div class="invoice-badge-row">
-                    <span class="invoice-status-pill">
-                        <span class="invoice-pulse-dot"></span>
-                        Awaiting Payment
-                    </span>
-                    <span class="invoice-timer" id="invoice-timer-val">29:59</span>
-                </div>
-
-                <div class="invoice-card">
-                    <div class="invoice-amount-row">
-                        <div>
-                            <span class="invoice-amount-label">Plan & Duration</span>
-                            <div style="font-size:14px;font-weight:700;color:#fff;margin-top:2px;">${plan.name} · ${plan.days} days</div>
-                        </div>
-                        <div class="invoice-amount-value">
-                            <strong>${plan.price} USDT</strong>
-                            <button type="button" class="invoice-copy-btn" id="copy-amt-btn">Copy</button>
-                        </div>
-                    </div>
-
-                    <div class="invoice-qr-wrap">
-                        <img class="invoice-qr-code" src="${qrUrl}" onerror="this.onerror=null;this.src='${qrFallback}'" alt="Deposit QR">
-                        <span class="invoice-qr-hint">Scan with your ${method.network} mobile wallet</span>
-                    </div>
-
-                    <div class="invoice-field">
-                        <span class="invoice-field-label">Deposit Address (${method.name})</span>
-                        <div class="invoice-field-box">
-                            <code>${method.address}</code>
-                            <button type="button" class="invoice-copy-btn" id="copy-addr-btn">Copy</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="invoice-actions">
-                    <button type="button" class="invoice-verify-btn" id="verify-payment-btn">
-                        ✓ I Have Paid / Check Status
-                    </button>
-                    <a href="${botUrl}" target="_blank" class="invoice-tgbot-btn" id="tgbot-link-btn">
-                        <span>🚀 Pay via @SeedAimBuyBot</span>
-                    </a>
-                    <button type="button" class="invoice-back-btn" id="invoice-back-btn">
-                        ← Change payment method
-                    </button>
-                </div>
-            `;
-
-            // Countdown timer
-            let remainingSec = 29 * 60 + 59;
-            if (invoiceTimerInterval) clearInterval(invoiceTimerInterval);
-            const timerEl = invoiceContainer.querySelector('#invoice-timer-val');
-            invoiceTimerInterval = setInterval(() => {
-                remainingSec--;
-                if (remainingSec <= 0) {
-                    clearInterval(invoiceTimerInterval);
-                    if (timerEl) timerEl.textContent = '00:00';
-                    return;
-                }
-                const m = String(Math.floor(remainingSec / 60)).padStart(2, '0');
-                const s = String(remainingSec % 60).padStart(2, '0');
-                if (timerEl) timerEl.textContent = `${m}:${s}`;
-            }, 1000);
-
-            // Copy buttons
-            invoiceContainer.querySelector('#copy-amt-btn').addEventListener('click', async (e) => {
-                try {
-                    await navigator.clipboard.writeText(plan.price);
-                    e.target.textContent = 'Copied!';
-                    setTimeout(() => { e.target.textContent = 'Copy'; }, 2000);
-                } catch (_) {}
-            });
-
-            invoiceContainer.querySelector('#copy-addr-btn').addEventListener('click', async (e) => {
-                try {
-                    await navigator.clipboard.writeText(method.address);
-                    e.target.textContent = 'Copied!';
-                    setTimeout(() => { e.target.textContent = 'Copy'; }, 2000);
-                } catch (_) {}
-            });
-
-            // Back button
-            invoiceContainer.querySelector('#invoice-back-btn').addEventListener('click', () => {
-                if (invoiceTimerInterval) clearInterval(invoiceTimerInterval);
-                invoiceContainer.style.display = 'none';
-                form.style.display = 'block';
-            });
-
-            // Telegram bot button
-            invoiceContainer.querySelector('#tgbot-link-btn').addEventListener('click', (e) => {
-                if (window.Telegram?.WebApp?.openTelegramLink) {
-                    e.preventDefault();
-                    window.Telegram.WebApp.openTelegramLink(botUrl);
-                }
-            });
-
-            // Verify payment
-            invoiceContainer.querySelector('#verify-payment-btn').addEventListener('click', async (e) => {
-                const btn = e.target;
-                btn.disabled = true;
-                btn.innerHTML = '⏳ Verifying blockchain confirmations...';
-
-                await new Promise(r => setTimeout(r, 2200));
-
-                const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-                try {
-                    if (window.supabaseClient) {
-                        await window.supabaseClient
-                            .from('profiles')
-                            .update({
-                                plan: planCode,
-                                plan_expires_at: expiresAt,
-                                scans_limit: planCode === 'ultra' ? 1000000 : (planCode === 'pro' ? 500000 : 100000)
-                            })
-                            .eq('tg_id', tgId);
-                    }
-                } catch (_) {}
-
-                localStorage.setItem('sa_plan_' + tgId, planCode);
-                localStorage.setItem('sa_plan_expires_' + tgId, expiresAt);
-
-                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                btn.innerHTML = '🎉 Payment Confirmed! ' + plan.name + ' Activated!';
-
-                setTimeout(() => {
-                    window.location.href = 'scanner.html';
-                }, 1500);
-            });
+        function navigateToPayment(modal) {
+            const paymentForm = modal.querySelector('[data-payment-form]');
+            const selectedMethod = paymentForm?.querySelector('input[name="payment_method"]:checked')?.value || 'usdt_trc20';
+            const planCode = modal.dataset.planCode || 'starter';
+            const hash = window.location.hash || '';
+            const targetUrl = 'payment.html?plan=' + encodeURIComponent(planCode) + '&method=' + encodeURIComponent(selectedMethod) + hash;
+            window.location.href = targetUrl;
         }
 
         // Open modal buttons
@@ -8164,6 +7982,7 @@ letter-spacing:-0.6px!important;
             const paymentForm = modal.querySelector('[data-payment-form]');
             const paymentMethodInputs = modal.querySelectorAll('input[name="payment_method"]');
             const termsCheckbox = modal.querySelector('[data-terms-checkbox]');
+            const submitBtn = modal.querySelector('[data-payment-submit]');
 
             closeButtons.forEach((button) => {
                 button.addEventListener('click', () => {
@@ -8181,17 +8000,16 @@ letter-spacing:-0.6px!important;
                 updatePaymentFormState(paymentForm);
             });
 
-            // Intercept form submit: show Invoice instead of HTTP 405 POST error!
+            // Direct click on "Continue to payment"
+            submitBtn?.addEventListener('click', (event) => {
+                event.preventDefault();
+                navigateToPayment(modal);
+            });
+
+            // Form submit event
             paymentForm?.addEventListener('submit', (event) => {
                 event.preventDefault();
-                const selectedMethod = paymentForm.querySelector('input[name="payment_method"]:checked');
-                const acceptedTerms = paymentForm.querySelector('[data-terms-checkbox]');
-                if (!selectedMethod || !acceptedTerms || !acceptedTerms.checked) {
-                    updatePaymentFormState(paymentForm);
-                    return;
-                }
-                const planCode = modal.dataset.planCode || 'starter';
-                renderInvoice(modal, planCode, selectedMethod.value);
+                navigateToPayment(modal);
             });
 
             updatePaymentFormState(paymentForm);
@@ -8209,7 +8027,7 @@ letter-spacing:-0.6px!important;
             const trialCta = document.getElementById('trial-plan-cta');
             if (trialCta) {
                 trialCta.addEventListener('click', () => {
-                    window.location.href = 'scanner.html';
+                    window.location.href = 'scanner.html' + (window.location.hash || '');
                 });
             }
 
@@ -8217,10 +8035,7 @@ letter-spacing:-0.6px!important;
                 if (window.initUserProfile) {
                     const profile = await window.initUserProfile();
                     if (profile) {
-                        const displayName = profile.tg_username ? ('@' + profile.tg_username) : (profile.tg_first_name || ('ID: ' + profile.tg_id));
-                        document.querySelectorAll('.payment-email').forEach(inp => {
-                            inp.value = displayName;
-                        });
+                        updateDisplayUser(profile);
 
                         const isTrial = profile.plan === 'trial';
                         const isPaid = profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired';

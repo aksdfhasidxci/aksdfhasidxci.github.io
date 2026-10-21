@@ -25,49 +25,192 @@
     }
 
     /**
+     * Helper to safely parse user JSON from an encoded URL query string
+     */
+    function _parseUserParam(queryOrHash) {
+        if (!queryOrHash) return null;
+        try {
+            const raw = queryOrHash.replace(/^[#?]/, '');
+            const params = new URLSearchParams(raw);
+
+            // 1. Nested tgWebAppData (e.g. #tgWebAppData=query_id...&user=...)
+            const tgWebAppData = params.get('tgWebAppData');
+            if (tgWebAppData) {
+                const subParams = new URLSearchParams(tgWebAppData);
+                const uStr = subParams.get('user');
+                if (uStr) {
+                    const u = JSON.parse(decodeURIComponent(uStr));
+                    if (u && (u.id || u.username)) return u;
+                }
+            }
+
+            // 2. Direct user param
+            const directUser = params.get('user');
+            if (directUser) {
+                const u = JSON.parse(decodeURIComponent(directUser));
+                if (u && (u.id || u.username)) return u;
+            }
+
+            // 3. Direct tg_username / username params
+            const uname = params.get('username') || params.get('tg_username');
+            const uid = params.get('tg_id') || params.get('id');
+            if (uname || uid) {
+                return {
+                    id: uid || ('tg_' + Date.now()),
+                    username: uname ? uname.replace(/^@/, '') : null,
+                    first_name: params.get('first_name') || (uname ? '@' + uname : 'User')
+                };
+            }
+        } catch (_) {}
+        return null;
+    }
+
+    /**
      * Get current Telegram user.
      * Checks:
      *  1. Telegram WebApp SDK (initDataUnsafe.user)
-     *  2. URL hash or query params
-     *  3. localStorage cache ('sa_tg_user')
+     *  2. Telegram WebApp SDK (initData string)
+     *  3. URL hash or query params (including tgWebAppData)
+     *  4. localStorage cache ('sa_tg_user')
      */
     function getTelegramUser() {
-        // 1. Check live Telegram WebApp SDK
+        // 1. Check live Telegram WebApp SDK direct user object
         try {
             const user = tg?.initDataUnsafe?.user;
-            if (user && user.id) {
+            if (user && (user.id || user.username)) {
                 localStorage.setItem('sa_tg_user', JSON.stringify(user));
+                if (user.username) localStorage.setItem('sa_tg_username', user.username.replace(/^@/, ''));
+                if (user.id) localStorage.setItem('sa_current_tg_id', String(user.id));
                 return user;
             }
         } catch (_) {}
 
-        // 2. Check URL hash for embedded user param
+        // 2. Check Telegram WebApp initData string
         try {
-            const hash = window.location.hash || '';
-            if (hash.includes('user=')) {
-                const match = hash.match(/user=([^&]+)/);
-                if (match && match[1]) {
-                    const parsed = JSON.parse(decodeURIComponent(match[1]));
-                    if (parsed && parsed.id) {
-                        localStorage.setItem('sa_tg_user', JSON.stringify(parsed));
-                        return parsed;
+            if (tg?.initData) {
+                const p = new URLSearchParams(tg.initData);
+                const uStr = p.get('user');
+                if (uStr) {
+                    const u = JSON.parse(decodeURIComponent(uStr));
+                    if (u && (u.id || u.username)) {
+                        localStorage.setItem('sa_tg_user', JSON.stringify(u));
+                        if (u.username) localStorage.setItem('sa_tg_username', u.username.replace(/^@/, ''));
+                        if (u.id) localStorage.setItem('sa_current_tg_id', String(u.id));
+                        return u;
                     }
                 }
             }
         } catch (_) {}
 
-        // 3. Check localStorage cache
+        // 3. Check URL hash & search params
+        const userFromHash = _parseUserParam(window.location.hash);
+        if (userFromHash) {
+            localStorage.setItem('sa_tg_user', JSON.stringify(userFromHash));
+            if (userFromHash.username) localStorage.setItem('sa_tg_username', userFromHash.username.replace(/^@/, ''));
+            if (userFromHash.id) localStorage.setItem('sa_current_tg_id', String(userFromHash.id));
+            return userFromHash;
+        }
+
+        const userFromSearch = _parseUserParam(window.location.search);
+        if (userFromSearch) {
+            localStorage.setItem('sa_tg_user', JSON.stringify(userFromSearch));
+            if (userFromSearch.username) localStorage.setItem('sa_tg_username', userFromSearch.username.replace(/^@/, ''));
+            if (userFromSearch.id) localStorage.setItem('sa_current_tg_id', String(userFromSearch.id));
+            return userFromSearch;
+        }
+
+        // 4. Check localStorage cache
         try {
             const cached = localStorage.getItem('sa_tg_user');
             if (cached) {
                 const parsed = JSON.parse(cached);
+                // If it is a real user with a username or real id, return it
+                if (parsed && (parsed.username || (parsed.id && !String(parsed.id).startsWith('tg_') && parsed.first_name !== 'Telegram User'))) {
+                    return parsed;
+                }
+                // If we also have a cached username, enrich the cached object
+                const cachedUname = localStorage.getItem('sa_tg_username');
+                if (cachedUname && parsed) {
+                    parsed.username = cachedUname.replace(/^@/, '');
+                    return parsed;
+                }
                 if (parsed && parsed.id) return parsed;
             }
         } catch (_) {}
 
+        // Fallback with saved username if present
+        const savedUsername = localStorage.getItem('sa_tg_username');
+        const savedTgId = localStorage.getItem('sa_current_tg_id');
+        if (savedUsername || savedTgId) {
+            return {
+                id: savedTgId || ('tg_' + Date.now()),
+                username: savedUsername || null,
+                first_name: savedUsername ? ('@' + savedUsername) : 'User'
+            };
+        }
+
         return null;
     }
     window.getTelegramUser = getTelegramUser;
+
+    /**
+     * Get clean, formatted display username (e.g. "@durov", "@seedaim_user")
+     * Never returns "Telegram User"!
+     */
+    function getTelegramDisplayName(user, profile) {
+        const u = user || getTelegramUser();
+        const p = profile || null;
+
+        // 1. Username from user object
+        if (u?.username) {
+            return '@' + String(u.username).replace(/^@/, '');
+        }
+
+        // 2. Username from Supabase profile
+        if (p?.tg_username) {
+            return '@' + String(p.tg_username).replace(/^@/, '');
+        }
+
+        // 3. Username cached in localStorage
+        const cachedUname = localStorage.getItem('sa_tg_username');
+        if (cachedUname && cachedUname !== 'Telegram User' && cachedUname !== 'null') {
+            return '@' + String(cachedUname).replace(/^@/, '');
+        }
+
+        // 4. Real first + last name if not generic "Telegram User"
+        const firstName = u?.first_name || p?.tg_first_name;
+        if (firstName && firstName !== 'Telegram User' && firstName !== 'User') {
+            const lastName = u?.last_name || p?.tg_last_name || '';
+            const full = (firstName + (lastName ? ' ' + lastName : '')).trim();
+            if (full) return full;
+        }
+
+        // 5. Telegram ID badge
+        const tgId = u?.id || p?.tg_id || localStorage.getItem('sa_current_tg_id');
+        if (tgId && !String(tgId).startsWith('tg_') && tgId !== 'default_user') {
+            return '@id_' + tgId;
+        }
+
+        return '@seedaim_user';
+    }
+    window.getTelegramDisplayName = getTelegramDisplayName;
+
+    /**
+     * Initialize user profile and guarantee real username persistence
+     */
+    async function initUserProfile() {
+        try {
+            const profile = await getProfile();
+            if (profile) {
+                if (profile.tg_username) {
+                    localStorage.setItem('sa_tg_username', profile.tg_username.replace(/^@/, ''));
+                }
+                return profile;
+            }
+        } catch (_) {}
+        return null;
+    }
+    window.initUserProfile = initUserProfile;
 
     /**
      * Check if currently running inside Telegram context
@@ -207,11 +350,13 @@
 
         // If no user object yet, but in Telegram WebApp, create placeholder user
         if (!tgUser && isInTelegram()) {
+            const savedUsername = localStorage.getItem('sa_tg_username');
+            const savedTgId = localStorage.getItem('sa_current_tg_id');
             tgUser = {
-                id: 'tg_' + Date.now(),
-                first_name: 'Telegram User'
+                id: savedTgId || ('tg_' + Date.now()),
+                username: savedUsername || null,
+                first_name: savedUsername ? ('@' + savedUsername) : 'User'
             };
-            localStorage.setItem('sa_tg_user', JSON.stringify(tgUser));
         }
 
         if (!tgUser) return null;
