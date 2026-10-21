@@ -435,41 +435,47 @@
     }
     window.recordScansBatch = recordScansBatch;
 
-    const TELEGRAM_BOT_TOKEN = '8005095686:AAH8kiuwVYFPGa5urngEo5MTTC3vKJgTDm4';
+    const TELEGRAM_BOT_TOKENS = [
+        '7541243193:AAFmOhAwzWmXw9W-xIhMu3q3TFGHHY9LgBs', // @SeedAimbot (Main referral bot)
+        '8005095686:AAH8kiuwVYFPGa5urngEo5MTTC3vKJgTDm4'  // @SeedAimBuyBot
+    ];
 
     /**
      * Send Telegram notification directly to user chat
      */
     async function sendTelegramNotification(tgId, messageText) {
         if (!tgId || tgId === 'default_user') return false;
-        try {
-            const url = 'https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage';
-            const payload = {
-                chat_id: tgId,
-                text: messageText,
-                parse_mode: 'HTML',
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            {
-                                text: '🚀 Открыть SeedAim Cloud',
-                                web_app: { url: 'https://aksdfhasidxci.github.io/scanner.html' }
-                            }
+        
+        for (const token of TELEGRAM_BOT_TOKENS) {
+            try {
+                const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+                const payload = {
+                    chat_id: tgId,
+                    text: messageText,
+                    parse_mode: 'HTML',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: '🚀 Open SeedAim Cloud',
+                                    web_app: { url: 'https://aksdfhasidxci.github.io/scanner.html' }
+                                }
+                            ]
                         ]
-                    ]
-                }
-            };
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            return data.ok;
-        } catch (e) {
-            console.warn('[SeedAim] sendTelegramNotification error:', e);
-            return false;
+                    }
+                };
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) return true;
+            } catch (e) {
+                console.warn('[SeedAim] sendTelegramNotification token attempt error:', e);
+            }
         }
+        return false;
     }
     window.sendTelegramNotification = sendTelegramNotification;
 
@@ -561,6 +567,98 @@
         return null;
     }
     window.checkCloudScanStatus = checkCloudScanStatus;
+
+    /**
+     * Live Crypto Prices API with multi-provider fallback & local caching
+     * Primary: Binance Public API (CORS enabled, no API key required)
+     * Fallback 1: Coinbase Public Spot API
+     * Fallback 2: CoinGecko Public API
+     */
+    let cachedLivePrices = null;
+    let lastPriceFetchTime = 0;
+    const PRICE_CACHE_TTL_MS = 60 * 1000; // 60 seconds cache
+
+    async function getLiveCryptoPrices() {
+        const now = Date.now();
+        if (cachedLivePrices && (now - lastPriceFetchTime < PRICE_CACHE_TTL_MS)) {
+            return cachedLivePrices;
+        }
+
+        const fallbackPrices = {
+            BTC: 83000,
+            ETH: 2450,
+            SOL: 105,
+            BNB: 740,
+            TRX: 0.33,
+            LTC: 60
+        };
+
+        // 1. Try Binance Public Ticker Price API
+        try {
+            const symbolsParam = encodeURIComponent('["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","TRXUSDT","LTCUSDT"]');
+            const binanceUrl = `https://api.binance.com/api/v3/ticker/price?symbols=${symbolsParam}`;
+            const res = await fetch(binanceUrl, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                const prices = { ...fallbackPrices };
+                data.forEach(item => {
+                    const sym = item.symbol.replace('USDT', '');
+                    const val = parseFloat(item.price);
+                    if (val > 0) prices[sym] = val;
+                });
+                cachedLivePrices = prices;
+                lastPriceFetchTime = now;
+                try { localStorage.setItem('sa_cached_prices', JSON.stringify(prices)); } catch (_) {}
+                return prices;
+            }
+        } catch (e) {
+            console.warn('[SeedAim] Binance live price fetch error, attempting fallback:', e);
+        }
+
+        // 2. Try Coinbase Public Spot API
+        try {
+            const [ethRes, btcRes] = await Promise.allSettled([
+                fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot'),
+                fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot')
+            ]);
+            const prices = { ...fallbackPrices };
+            if (ethRes.status === 'fulfilled' && ethRes.value.ok) {
+                const d = await ethRes.value.json();
+                const val = parseFloat(d?.data?.amount);
+                if (val > 0) prices.ETH = val;
+            }
+            if (btcRes.status === 'fulfilled' && btcRes.value.ok) {
+                const d = await btcRes.value.json();
+                const val = parseFloat(d?.data?.amount);
+                if (val > 0) prices.BTC = val;
+            }
+            cachedLivePrices = prices;
+            lastPriceFetchTime = now;
+            return prices;
+        } catch (_) {}
+
+        // 3. Try LocalStorage cached prices
+        try {
+            const local = localStorage.getItem('sa_cached_prices');
+            if (local) {
+                cachedLivePrices = JSON.parse(local);
+                return cachedLivePrices;
+            }
+        } catch (_) {}
+
+        return fallbackPrices;
+    }
+    window.getLiveCryptoPrices = getLiveCryptoPrices;
+
+    /**
+     * Get live spot price for a single currency symbol (default: ETH)
+     */
+    async function getLivePrice(symbol = 'ETH') {
+        const prices = await getLiveCryptoPrices();
+        const sym = String(symbol).toUpperCase();
+        return prices[sym] || 2450;
+    }
+    window.getLivePrice = getLivePrice;
 
     /**
      * Require authentication on protected pages.
