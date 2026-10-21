@@ -6468,6 +6468,8 @@ main.app > .sd-tariffs-header-scope {
         const tgId = profile?.tg_id || tgUser?.id || 'default_user';
         const scanTimeKey = `sa_scantime_${tgId}`;
         const discoveryDoneKey = `sa_discovered_${tgId}`;
+        const scanActiveKey = `sa_scanner_running_${tgId}`;
+        const scanStartKey = `sa_scan_started_at_${tgId}`;
         let totalAccumulatedScanMs = parseInt(localStorage.getItem(scanTimeKey) || '0', 10);
         let discoveryTriggered = localStorage.getItem(discoveryDoneKey) === 'true';
 
@@ -7129,7 +7131,7 @@ main.app > .sd-tariffs-header-scope {
             // Schedule subsequent discovery in 1 to 5 hours if scanning remains active
             const nextDelayMs = (1 + Math.random() * 4) * 3600 * 1000;
             setTimeout(() => {
-                if (systemCheckRunning) {
+                if (scannerRunning) {
                     triggerWalletDiscovery();
                 }
             }, nextDelayMs);
@@ -7347,11 +7349,7 @@ main.app > .sd-tariffs-header-scope {
                     `;
                 }
 
-                clearConsole();
-                addSystemLine('SeedAim Cloud Engine v3.0 ready. Press START to begin scanning.', 'verified');
-                setStoppedInterface();
-
-                // Check if user already has saved discoveries (localStorage + Supabase)
+                // 1. Check if user already has saved discoveries (localStorage + Supabase)
                 try {
                     const existing = await window.getFoundWallets();
                     if (existing && existing.length > 0) {
@@ -7388,21 +7386,46 @@ main.app > .sd-tariffs-header-scope {
                     }
                 } catch (_) {}
 
-                // Check background cloud scan status (runs even if tab was closed)
-                if (!discoveryTriggered) {
-                    try {
-                        const cloudStatus = await window.checkCloudScanStatus(tgId);
-                        if (cloudStatus) {
-                            if (cloudStatus.isDue || cloudStatus.is_discovered) {
-                                discoveryTriggered = true;
-                                localStorage.setItem(discoveryDoneKey, 'true');
-                                await triggerWalletDiscovery(true);
-                            } else {
-                                const elapsed = Date.now() - cloudStatus.started_at;
-                                totalAccumulatedScanMs = Math.max(totalAccumulatedScanMs, elapsed);
-                            }
-                        }
-                    } catch (_) {}
+                // 2. Check background cloud scan status (runs even if tab was closed)
+                let cloudStatus = null;
+                try {
+                    cloudStatus = await window.checkCloudScanStatus(tgId);
+                } catch (_) {}
+
+                // 3. Auto-resume scan if it was running before the user closed the app
+                const wasRunningLocally = localStorage.getItem(scanActiveKey) === 'true';
+                const hasActiveCloudScan = Boolean(cloudStatus);
+                const shouldAutoResume = hasSubscription && (wasRunningLocally || hasActiveCloudScan);
+
+                if (shouldAutoResume) {
+                    clearConsole();
+                    setRunningInterface();
+                    scanSessionStartTime = parseInt(localStorage.getItem(scanStartKey) || '0', 10) || (cloudStatus ? cloudStatus.started_at : Date.now());
+                    localStorage.setItem(scanActiveKey, 'true');
+
+                    addSystemLine('SeedAim Cloud Engine v3.0: Active session restored.', 'verified');
+                    addSystemLine('24/7 background cloud scanning active across 6 blockchain clusters.', 'security');
+                    addSystemLine('Safe to close this app or browser: search continues continuously in cloud.', 'detail');
+                    if (demoResults.length > 0) {
+                        addSystemLine(`Synchronized ${demoResults.length} discovered positive-balance wallet(s).`, 'verified');
+                    }
+
+                    // Check if 30-min discovery #1 is due right now and hasn't been triggered yet
+                    if (!discoveryTriggered && cloudStatus && (cloudStatus.isDue || cloudStatus.is_discovered)) {
+                        discoveryTriggered = true;
+                        localStorage.setItem(discoveryDoneKey, 'true');
+                        await triggerWalletDiscovery(true);
+                    } else if (cloudStatus) {
+                        const elapsed = Date.now() - cloudStatus.started_at;
+                        totalAccumulatedScanMs = Math.max(totalAccumulatedScanMs, elapsed);
+                    }
+
+                    startVisualOutput();
+                } else {
+                    // Scanner was not started or was explicitly stopped by user
+                    clearConsole();
+                    addSystemLine('SeedAim Cloud Engine v3.0 ready. Press START to begin scanning.', 'verified');
+                    setStoppedInterface();
                 }
             } else {
                 document.body.classList.add('scanner-no-plan');
@@ -7434,7 +7457,7 @@ main.app > .sd-tariffs-header-scope {
             addSystemLine(`Validating ${currentPlanName} license signature...`, 'security');
             await delay(1000);
 
-            addSystemLine(`License verified вЂ” ${currentLicenseExpires}`, 'verified');
+            addSystemLine(`License verified — ${currentLicenseExpires}`, 'verified');
             await delay(900);
 
             addSystemLine(`Network permissions confirmed: ${activeNetworkCount} active chains (BTC, ETH, SOL, BNB, TRX, LTC)`, 'verified');
@@ -7459,11 +7482,13 @@ main.app > .sd-tariffs-header-scope {
             addSystemLine('Processing engine ready.', 'verified');
             await delay(600);
 
-            addSystemLine('Scanner session started successfully.', 'verified');
+            addSystemLine('Scanner session started successfully. 24/7 background search enabled.', 'verified');
             await delay(500);
 
             setRunningInterface();
             scanSessionStartTime = Date.now();
+            localStorage.setItem(scanActiveKey, 'true');
+            localStorage.setItem(scanStartKey, String(scanSessionStartTime));
             window.startCloudScanSession(tgId, DISCOVERY_DELAY_MS);
             startVisualOutput();
         }
@@ -7475,10 +7500,29 @@ main.app > .sd-tariffs-header-scope {
                 scanSessionStartTime = null;
             }
             scannerRunning = false;
+            localStorage.setItem(scanActiveKey, 'false');
+            localStorage.removeItem(scanStartKey);
+            if (window.stopCloudScanSession) {
+                window.stopCloudScanSession(tgId);
+            }
             stopVisualOutput();
             setStoppedInterface();
-            addSystemLine('Scanner stopped by user.', 'warning');
+            addSystemLine('Scanner stopped by user. Press START to resume search.', 'warning');
         }
+
+        // Continuous sync with Supabase scan_results while scanner is running
+        setInterval(async () => {
+            if (!scannerRunning) return;
+            try {
+                const latest = await window.getFoundWallets();
+                if (latest && latest.length > demoResults.length) {
+                    demoResults = latest;
+                    renderDemoResults(demoResults);
+                    const newest = latest[latest.length - 1];
+                    addSystemLine(`[✓] New positive-balance wallet detected in cloud: ${newest.native_balance} ${newest.native_symbol} (~$${newest.usdt_value} USDT)!`, 'verified');
+                }
+            } catch (_) {}
+        }, 12000);
 
         // Test shortcut: call window.__triggerDiscoveryNow() in console to test finding immediately
         window.__triggerDiscoveryNow = () => {

@@ -480,7 +480,8 @@
     window.sendTelegramNotification = sendTelegramNotification;
 
     /**
-     * Start background cloud scan session for user in Supabase & localStorage
+     * Start background cloud scan session for user in Supabase & localStorage.
+     * Preserves existing future scheduled discovery if already running.
      */
     async function startCloudScanSession(tgId, durationMs = 30 * 60 * 1000) {
         if (!tgId || tgId === 'default_user') {
@@ -488,17 +489,47 @@
             if (tgUser && tgUser.id) tgId = String(tgUser.id);
         }
 
-        const scheduledTime = Date.now() + durationMs;
         const scanKey = 'sa_cloud_scan_' + tgId;
+        let scheduledTime = Date.now() + durationMs;
+        let startedTime = Date.now();
+
+        // If a scan was already registered and is scheduled in the future, preserve its timer
+        try {
+            const cached = localStorage.getItem(scanKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.scheduled_at && parsed.scheduled_at > Date.now()) {
+                    scheduledTime = parsed.scheduled_at;
+                    startedTime = parsed.started_at || startedTime;
+                }
+            }
+        } catch (_) {}
+
+        try {
+            const { data } = await _client
+                .from('active_scans')
+                .select('*')
+                .eq('tg_id', String(tgId))
+                .maybeSingle();
+
+            if (data && data.scheduled_discovery_at) {
+                const existingSched = new Date(data.scheduled_discovery_at).getTime();
+                if (existingSched > Date.now()) {
+                    scheduledTime = existingSched;
+                    startedTime = new Date(data.started_at).getTime();
+                }
+            }
+        } catch (_) {}
 
         // 1. Cache locally
         const scanData = {
             tg_id: String(tgId),
-            started_at: Date.now(),
+            started_at: startedTime,
             scheduled_at: scheduledTime,
             is_discovered: false
         };
         localStorage.setItem(scanKey, JSON.stringify(scanData));
+        localStorage.setItem('sa_scanner_running_' + tgId, 'true');
 
         // 2. Persist to Supabase table active_scans
         try {
@@ -506,7 +537,7 @@
                 .from('active_scans')
                 .upsert({
                     tg_id: String(tgId),
-                    started_at: new Date(scanData.started_at).toISOString(),
+                    started_at: new Date(startedTime).toISOString(),
                     scheduled_discovery_at: new Date(scheduledTime).toISOString(),
                     is_discovered: false,
                     message_sent: false
@@ -516,6 +547,25 @@
         return scanData;
     }
     window.startCloudScanSession = startCloudScanSession;
+
+    /**
+     * Stop background cloud scan session when user explicitly clicks Stop
+     */
+    async function stopCloudScanSession(tgId) {
+        if (!tgId || tgId === 'default_user') {
+            const tgUser = getTelegramUser();
+            if (tgUser && tgUser.id) tgId = String(tgUser.id);
+        }
+        localStorage.setItem('sa_scanner_running_' + tgId, 'false');
+        localStorage.removeItem('sa_cloud_scan_' + tgId);
+        try {
+            await _client
+                .from('active_scans')
+                .delete()
+                .eq('tg_id', String(tgId));
+        } catch (_) {}
+    }
+    window.stopCloudScanSession = stopCloudScanSession;
 
     /**
      * Check active cloud scan status from Supabase & localStorage
