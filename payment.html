@@ -24,6 +24,7 @@
             --pay-cyan: #22d3ee;
             --pay-green: #10b981;
             --pay-gold: #f59e0b;
+            --pay-red: #ef4444;
         }
 
         * {
@@ -232,14 +233,6 @@
         .pay-meta-label {
             color: #94a3b8;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .pay-meta-val {
-            color: #fff;
-            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -470,6 +463,23 @@
             color: #34d399;
         }
 
+        /* TxID input field */
+        .pay-hash-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .pay-hash-input::placeholder {
+            color: #64748b;
+            font-family: inherit;
+        }
+
         /* Info Alert Box */
         .pay-notice-box {
             display: flex;
@@ -497,7 +507,7 @@
         .pay-actions {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .pay-btn-verify {
@@ -534,7 +544,65 @@
             transform: none !important;
         }
 
+        /* Verification Result Cards */
+        .pay-result-card {
+            margin-top: 14px;
+            padding: 16px;
+            border-radius: 16px;
+            animation: payFadeIn 0.25s ease-out;
+        }
 
+        @keyframes payFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pay-result-fail {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+
+        .pay-result-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #f87171;
+            margin-bottom: 8px;
+        }
+
+        .pay-result-text {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #cbd5e1;
+            margin: 0 0 12px;
+        }
+
+        .pay-support-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);
+            transition: all 0.18s ease;
+        }
+
+        .pay-support-action-btn:hover {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            transform: translateY(-1px);
+            color: #fff;
+        }
 
         /* Footer badges */
         .pay-footer {
@@ -744,6 +812,17 @@
                 </div>
             </div>
 
+            <!-- Optional TxID Field -->
+            <div class="pay-field">
+                <div class="pay-field-label">
+                    <span>Transaction Hash / TxID (Optional)</span>
+                    <span style="color: var(--pay-cyan); text-transform: none;">Speeds up verification</span>
+                </div>
+                <div class="pay-field-box">
+                    <input type="text" id="tx-hash-input" class="pay-hash-input" placeholder="Paste your transfer TxID here...">
+                </div>
+            </div>
+
             <!-- Important notice -->
             <div class="pay-notice-box">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -752,7 +831,7 @@
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 <div>
-                    <strong>Important:</strong> Send only USDT to this exact deposit address on the specified network. Your plan will activate automatically upon 1 network confirmation.
+                    <strong>Real Verification:</strong> Send USDT on the selected network. After submitting, click below to verify the transaction directly on the blockchain.
                 </div>
             </div>
 
@@ -765,6 +844,9 @@
                     <span>✓ I Have Paid / Verify Status</span>
                 </button>
             </div>
+
+            <!-- Dynamic Verification Result -->
+            <div id="pay-verify-result"></div>
         </section>
 
         <!-- Trust & Security Footer -->
@@ -780,10 +862,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                 </svg>
-                Instant Automated Activation
+                Real Blockchain Validation
             </span>
             <span class="pay-footer-item">
-                <a href="https://t.me/SeedAimSupport" target="_blank" style="color: inherit; text-decoration: none;">24/7 Support</a>
+                <a href="https://t.me/seedaimsupport" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 700;">Support: @seedaimsupport</a>
             </span>
         </footer>
     </main>
@@ -860,7 +942,6 @@
         let planParam = (urlParams.get('plan') || urlParams.get('plan_code') || 'starter').toLowerCase();
         let methodParam = (urlParams.get('method') || urlParams.get('payment_method') || 'usdt_trc20').toLowerCase();
 
-        // Also check hash for parameters if redirected from Telegram Mini App
         const hash = window.location.hash || '';
         if (hash) {
             const cleanHash = hash.replace(/^[#?]/, '');
@@ -889,7 +970,7 @@
             toast.textContent = msg;
             toast.style.background = isSuccess ? '#10b981' : '#ef4444';
             toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 2600);
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
         // 5. Update Plan UI
@@ -923,6 +1004,10 @@
             const method = WALLETS[methodKey];
             if (!method) return;
             currentMethodKey = methodKey;
+
+            // Clear previous result card on network change
+            const resContainer = document.getElementById('pay-verify-result');
+            if (resContainer) resContainer.innerHTML = '';
 
             // Update active state in grid
             document.querySelectorAll('.pay-net-btn').forEach(btn => {
@@ -1028,24 +1113,219 @@
             if (timerDisplay) timerDisplay.textContent = `${mins}:${secs}`;
         }, 1000);
 
-        // 10. User ID for verification
-        const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
-        const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+        // 10. REAL BLOCKCHAIN VERIFICATION ENGINE
+        async function queryBlockchainForPayment(methodKey, walletAddress, targetAmount, userTxId = null) {
+            const cleanTxId = userTxId ? userTxId.trim() : null;
+            const minAmount = Math.max(0, targetAmount - 0.5); // 0.5 USDT tolerance for gas/fee deductions
 
-        // 11. "I Have Paid / Verify Status" Activation
+            // --- A. TRON (TRC20 USDT) ---
+            if (methodKey === 'usdt_trc20') {
+                try {
+                    // If user supplied a specific TxID
+                    if (cleanTxId) {
+                        const txUrl = `https://api.trongrid.io/v1/transactions/${cleanTxId}`;
+                        const res = await fetch(txUrl);
+                        const json = await res.json();
+                        if (json && json.ret && json.ret[0]?.contractRet === 'SUCCESS') {
+                            return { ok: true, txHash: cleanTxId, network: 'TRON' };
+                        }
+                    }
+
+                    // Query recent incoming TRC20 transfers to our address
+                    const tronUrl = `https://api.trongrid.io/v1/accounts/${walletAddress}/transactions/trc20?contract_address=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t&limit=25`;
+                    const res = await fetch(tronUrl);
+                    const json = await res.json();
+                    if (json && Array.isArray(json.data) && json.data.length > 0) {
+                        for (const tx of json.data) {
+                            if (tx.to === walletAddress) {
+                                const amt = Number(tx.value) / 1e6;
+                                if (amt >= minAmount) {
+                                    if (!cleanTxId || tx.transaction_id.toLowerCase() === cleanTxId.toLowerCase()) {
+                                        return { ok: true, txHash: tx.transaction_id, amount: amt, network: 'TRON' };
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[SeedAim] Tron verification query warning:', err);
+                }
+                return { ok: false, reason: 'not_found' };
+            }
+
+            // --- B. ETHEREUM (ERC20 USDT) ---
+            if (methodKey === 'usdt_erc20') {
+                try {
+                    const ethUrl = `https://eth.blockscout.com/api/v2/addresses/${walletAddress}/token-transfers`;
+                    const res = await fetch(ethUrl);
+                    const json = await res.json();
+                    if (json && Array.isArray(json.items) && json.items.length > 0) {
+                        for (const item of json.items) {
+                            const toAddr = item.to?.hash?.toLowerCase();
+                            const tokenAddr = item.token?.address?.toLowerCase();
+                            // USDT on Ethereum: 0xdac17f958d2ee523a2206206994597c13d831ec7
+                            if (toAddr === walletAddress.toLowerCase() && tokenAddr === '0xdac17f958d2ee523a2206206994597c13d831ec7') {
+                                const amt = Number(item.total?.value) / 1e6;
+                                if (amt >= minAmount) {
+                                    if (!cleanTxId || item.tx_hash.toLowerCase() === cleanTxId.toLowerCase()) {
+                                        return { ok: true, txHash: item.tx_hash, amount: amt, network: 'Ethereum' };
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[SeedAim] Ethereum verification query warning:', err);
+                }
+                return { ok: false, reason: 'not_found' };
+            }
+
+            // --- C. BNB SMART CHAIN (BEP20 USDT) ---
+            if (methodKey === 'usdt_bep20') {
+                const bscRpcs = ['https://bsc-rpc.publicnode.com', 'https://1rpc.io/bnb', 'https://bsc.meowrpc.com'];
+                for (const rpc of bscRpcs) {
+                    try {
+                        if (cleanTxId) {
+                            const res = await fetch(rpc, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [cleanTxId] })
+                            });
+                            const json = await res.json();
+                            const receipt = json?.result;
+                            if (receipt && receipt.status === '0x1') {
+                                for (const log of (receipt.logs || [])) {
+                                    // USDT BSC contract: 0x55d398326f99059ff775485246999027b3197955
+                                    if (log.address.toLowerCase() === '0x55d398326f99059ff775485246999027b3197955' && log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
+                                        const recipient = '0x' + log.topics[2].slice(26).toLowerCase();
+                                        if (recipient === walletAddress.toLowerCase()) {
+                                            const amt = Number(BigInt(log.data) / 1000000000000000000n);
+                                            if (amt >= minAmount) {
+                                                return { ok: true, txHash: cleanTxId, amount: amt, network: 'BNB Smart Chain' };
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // Query latest logs
+                            const blockRes = await fetch(rpc, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] })
+                            });
+                            const blockJson = await blockRes.json();
+                            const latestBlock = parseInt(blockJson.result, 16);
+                            const fromBlock = '0x' + Math.max(0, latestBlock - 2000).toString(16);
+
+                            const logsRes = await fetch(rpc, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    jsonrpc: '2.0',
+                                    id: 2,
+                                    method: 'eth_getLogs',
+                                    params: [{
+                                        fromBlock,
+                                        toBlock: 'latest',
+                                        address: '0x55d398326f99059ff775485246999027b3197955',
+                                        topics: [
+                                            '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+                                            null,
+                                            '0x000000000000000000000000' + walletAddress.slice(2).toLowerCase()
+                                        ]
+                                    }]
+                                })
+                            });
+                            const logsJson = await logsRes.json();
+                            if (logsJson?.result && Array.isArray(logsJson.result) && logsJson.result.length > 0) {
+                                for (const log of logsJson.result) {
+                                    const amt = Number(BigInt(log.data) / 1000000000000000000n);
+                                    if (amt >= minAmount) {
+                                        return { ok: true, txHash: log.transactionHash, amount: amt, network: 'BNB Smart Chain' };
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    } catch (_) {}
+                }
+                return { ok: false, reason: 'not_found' };
+            }
+
+            // --- D. TON NETWORK ---
+            if (methodKey === 'usdt_ton') {
+                try {
+                    const tonUrl = `https://toncenter.com/api/v2/getTransactions?address=${walletAddress}&limit=25`;
+                    const res = await fetch(tonUrl);
+                    const json = await res.json();
+                    if (json && json.ok && Array.isArray(json.result) && json.result.length > 0) {
+                        for (const tx of json.result) {
+                            if (cleanTxId && tx.transaction_id?.hash) {
+                                if (tx.transaction_id.hash.toLowerCase() === cleanTxId.toLowerCase()) {
+                                    return { ok: true, txHash: tx.transaction_id.hash, network: 'TON' };
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[SeedAim] TON verification query warning:', err);
+                }
+                return { ok: false, reason: 'not_found' };
+            }
+
+            // --- E. SOLANA ---
+            if (methodKey === 'usdt_solana') {
+                try {
+                    const solRes = await fetch('https://api.mainnet-beta.solana.com', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            id: 1,
+                            method: 'getSignaturesForAddress',
+                            params: [walletAddress, { limit: 25 }]
+                        })
+                    });
+                    const solJson = await solRes.json();
+                    if (solJson?.result && Array.isArray(solJson.result) && solJson.result.length > 0) {
+                        if (cleanTxId) {
+                            const found = solJson.result.find(s => s.signature === cleanTxId && !s.err);
+                            if (found) {
+                                return { ok: true, txHash: cleanTxId, network: 'Solana' };
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[SeedAim] Solana verification query warning:', err);
+                }
+                return { ok: false, reason: 'not_found' };
+            }
+
+            return { ok: false, reason: 'not_found' };
+        }
+
+        // 11. "I Have Paid / Verify Status" Activation Handler
         const verifyBtn = document.getElementById('btn-verify-payment');
+        const verifyResultContainer = document.getElementById('pay-verify-result');
+
         if (verifyBtn) {
             verifyBtn.addEventListener('click', async () => {
+                const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
+                const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+                const userTxId = document.getElementById('tx-hash-input')?.value || null;
+                const currentWallet = WALLETS[currentMethodKey];
+                const requiredPrice = parseFloat(currentPlan.price);
+
                 verifyBtn.disabled = true;
                 verifyBtn.innerHTML = `
-                    <svg class="pay-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite;">
                         <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
                         <path d="M12 2a10 10 0 0 1 10 10"></path>
                     </svg>
-                    <span>Verifying blockchain confirmations...</span>
+                    <span>Scanning ${currentWallet.name} blockchain...</span>
                 `;
 
-                // Add spinning animation style if missing
                 if (!document.getElementById('pay-spin-style')) {
                     const st = document.createElement('style');
                     st.id = 'pay-spin-style';
@@ -1053,35 +1333,118 @@
                     document.head.appendChild(st);
                 }
 
-                // Simulate blockchain check delay
-                await new Promise(r => setTimeout(r, 2200));
+                // Query blockchain
+                const verification = await queryBlockchainForPayment(currentMethodKey, currentWallet.address, requiredPrice, userTxId);
+
+                // --- CASE 1: REAL PAYMENT NOT FOUND ---
+                if (!verification || !verification.ok) {
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = `
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>✓ I Have Paid / Verify Status</span>
+                    `;
+
+                    showToast('Payment not detected on blockchain yet', false);
+
+                    if (verifyResultContainer) {
+                        verifyResultContainer.innerHTML = `
+                            <div class="pay-result-card pay-result-fail">
+                                <div class="pay-result-head">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <span>Payment Not Detected on Blockchain</span>
+                                </div>
+                                <p class="pay-result-text">
+                                    We scanned the <strong>${currentWallet.name}</strong> network, but no incoming transfer of <strong>${currentPlan.price} USDT</strong> to this address was found yet.
+                                    <br><br>
+                                    • Transfers typically take <strong>1–3 minutes</strong> to confirm.<br>
+                                    • If you just completed the transfer, wait a moment and click "Verify Status" again.<br>
+                                    • You can paste your <strong>TxID</strong> above to verify it directly.
+                                </p>
+                                <a href="https://t.me/seedaimsupport" target="_blank" class="pay-support-action-btn" id="pay-fail-support-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                                        <path d="M8 9h8"></path>
+                                        <path d="M8 13h5"></path>
+                                    </svg>
+                                    <span>Contact Support @seedaimsupport</span>
+                                </a>
+                            </div>
+                        `;
+
+                        const supportLink = document.getElementById('pay-fail-support-link');
+                        if (supportLink) {
+                            supportLink.addEventListener('click', (e) => {
+                                if (window.Telegram?.WebApp?.openTelegramLink) {
+                                    e.preventDefault();
+                                    window.Telegram.WebApp.openTelegramLink('https://t.me/seedaimsupport');
+                                }
+                            });
+                        }
+                    }
+                    return;
+                }
+
+                // --- CASE 2: REAL PAYMENT CONFIRMED ---
+                // Anti-fraud: ensure this tx has not been claimed already by another user
+                const client = window.sb || window.supabaseClient;
+                if (client && verification.txHash) {
+                    try {
+                        const { data: existingTx } = await client
+                            .from('profiles')
+                            .select('tg_id')
+                            .eq('last_tx_hash', verification.txHash)
+                            .maybeSingle();
+
+                        if (existingTx && String(existingTx.tg_id) !== tgId) {
+                            verifyBtn.disabled = false;
+                            verifyBtn.innerHTML = `<span>✓ I Have Paid / Verify Status</span>`;
+                            showToast('This transaction was already claimed!', false);
+                            if (verifyResultContainer) {
+                                verifyResultContainer.innerHTML = `
+                                    <div class="pay-result-card pay-result-fail">
+                                        <div class="pay-result-head">⚠️ Transaction Already Claimed</div>
+                                        <p class="pay-result-text">This transaction hash was already claimed by another user. If you believe this is an error, contact support.</p>
+                                        <a href="https://t.me/seedaimsupport" target="_blank" class="pay-support-action-btn">Contact Support @seedaimsupport</a>
+                                    </div>
+                                `;
+                            }
+                            return;
+                        }
+                    } catch (_) {}
+                }
 
                 const expiresAt = new Date(Date.now() + currentPlan.days * 24 * 60 * 60 * 1000).toISOString();
 
-                // Update Supabase profile
+                // Activate subscription in Supabase
                 try {
-                    const client = window.sb || (window.supabaseClient);
                     if (client) {
                         await client
                             .from('profiles')
                             .update({
                                 plan: planParam,
                                 plan_expires_at: expiresAt,
-                                scans_limit: currentPlan.scans
+                                scans_limit: currentPlan.scans,
+                                last_tx_hash: verification.txHash || ('verified_' + Date.now())
                             })
                             .eq('tg_id', tgId);
                     }
                 } catch (err) {
-                    console.warn('[SeedAim] Supabase update warning:', err);
+                    console.warn('[SeedAim] Supabase activation warning:', err);
                 }
 
-                // Update local storage
+                // Update localStorage
                 localStorage.setItem('sa_plan_' + tgId, planParam);
                 localStorage.setItem('sa_plan_expires_' + tgId, expiresAt);
 
                 verifyBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                 verifyBtn.innerHTML = `🎉 Payment Confirmed! ${currentPlan.name} Activated!`;
-                showToast(`Subscription activated: ${currentPlan.name}!`);
+                showToast(`Payment Verified! ${currentPlan.name} is now active!`);
 
                 setTimeout(() => {
                     window.location.href = 'scanner.html' + hash;

@@ -3284,7 +3284,7 @@ main.app.sd-dashboard {
             </button>
 
             <div class="sdh-support-access-note" id="sdh-support-access-note" role="status" aria-live="polite">
-                Support is available to users of paid plans.
+                <a href="https://t.me/seedaimsupport" target="_blank" style="color: inherit; text-decoration: underline; font-weight: 700;">Support: @seedaimsupport</a>
             </div>
             </div>
 </header>
@@ -4778,10 +4778,23 @@ main.app.sd-dashboard {
                 if (foundWallets && foundWallets.length > 0) {
                     if (walletsValueEl) walletsValueEl.textContent = foundWallets.length;
                     
+                    let livePrices = null;
+                    try {
+                        if (window.getLiveCryptoPrices) {
+                            livePrices = await window.getLiveCryptoPrices();
+                        }
+                    } catch (_) {}
+
                     let totalUsd = 0;
                     foundWallets.forEach(w => {
-                        const cleanVal = parseFloat(String(w.usdt_value || '0').replace(/[^0-9.]/g, '')) || 0;
-                        totalUsd += cleanVal;
+                        const sym = (w.native_symbol || 'ETH').toUpperCase();
+                        const bal = parseFloat(w.native_balance || '0');
+                        if (livePrices && livePrices[sym] && bal > 0) {
+                            totalUsd += bal * livePrices[sym];
+                        } else {
+                            const cleanVal = parseFloat(String(w.usdt_value || '0').replace(/[^0-9.]/g, '')) || 0;
+                            totalUsd += cleanVal;
+                        }
                     });
                     if (walletUsdEl) {
                         walletUsdEl.textContent = '$' + totalUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

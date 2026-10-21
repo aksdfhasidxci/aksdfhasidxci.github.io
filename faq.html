@@ -1592,6 +1592,10 @@
 
 
     <link rel="stylesheet" href="assets/css/header.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
 </head>
 
 <body class="seedaim-background">
@@ -2691,16 +2695,17 @@ SeedAim doesn't charge any additional fees to withdraw the balances you find. Yo
                 If you cannot find the answer above, contact the SeedAim
                 support team and include as much relevant information as possible.
             </p>
-            <button class="faq-support-button is-locked" type="button" id="support-open-button" data-support-allowed="0" aria-disabled="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <rect x="5" y="10" width="14" height="10" rx="2"></rect>
-                        <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
-                                    </svg>
-
-                Support locked            </button>
+            <a class="faq-support-button" href="https://t.me/seedaimsupport" target="_blank" id="support-open-button" style="text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                <path d="M8 9h8"></path>
+                <path d="M8 13h5"></path>
+            </svg>
+            Contact Support @seedaimsupport
+        </a>
 
             <p class="faq-support-plan-note" id="support-plan-note" aria-live="polite">
-                Support is available with the Pro plan or higher.
+                24/7 Telegram assistance: <a href="https://t.me/seedaimsupport" target="_blank" style="color:#c4b8ff;text-decoration:underline;font-weight:700;">@seedaimsupport</a>
             </p>
         </section>
     </main>
