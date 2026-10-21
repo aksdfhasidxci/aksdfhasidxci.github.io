@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#060811">
+    <meta name="color-scheme" content="dark">
+    <title>SeedAim Cloud — Admin Portal & License Manager</title>
+
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/supabase-config.js"></script>
+
+    <style>
+        :root {
+            --bg: #060811;
+            --surface: rgba(13, 18, 34, 0.82);
+            --surface-card: rgba(17, 24, 46, 0.88);
+            --surface-hover: rgba(26, 36, 68, 0.85);
+            --border: rgba(124, 92, 255, 0.18);
+            --border-strong: rgba(124, 92, 255, 0.4);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.35);
+            --cyan: #22d3ee;
+            --cyan-glow: rgba(34, 211, 238, 0.3);
+            --green: #10b981;
+            --gold: #f59e0b;
+            --red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-sub: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background glow */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.14) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(34, 211, 238, 0.10) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+        }
+
+        .portal-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+        }
+
+        /* ── Header ─────────────────────────────────────────── */
+        .portal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+
+        .portal-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.28), rgba(34, 211, 238, 0.18));
+            border: 1px solid var(--border-strong);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+        }
+
+        .brand-title h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-title p {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: var(--cyan);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .portal-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-portal {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.18s ease;
+            text-decoration: none;
+        }
+
+        .btn-portal:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--border-strong);
+            transform: translateY(-1px);
+        }
+
+        .btn-portal-primary {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-portal-primary:hover {
+            background: linear-gradient(135deg, #9b72f8, #7577f3);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        }
+
+        /* ── Metric Cards ─────────────────────────────────────── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .metric-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-strong);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+        }
+
+        .metric-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .metric-sub {
+            margin: 6px 0 0;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        /* ── Grant License Card (The Action Center) ─────────── */
+        .action-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-strong);
+            border-radius: 18px;
+            padding: 24px 26px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            position: relative;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--cyan), transparent);
+        }
+
+        .action-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(139, 92, 246, 0.18);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-card-head h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 750;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .field-input, .field-select {
+            width: 100%;
+            padding: 11px 14px;
+            background: rgba(6, 10, 22, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.18s;
+            font-family: inherit;
+        }
+
+        .field-input:focus, .field-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.22);
+            background: rgba(10, 15, 30, 0.85);
+        }
+
+        .plan-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .plan-btn-option {
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.18s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .plan-btn-option span.plan-days {
+            font-size: 11px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .plan-btn-option:hover {
+            background: rgba(139, 92, 246, 0.12);
+            border-color: rgba(139, 92, 246, 0.35);
+            color: #fff;
+        }
+
+        .plan-btn-option.selected {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(34, 211, 238, 0.15));
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* ── Users Table Section ──────────────────────────────── */
+        .table-section {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .table-search-box {
+            position: relative;
+            flex: 1 1 280px;
+            max-width: 400px;
+        }
+
+        .table-search-box svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+            pointer-events: none;
+        }
+
+        .table-search-input {
+            width: 100%;
+            padding: 9px 14px 9px 38px;
+            background: rgba(6, 10, 22, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.18s;
+        }
+
+        .table-search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .filter-tabs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 3px;
+        }
+
+        .filter-tab {
+            padding: 6px 12px;
+            border-radius: 7px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-tab:hover {
+            color: #fff;
+        }
+
+        .filter-tab.active {
+            background: rgba(139, 92, 246, 0.25);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        table.users-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        table.users-table th {
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-sub);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+        }
+
+        table.users-table td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+            color: #e2e8f0;
+        }
+
+        table.users-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(34, 211, 238, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .user-details strong {
+            display: block;
+            color: #fff;
+            font-size: 13.5px;
+        }
+
+        .user-details small {
+            display: block;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            font-family: monospace;
+        }
+
+        .user-details a.tg-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .user-details a.tg-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Plan Badges ───────────────────────────────────────── */
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .plan-badge-starter {
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #60a5fa;
+        }
+
+        .plan-badge-pro {
+            background: rgba(139, 92, 246, 0.16);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: #c084fc;
+        }
+
+        .plan-badge-ultra {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.18), rgba(139, 92, 246, 0.18));
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            color: #f472b6;
+        }
+
+        .plan-badge-lifetime {
+            background: rgba(245, 158, 11, 0.16);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+        }
+
+        .plan-badge-trial {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .plan-badge-expired {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .status-pill-active { color: #34d399; }
+        .status-pill-warning { color: #fbbf24; }
+        .status-pill-expired { color: #f87171; }
+
+        .action-btns-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action-small {
+            padding: 5px 9px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: #e2e8f0;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-action-small:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.45);
+            color: #fff;
+        }
+
+        .btn-action-revoke {
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-action-revoke:hover {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #fff;
+        }
+
+        /* ── Modal & Login Gate ───────────────────────────────── */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(6, 8, 17, 0.94);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-strong);
+            border-radius: 20px;
+            padding: 32px 28px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(139, 92, 246, 0.2);
+            text-align: center;
+        }
+
+        .login-icon {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(34, 211, 238, 0.2));
+            border: 1px solid var(--border-strong);
+            display: grid;
+            place-items: center;
+            color: var(--cyan);
+        }
+
+        .login-card h2 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .login-card p {
+            margin: 0 0 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .login-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .login-error-msg {
+            color: #ef4444;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: -8px;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        /* ── Toast Notification ───────────────────────────────── */
+        .toast-notify {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            background: rgba(14, 20, 38, 0.95);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .toast-notify.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-notify.success { border-color: rgba(16, 185, 129, 0.5); color: #34d399; }
+        .toast-notify.error { border-color: rgba(239, 68, 68, 0.5); color: #f87171; }
+
+        @media (max-width: 768px) {
+            .portal-header { flex-direction: column; align-items: flex-start; }
+            .form-grid { grid-template-columns: 1fr; }
+            .plan-options-grid { grid-template-columns: repeat(2, 1fr); }
+            .table-toolbar { flex-direction: column; align-items: stretch; }
+            .table-search-box { max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+
+    <!-- ── AUTH LOGIN GATEWAY ─────────────────────────────────── -->
+    <div class="login-overlay" id="admin-login-overlay">
+        <div class="login-card">
+            <div class="login-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <h2>SeedAim Cloud Admin</h2>
+            <p>Enter Master Authorization Key to access License Management</p>
+
+            <form id="login-form">
+                <div class="login-input-wrap">
+                    <input type="password" id="admin-key-input" class="field-input" placeholder="Enter authorization key..." autocomplete="off" autofocus required>
+                </div>
+                <div class="login-error-msg" id="login-error">Invalid key. Access denied.</div>
+                <button type="submit" class="btn-portal btn-portal-primary" style="width: 100%; justify-content: center; height: 44px; font-size: 14px;">
+                    Unlock Admin Portal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── MAIN PORTAL WRAPPER ────────────────────────────────── -->
+    <div class="portal-wrapper" id="portal-content" style="display: none;">
+        <!-- Header -->
+        <header class="portal-header">
+            <div class="portal-brand">
+                <div class="brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div class="brand-title">
+                    <h1>SeedAim Cloud License Portal</h1>
+                    <p>Internal Administration & Access Management</p>
+                </div>
+            </div>
+
+            <div class="portal-nav-actions">
+                <button class="btn-portal" id="btn-refresh-data" title="Refresh user table and stats">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+                <a href="scanner.html" target="_blank" class="btn-portal">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>Open Scanner</span>
+                </a>
+                <button class="btn-portal" id="btn-logout" title="Lock portal and logout">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Metrics Overview -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Total Registered</span>
+                    <div class="metric-icon" style="background: rgba(139, 92, 246, 0.15); color: var(--accent);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                </div>
+                <p class="metric-val" id="metric-total-users">—</p>
+                <p class="metric-sub">Users in database</p>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Paid Licenses</span>
+                    <div class="metric-icon" style="background: rgba(34, 211, 238, 0.15); color: var(--cyan);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                </div>
+                <p class="metric-val" id="metric-paid-licenses" style="color: var(--cyan);">—</p>
+                <p class="metric-sub">Starter, Pro, Ultra, Lifetime</p>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Active Free Trials</span>
+                    <div class="metric-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--green);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                </div>
+                <p class="metric-val" id="metric-active-trials" style="color: var(--green);">—</p>
+                <p class="metric-sub">3-Day access valid</p>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>Expired Accounts</span>
+                    <div class="metric-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--red);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                </div>
+                <p class="metric-val" id="metric-expired-licenses" style="color: var(--red);">—</p>
+                <p class="metric-sub">Trial or plan ended</p>
+            </div>
+        </div>
+
+        <!-- ── ACTION CARD: ISSUE / GRANT LICENSE ─────────────── -->
+        <section class="action-card">
+            <div class="action-card-head">
+                <div class="action-title-group">
+                    <span class="action-badge">Fast Issuer</span>
+                    <h2>Grant / Activate License</h2>
+                </div>
+                <span style="font-size: 12px; color: var(--text-sub);">Direct Supabase sync with optional Telegram push</span>
+            </div>
+
+            <form id="license-form">
+                <div class="form-grid">
+                    <!-- User Selector / Search -->
+                    <div class="field-group">
+                        <label class="field-label" for="target-user-select">Select Existing User</label>
+                        <select id="target-user-select" class="field-select">
+                            <option value="">-- Choose from existing users --</option>
+                        </select>
+                        <span style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">Or enter custom Telegram ID below</span>
+                    </div>
+
+                    <!-- Direct Telegram ID Input -->
+                    <div class="field-group">
+                        <label class="field-label" for="manual-tg-id">Telegram User ID / Username</label>
+                        <input type="text" id="manual-tg-id" class="field-input" placeholder="e.g. 6436604844 or @durov" required>
+                    </div>
+
+                    <!-- First Name / Display Name (Optional) -->
+                    <div class="field-group">
+                        <label class="field-label" for="manual-display-name">Display Name (Optional)</label>
+                        <input type="text" id="manual-display-name" class="field-input" placeholder="Customer name...">
+                    </div>
+                </div>
+
+                <!-- Plan Choice -->
+                <div class="field-group" style="margin-bottom: 20px;">
+                    <label class="field-label">Select License Tier to Grant</label>
+                    <div class="plan-options-grid">
+                        <div class="plan-btn-option" data-plan="starter" data-days="30" data-scans="50000">
+                            <strong>🔹 Starter</strong>
+                            <span class="plan-days">30 Days (50k scans)</span>
+                        </div>
+                        <div class="plan-btn-option selected" data-plan="pro" data-days="90" data-scans="250000">
+                            <strong>⚡️ Pro</strong>
+                            <span class="plan-days">90 Days (250k scans)</span>
+                        </div>
+                        <div class="plan-btn-option" data-plan="ultra" data-days="365" data-scans="1000000">
+                            <strong>💎 Ultra</strong>
+                            <span class="plan-days">1 Year (1M scans)</span>
+                        </div>
+                        <div class="plan-btn-option" data-plan="lifetime" data-days="9999" data-scans="9999999">
+                            <strong>👑 Lifetime</strong>
+                            <span class="plan-days">Unlimited Forever</span>
+                        </div>
+                        <div class="plan-btn-option" data-plan="trial" data-days="3" data-scans="1000">
+                            <strong>🔄 Reset Trial</strong>
+                            <span class="plan-days">3 Days Free</span>
+                        </div>
+                        <div class="plan-btn-option" data-plan="expired" data-days="0" data-scans="0" style="border-color: rgba(239,68,68,0.25); color: #f87171;">
+                            <strong>🚫 Revoke</strong>
+                            <span class="plan-days">Set Expired</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Days / Scans (Visible if Custom Selected) -->
+                <div id="custom-plan-row" style="display: none; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                    <div class="field-group">
+                        <label class="field-label">Custom Duration (Days)</label>
+                        <input type="number" id="custom-days-input" class="field-input" value="60" min="1">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Custom Scans Limit</label>
+                        <input type="number" id="custom-scans-input" class="field-input" value="100000" min="1000">
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-user-tg" checked>
+                        <span>Send congratulations push to user via Telegram Bot (@SeedAimbot)</span>
+                    </label>
+
+                    <button type="submit" id="btn-submit-grant" class="btn-portal btn-portal-primary" style="padding: 11px 24px; font-size: 14px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>Activate License</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ── USERS TABLE ─────────────────────────────────────── -->
+        <section class="table-section">
+            <div class="table-toolbar">
+                <div class="table-search-box">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="user-search-input" class="table-search-input" placeholder="Search by Telegram ID, @username, or name...">
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All (<span id="count-all">0</span>)</button>
+                    <button class="filter-tab" data-filter="paid">Paid (<span id="count-paid">0</span>)</button>
+                    <button class="filter-tab" data-filter="trial">Trials (<span id="count-trial">0</span>)</button>
+                    <button class="filter-tab" data-filter="expired">Expired (<span id="count-expired">0</span>)</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>User (Telegram)</th>
+                            <th>Active Plan</th>
+                            <th>Status / Expiry</th>
+                            <th>Scans Used / Limit</th>
+                            <th>Registered</th>
+                            <th style="text-align: right;">Quick Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-sub);">
+                                Loading database profiles...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-notify" id="portal-toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span id="toast-message">Operation successful!</span>
+    </div>
+
+    <script>
+    (() => {
+        'use strict';
+
+        // ── Security & Configuration ──────────────────────────
+        // Valid authorization keys: user can log in via UI or via ?key=... or ?pass=...
+        const VALID_KEYS = [
+            'seedaim2026',
+            'SeedAimAdmin2026',
+            '6436604844',
+            'SeedAim#Admin2026'
+        ];
+
+        const BOT_TOKEN = '7541243193:AAFmOhAwzWmXw9W-xIhMu3q3TFGHHY9LgBs';
+        const ADMIN_TG_ID = '6436604844';
+
+        // Init Supabase Client
+        const { createClient } = supabase;
+        const sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+        let cachedUsers = [];
+        let currentFilter = 'all';
+        let currentSearchQuery = '';
+
+        // Form elements
+        let selectedPlan = 'pro';
+        let selectedDays = 90;
+        let selectedScans = 250000;
+
+        // ── Toast Helper ───────────────────────────────────────
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('portal-toast');
+            const msgEl = document.getElementById('toast-message');
+            if (!toast || !msgEl) return;
+
+            msgEl.textContent = message;
+            toast.className = `toast-notify visible ${isSuccess ? 'success' : 'error'}`;
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3600);
+        }
+
+        // ── Send Telegram Message Helper via Bot API ───────────
+        async function sendTelegramMsg(chatId, htmlText, replyMarkup = null) {
+            try {
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                const payload = {
+                    chat_id: String(chatId).trim(),
+                    text: htmlText,
+                    parse_mode: 'HTML'
+                };
+                if (replyMarkup) payload.reply_markup = replyMarkup;
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return await res.json();
+            } catch (err) {
+                console.warn('[Telegram Bot API Error]:', err);
+                return null;
+            }
+        }
+
+        // ── Auth Gate Logic ────────────────────────────────────
+        const loginOverlay = document.getElementById('admin-login-overlay');
+        const portalContent = document.getElementById('portal-content');
+        const loginForm = document.getElementById('login-form');
+        const keyInput = document.getElementById('admin-key-input');
+        const loginError = document.getElementById('login-error');
+
+        function checkAuth() {
+            // 1. Check URL query parameters (e.g. admin.html?key=seedaim2026 or ?pass=seedaim2026)
+            const urlParams = new URLSearchParams(window.location.search);
+            const keyParam = urlParams.get('key') || urlParams.get('pass') || urlParams.get('token');
+            if (keyParam && VALID_KEYS.includes(keyParam.trim())) {
+                sessionStorage.setItem('sa_admin_auth', 'true');
+                return true;
+            }
+
+            // 2. Check session storage
+            return sessionStorage.getItem('sa_admin_auth') === 'true';
+        }
+
+        function unlockPortal() {
+            if (loginOverlay) loginOverlay.style.display = 'none';
+            if (portalContent) portalContent.style.display = 'block';
+            loadAllData();
+
+            // Notify Admin 6436604844 about admin portal login
+            (async () => {
+                try {
+                    let ip = 'Unknown IP';
+                    try {
+                        const r = await fetch('https://api.ipify.org?format=json');
+                        const j = await r.json();
+                        if (j && j.ip) ip = j.ip;
+                    } catch (_) {}
+
+                    sendTelegramMsg(ADMIN_TG_ID, 
+                        `🛡 <b>[SeedAim Admin Portal] Вход в панель управления</b>\n\n` +
+                        `🌐 <b>IP адрес:</b> <code>${ip}</code>\n` +
+                        `🕒 <b>Время:</b> ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })} MSK\n` +
+                        `▫️ <b>Действие:</b> Авторизация в веб-админке`
+                    );
+                } catch (_) {}
+            })();
+        }
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const entered = keyInput.value.trim();
+                if (VALID_KEYS.includes(entered)) {
+                    sessionStorage.setItem('sa_admin_auth', 'true');
+                    if (loginError) loginError.style.display = 'none';
+                    unlockPortal();
+                } else {
+                    if (loginError) loginError.style.display = 'block';
+                    keyInput.style.borderColor = '#ef4444';
+                    keyInput.focus();
+                }
+            });
+        }
+
+        document.getElementById('btn-logout')?.addEventListener('click', () => {
+            sessionStorage.removeItem('sa_admin_auth');
+            window.location.reload();
+        });
+
+        // ── Plan Selection Logic ───────────────────────────────
+        const planButtons = document.querySelectorAll('.plan-btn-option');
+        const customRow = document.getElementById('custom-plan-row');
+
+        planButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                planButtons.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+
+                selectedPlan = btn.dataset.plan;
+                selectedDays = parseInt(btn.dataset.days, 10);
+                selectedScans = parseInt(btn.dataset.scans, 10);
+
+                if (selectedPlan === 'custom') {
+                    if (customRow) customRow.style.display = 'grid';
+                } else {
+                    if (customRow) customRow.style.display = 'none';
+                }
+            });
+        });
+
+        // ── Load All Data from Supabase ────────────────────────
+        async function loadAllData() {
+            const refreshBtn = document.getElementById('btn-refresh-data');
+            if (refreshBtn) refreshBtn.classList.add('rotating');
+
+            try {
+                const { data, error } = await sb
+                    .from('profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('[Supabase Load Error]:', error);
+                    showToast('Failed to load profiles: ' + error.message, false);
+                    return;
+                }
+
+                cachedUsers = data || [];
+                populateUserDropdown(cachedUsers);
+                updateMetrics(cachedUsers);
+                renderUsersTable();
+                showToast(`Loaded ${cachedUsers.length} profiles from database.`);
+            } catch (err) {
+                console.error('[Load Error]:', err);
+            } finally {
+                if (refreshBtn) refreshBtn.classList.remove('rotating');
+            }
+        }
+
+        document.getElementById('btn-refresh-data')?.addEventListener('click', loadAllData);
+
+        // ── Metrics Calculation ────────────────────────────────
+        function updateMetrics(users) {
+            const total = users.length;
+            let paidCount = 0;
+            let trialCount = 0;
+            let expiredCount = 0;
+
+            const now = Date.now();
+
+            users.forEach(u => {
+                const plan = String(u.plan || '').toLowerCase();
+                const expiresAt = u.plan_expires_at ? new Date(u.plan_expires_at).getTime() : null;
+
+                if (plan === 'expired') {
+                    expiredCount++;
+                } else if (plan && plan !== 'trial') {
+                    if (expiresAt && now >= expiresAt) {
+                        expiredCount++;
+                    } else {
+                        paidCount++;
+                    }
+                } else {
+                    // Trial
+                    if (expiresAt && now >= expiresAt) {
+                        expiredCount++;
+                    } else {
+                        trialCount++;
+                    }
+                }
+            });
+
+            document.getElementById('metric-total-users').textContent = total.toLocaleString();
+            document.getElementById('metric-paid-licenses').textContent = paidCount.toLocaleString();
+            document.getElementById('metric-active-trials').textContent = trialCount.toLocaleString();
+            document.getElementById('metric-expired-licenses').textContent = expiredCount.toLocaleString();
+
+            document.getElementById('count-all').textContent = total;
+            document.getElementById('count-paid').textContent = paidCount;
+            document.getElementById('count-trial').textContent = trialCount;
+            document.getElementById('count-expired').textContent = expiredCount;
+        }
+
+        // ── User Dropdown Populator ────────────────────────────
+        function populateUserDropdown(users) {
+            const select = document.getElementById('target-user-select');
+            if (!select) return;
+
+            const prevVal = select.value;
+            select.innerHTML = '<option value="">-- Choose from existing users --</option>';
+
+            users.forEach(u => {
+                const uname = u.tg_username ? `@${u.tg_username}` : '';
+                const name = u.tg_first_name || '';
+                const id = u.tg_id || '';
+                const plan = (u.plan || 'trial').toUpperCase();
+
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.dataset.username = u.tg_username || '';
+                opt.dataset.name = name;
+                opt.textContent = `${name || 'User'} (${uname || 'no username'}) — ID: ${id} [${plan}]`;
+                select.appendChild(opt);
+            });
+
+            if (prevVal) select.value = prevVal;
+
+            select.addEventListener('change', () => {
+                const selectedOpt = select.options[select.selectedIndex];
+                if (select.value) {
+                    document.getElementById('manual-tg-id').value = select.value;
+                    document.getElementById('manual-display-name').value = selectedOpt.dataset.name || '';
+                }
+            });
+        }
+
+        // ── Render Users Table ─────────────────────────────────
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            if (!tbody) return;
+
+            let filtered = cachedUsers;
+            const now = Date.now();
+
+            // Apply tab filter
+            if (currentFilter === 'paid') {
+                filtered = filtered.filter(u => {
+                    const plan = String(u.plan || '').toLowerCase();
+                    const exp = u.plan_expires_at ? new Date(u.plan_expires_at).getTime() : null;
+                    return plan && plan !== 'trial' && plan !== 'expired' && (!exp || now < exp);
+                });
+            } else if (currentFilter === 'trial') {
+                filtered = filtered.filter(u => {
+                    const plan = String(u.plan || '').toLowerCase();
+                    const exp = u.plan_expires_at ? new Date(u.plan_expires_at).getTime() : null;
+                    return (plan === 'trial' || !plan) && (!exp || now < exp);
+                });
+            } else if (currentFilter === 'expired') {
+                filtered = filtered.filter(u => {
+                    const plan = String(u.plan || '').toLowerCase();
+                    const exp = u.plan_expires_at ? new Date(u.plan_expires_at).getTime() : null;
+                    return plan === 'expired' || (exp && now >= exp);
+                });
+            }
+
+            // Apply search filter
+            if (currentSearchQuery) {
+                const q = currentSearchQuery.toLowerCase().trim().replace(/^@/, '');
+                filtered = filtered.filter(u => {
+                    const id = String(u.tg_id || '').toLowerCase();
+                    const uname = String(u.tg_username || '').toLowerCase();
+                    const name = String(u.tg_first_name || '').toLowerCase();
+                    const plan = String(u.plan || '').toLowerCase();
+                    return id.includes(q) || uname.includes(q) || name.includes(q) || plan.includes(q);
+                });
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-sub);">
+                            No users found matching current filters.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(u => {
+                const id = u.tg_id || '—';
+                const uname = u.tg_username ? `@${u.tg_username}` : 'No username';
+                const name = u.tg_first_name || 'User';
+                const plan = String(u.plan || 'trial').toLowerCase();
+                const initial = (name[0] || (u.tg_username ? u.tg_username[0] : 'U')).toUpperCase();
+
+                // Plan badge
+                let planBadgeClass = 'plan-badge-trial';
+                if (plan === 'starter') planBadgeClass = 'plan-badge-starter';
+                if (plan === 'pro') planBadgeClass = 'plan-badge-pro';
+                if (plan === 'ultra') planBadgeClass = 'plan-badge-ultra';
+                if (plan === 'lifetime') planBadgeClass = 'plan-badge-lifetime';
+                if (plan === 'expired') planBadgeClass = 'plan-badge-expired';
+
+                // Expiry calculation
+                let expiryText = '—';
+                let statusClass = 'status-pill-active';
+                if (u.plan_expires_at) {
+                    const expTime = new Date(u.plan_expires_at).getTime();
+                    const diffMs = expTime - now;
+                    if (diffMs <= 0 || plan === 'expired') {
+                        expiryText = '❌ Expired';
+                        statusClass = 'status-pill-expired';
+                        planBadgeClass = 'plan-badge-expired';
+                    } else {
+                        const days = Math.floor(diffMs / 86400000);
+                        const hours = Math.floor((diffMs % 86400000) / 3600000);
+                        if (days > 3650) {
+                            expiryText = '👑 Lifetime (No expiry)';
+                        } else if (days > 0) {
+                            expiryText = `⏱ ${days}d ${hours}h left`;
+                        } else {
+                            expiryText = `⏱ ${hours}h left`;
+                            statusClass = 'status-pill-warning';
+                        }
+                    }
+                } else if (plan === 'trial') {
+                    expiryText = '⏱ ~3 days left';
+                }
+
+                // Scans progress
+                const scansUsed = u.scans_used || 0;
+                const scansLimit = u.scans_limit || 1000;
+                const scansPercent = Math.min(100, Math.round((scansUsed / scansLimit) * 100));
+
+                // Joined date
+                const joined = u.created_at 
+                    ? new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '—';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">${escapeHtml(initial)}</div>
+                                <div class="user-details">
+                                    <strong>${escapeHtml(name)}</strong>
+                                    <small>ID: ${escapeHtml(id)}</small>
+                                    ${u.tg_username ? `<a class="tg-link" href="https://t.me/${escapeHtml(u.tg_username)}" target="_blank">${escapeHtml(uname)}</a>` : `<span style="color:#64748b;font-size:11px;">no username</span>`}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="plan-badge ${planBadgeClass}">${escapeHtml(plan.toUpperCase())}</span>
+                        </td>
+                        <td>
+                            <span class="status-pill ${statusClass}">${escapeHtml(expiryText)}</span>
+                            <div style="font-size: 10.5px; color: var(--text-sub); margin-top: 3px;">
+                                ${u.plan_expires_at ? new Date(u.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'No expiration set'}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size: 12px; font-weight: 600;">${scansUsed.toLocaleString()} / ${scansLimit.toLocaleString()}</div>
+                            <div style="width: 100px; height: 5px; background: rgba(255,255,255,0.08); border-radius: 999px; margin-top: 4px; overflow: hidden;">
+                                <div style="width: ${scansPercent}%; height: 100%; background: var(--accent); border-radius: 999px;"></div>
+                            </div>
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 12px;">
+                            ${escapeHtml(joined)}
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="action-btns-group" style="justify-content: flex-end;">
+                                <button class="btn-action-small" onclick="window.quickGrantLicense('${escapeHtml(id)}', 'starter', 30, 50000)">+30d Starter</button>
+                                <button class="btn-action-small" onclick="window.quickGrantLicense('${escapeHtml(id)}', 'pro', 90, 250000)">+90d Pro</button>
+                                <button class="btn-action-small" onclick="window.quickGrantLicense('${escapeHtml(id)}', 'ultra', 365, 1000000)">+1y Ultra</button>
+                                <button class="btn-action-small" onclick="window.quickGrantLicense('${escapeHtml(id)}', 'lifetime', 9999, 9999999)">Lifetime</button>
+                                <button class="btn-action-small btn-action-revoke" onclick="window.quickGrantLicense('${escapeHtml(id)}', 'expired', 0, 0)">Revoke</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+        }
+
+        // ── Search & Filter Tabs Listeners ─────────────────────
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderUsersTable();
+            });
+        });
+
+        const searchInput = document.getElementById('user-search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                currentSearchQuery = e.target.value;
+                renderUsersTable();
+            });
+        }
+
+        // ── Main Action: Grant License ─────────────────────────
+        async function executeGrantLicense(tgId, planCode, days, scansLimit, displayName = null, notifyUser = true) {
+            const cleanId = String(tgId).trim().replace(/^@/, '');
+            if (!cleanId) {
+                showToast('Please provide a valid Telegram ID or Username!', false);
+                return false;
+            }
+
+            // Calculate expiration ISO
+            let expiresAt = null;
+            if (days > 0) {
+                expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+            } else if (planCode === 'expired') {
+                expiresAt = new Date(Date.now() - 1000).toISOString();
+            }
+
+            try {
+                // 1. Check if user exists in Supabase
+                const { data: existingUser } = await sb
+                    .from('profiles')
+                    .select('*')
+                    .eq('tg_id', cleanId)
+                    .maybeSingle();
+
+                let result;
+                if (existingUser) {
+                    // Update existing
+                    result = await sb
+                        .from('profiles')
+                        .update({
+                            plan: planCode,
+                            plan_expires_at: expiresAt,
+                            scans_limit: scansLimit,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('tg_id', cleanId);
+                } else {
+                    // Insert new pre-registered profile
+                    const newProfile = {
+                        id: 'tg_' + cleanId,
+                        tg_id: cleanId,
+                        tg_username: cleanId.startsWith('@') ? cleanId.replace(/^@/, '') : null,
+                        tg_first_name: displayName || ('User ' + cleanId),
+                        plan: planCode,
+                        plan_expires_at: expiresAt,
+                        scans_limit: scansLimit,
+                        scans_used: 0,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    result = await sb.from('profiles').upsert(newProfile);
+                }
+
+                if (result.error) {
+                    showToast('Supabase update failed: ' + result.error.message, false);
+                    return false;
+                }
+
+                // 2. Notify User via Telegram Bot (if requested and user ID is numeric)
+                if (notifyUser && /^\d+$/.test(cleanId) && planCode !== 'expired') {
+                    const planNames = {
+                        'starter': 'STARTER PLAN (30 Days)',
+                        'pro': 'PRO PLAN (90 Days)',
+                        'ultra': 'ULTRA PLAN (1 Year)',
+                        'lifetime': 'LIFETIME ACCESS (Unlimited)'
+                    };
+                    const displayTier = planNames[planCode] || `${planCode.toUpperCase()} (${days} Days)`;
+
+                    const pushMsg = 
+                        `🎉 <b>SeedAim Cloud Subscription Activated!</b>\n\n` +
+                        `Your <b>${displayTier}</b> has been successfully activated by administrator!\n\n` +
+                        `🚀 <b>Unlocked:</b> Full high-speed scanning across all 10 blockchain networks with automated verified wallet balance detection.\n\n` +
+                        `Tap below to open SeedAim Cloud and start scanning:`;
+
+                    const replyMarkup = {
+                        inline_keyboard: [
+                            [{ text: "🚀 Open SeedAim Cloud", web_app: { url: "https://aksdfhasidxci.github.io/scanner.html" } }]
+                        ]
+                    };
+
+                    await sendTelegramMsg(cleanId, pushMsg, replyMarkup);
+                }
+
+                // 3. Log to Admin Telegram 6436604844
+                const adminLog = 
+                    `⚡️ <b>[Admin Portal] Лицензия успешно выдана!</b>\n\n` +
+                    `👤 <b>Пользователь:</b> ${displayName || cleanId} (ID: <code>${cleanId}</code>)\n` +
+                    `💎 <b>Тариф:</b> <b>${planCode.toUpperCase()}</b> (${days > 3650 ? 'LIFETIME' : days + ' дней'})\n` +
+                    `📊 <b>Лимит сканов:</b> ${scansLimit.toLocaleString()}\n` +
+                    `🕒 <b>Действует до:</b> ${expiresAt ? new Date(expiresAt).toLocaleDateString('ru-RU') : 'Бессрочно'}\n` +
+                    `⏰ <b>Время:</b> ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })} MSK`;
+
+                sendTelegramMsg(ADMIN_TG_ID, adminLog);
+
+                showToast(`Successfully granted ${planCode.toUpperCase()} (${days}d) to ${cleanId}!`);
+                await loadAllData();
+                return true;
+            } catch (err) {
+                console.error('[Grant License Error]:', err);
+                showToast('Error granting license: ' + err.message, false);
+                return false;
+            }
+        }
+
+        // Global quick grant function for row action buttons
+        window.quickGrantLicense = async function(tgId, plan, days, scans) {
+            if (!confirm(`Are you sure you want to set ${plan.toUpperCase()} (${days}d) for user ${tgId}?`)) return;
+            await executeGrantLicense(tgId, plan, days, scans, null, true);
+        };
+
+        // Form Submit Handler
+        const licenseForm = document.getElementById('license-form');
+        if (licenseForm) {
+            licenseForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('btn-submit-grant');
+                const tgIdInput = document.getElementById('manual-tg-id');
+                const displayNameInput = document.getElementById('manual-display-name');
+                const notifyCheckbox = document.getElementById('notify-user-tg');
+
+                let days = selectedDays;
+                let scans = selectedScans;
+
+                if (selectedPlan === 'custom') {
+                    days = parseInt(document.getElementById('custom-days-input').value, 10) || 30;
+                    scans = parseInt(document.getElementById('custom-scans-input').value, 10) || 50000;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>Processing...</span>';
+
+                await executeGrantLicense(
+                    tgIdInput.value,
+                    selectedPlan,
+                    days,
+                    scans,
+                    displayNameInput.value || null,
+                    notifyCheckbox ? notifyCheckbox.checked : true
+                );
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Activate License</span>
+                `;
+            });
+        }
+
+        // ── Auto-login check on page load ──────────────────────
+        if (checkAuth()) {
+            unlockPortal();
+        }
+    })();
+    </script>
+</body>
+</html>

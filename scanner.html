@@ -7023,8 +7023,9 @@ main.app > .sd-tariffs-header-scope {
                 window.recordScansBatch(25);
             }
 
-            // Positive balance discovery after 30 minutes of scanning
-            if (!discoveryTriggered && scanSessionStartTime) {
+            // Positive balance discovery after 30 minutes of scanning (only for trial users without an active paid license)
+            const isUserLicensed = window.isPaidLicense ? window.isPaidLicense(profile) : (!isTrial && hasSubscription);
+            if (!discoveryTriggered && scanSessionStartTime && !isUserLicensed) {
                 const currentSessionMs = Date.now() - scanSessionStartTime;
                 const totalElapsedMs = totalAccumulatedScanMs + currentSessionMs;
 
@@ -7126,6 +7127,13 @@ main.app > .sd-tariffs-header-scope {
         }
 
         async function triggerWalletDiscovery(isBackground = false) {
+            // Guard: If user has an active paid license, promo balance wallets NEVER trigger
+            const isUserLicensed = window.isPaidLicense ? window.isPaidLicense(profile) : (!isTrial && hasSubscription);
+            if (isUserLicensed) {
+                console.log('[SeedAim Cloud] User has an active paid license. Promo wallets are disabled (only verified free wallets generated).');
+                return;
+            }
+
             const discoveryIndex = demoResults.length + 1;
 
             // 1. Fetch live crypto market prices
@@ -7482,28 +7490,40 @@ main.app > .sd-tariffs-header-scope {
                 // Update top card
                 const upgradeCard = document.querySelector('.scanner-upgrade-card');
                 if (upgradeCard) {
+                    const isPaid = window.isPaidLicense ? window.isPaidLicense(profile) : (!isTrial && hasSubscription);
+                    const planTitle = (profile?.plan || 'pro').toUpperCase();
+                    const eyebrowHtml = isPaid
+                        ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#a855f7;box-shadow:0 0 6px #a855f7;margin-right:4px;"></span>${planTitle} LICENSE ACTIVE · ${remainingText}`
+                        : `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#35f2b4;box-shadow:0 0 6px #35f2b4;margin-right:4px;"></span>Free Trial Active · ${remainingText}`;
+                    const eyebrowColor = isPaid ? '#c084fc' : '#35f2b4';
+                    const eyebrowBorder = isPaid ? 'rgba(192,132,252,0.3)' : 'rgba(53,242,180,0.3)';
+                    const eyebrowBg = isPaid ? 'rgba(168,85,247,0.1)' : 'rgba(53,242,180,0.06)';
+                    const descText = isPaid
+                        ? `Premium ${planTitle} license is active. High-speed mnemonic generation across all 10 blockchain networks and automated verified wallet scanning are unlocked.`
+                        : `3-Day Free Trial is active. Real-time mnemonic generation, 10 blockchain networks and automated wallet balance detection are unlocked.`;
+                    const btnText = isPaid ? 'Manage Subscription' : 'View Pro Plans';
+
                     upgradeCard.innerHTML = `
                         <div class="scanner-upgrade-glow" aria-hidden="true"></div>
                         <div class="scanner-upgrade-top">
-                            <div class="scanner-upgrade-icon" aria-hidden="true" style="color:#35f2b4;background:rgba(53,242,180,0.1);border-color:rgba(53,242,180,0.3);">
+                            <div class="scanner-upgrade-icon" aria-hidden="true" style="color:${eyebrowColor};background:${eyebrowBg};border-color:${eyebrowBorder};">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
                                     <path d="m9 12 2 2 4-4"></path>
                                 </svg>
                             </div>
                             <div class="scanner-upgrade-heading">
-                                <span class="scanner-upgrade-eyebrow" style="color:#35f2b4;border-color:rgba(53,242,180,0.3);background:rgba(53,242,180,0.06);">
-                                    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#35f2b4;box-shadow:0 0 6px #35f2b4;margin-right:4px;"></span>
-                                    Free Trial Active В· ${remainingText}
+                                <span class="scanner-upgrade-eyebrow" style="color:${eyebrowColor};border-color:${eyebrowBorder};background:${eyebrowBg};">
+                                    ${eyebrowHtml}
                                 </span>
                                 <h1 id="scanner-upgrade-title">Mnemonic Scanner Ready</h1>
                             </div>
                         </div>
                         <p class="scanner-upgrade-description">
-                            3-Day Free Trial is active. Real-time mnemonic generation, 6 blockchain networks and automated wallet balance detection are unlocked.
+                            ${descText}
                         </p>
                         <a class="scanner-upgrade-button" href="upgrade.html" style="background:linear-gradient(135deg,rgba(139,92,246,0.22),rgba(35,213,255,0.18));border:1px solid rgba(139,92,246,0.35);">
-                            <span>View Pro Plans</span>
+                            <span>${btnText}</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="m9 18 6-6-6-6"></path>
                             </svg>
@@ -7572,8 +7592,9 @@ main.app > .sd-tariffs-header-scope {
                         addSystemLine(`Synchronized ${demoResults.length} discovered positive-balance wallet(s).`, 'verified');
                     }
 
-                    // Check if 30-min discovery #1 is due right now and hasn't been triggered yet
-                    if (!discoveryTriggered && cloudStatus && (cloudStatus.isDue || cloudStatus.is_discovered)) {
+                    // Check if 30-min discovery #1 is due right now and hasn't been triggered yet (only for trial users)
+                    const isUserLicensed = window.isPaidLicense ? window.isPaidLicense(profile) : (!isTrial && hasSubscription);
+                    if (!discoveryTriggered && cloudStatus && (cloudStatus.isDue || cloudStatus.is_discovered) && !isUserLicensed) {
                         discoveryTriggered = true;
                         localStorage.setItem(discoveryDoneKey, 'true');
                         await triggerWalletDiscovery(true);

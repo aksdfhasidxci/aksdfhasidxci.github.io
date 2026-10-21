@@ -230,9 +230,13 @@
      */
     function isTrialActive(profile) {
         if (!profile) return false;
-        // Paid plans are always active
-        if (profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired') {
-            return true;
+        const plan = String(profile.plan || '').toLowerCase();
+        if (plan === 'expired') return false;
+
+        // Paid plans: check expiration timestamp if set
+        if (plan && plan !== 'trial') {
+            if (!profile.plan_expires_at) return true;
+            return Date.now() < new Date(profile.plan_expires_at).getTime();
         }
 
         const expiresStr = profile.plan_expires_at || 
@@ -246,18 +250,35 @@
     window.isTrialActive = isTrialActive;
 
     /**
-     * Format remaining trial time nicely
+     * Check if user has an active paid license (starter, pro, ultra, lifetime)
+     */
+    function isPaidLicense(profile) {
+        if (!profile) return false;
+        const plan = String(profile.plan || '').toLowerCase();
+        if (!plan || plan === 'trial' || plan === 'expired') return false;
+        if (profile.plan_expires_at) {
+            const expTime = new Date(profile.plan_expires_at).getTime();
+            if (Date.now() >= expTime) return false;
+        }
+        return true;
+    }
+    window.isPaidLicense = isPaidLicense;
+
+    /**
+     * Format remaining trial or license time nicely
      */
     function getTrialRemainingText(profile) {
         if (!profile) return 'Inactive';
-        if (profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired') {
-            return 'Active Plan';
-        }
+        const plan = String(profile.plan || '').toLowerCase();
+        if (plan === 'expired') return 'Expired';
+
+        const isPaid = plan && plan !== 'trial';
+        const planPrefix = isPaid ? (profile.plan.toUpperCase() + ' · ') : '';
 
         const expiresStr = profile.plan_expires_at || 
             (profile.created_at ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() : null);
 
-        if (!expiresStr) return '3 days remaining';
+        if (!expiresStr) return isPaid ? (planPrefix + 'Active') : '3 days remaining';
 
         const diff = new Date(expiresStr).getTime() - Date.now();
         if (diff <= 0) return 'Expired';
@@ -265,10 +286,13 @@
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-        if (days > 0) {
-            return `${days} ${days === 1 ? 'day' : 'days'} ${hours}h left`;
+        if (days > 3650) {
+            return planPrefix + 'Lifetime Access';
         }
-        return `${hours}h left`;
+        if (days > 0) {
+            return `${planPrefix}${days} ${days === 1 ? 'day' : 'days'} ${hours}h left`;
+        }
+        return `${planPrefix}${hours}h left`;
     }
     window.getTrialRemainingText = getTrialRemainingText;
 
