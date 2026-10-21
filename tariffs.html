@@ -7900,31 +7900,36 @@ letter-spacing:-0.6px!important;
             ultra: { name: 'Ultra Plan', price: '99.00', days: 30 }
         };
 
-        const METHOD_DETAILS = {
+                const METHOD_DETAILS = {
             usdt_trc20: {
                 name: 'USDT (TRC20)',
                 network: 'TRON Mainnet',
-                address: 'TYD6x8sL9V4jB2zM7kP3qN1wR5tY8uX0p'
+                address: 'TXbYdE5VFWWeYxr4rqsrMsDoS9SgQ4SacZ',
+                icon: 'img/trx.png'
             },
             usdt_bep20: {
                 name: 'USDT (BEP20)',
                 network: 'BNB Smart Chain',
-                address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b'
+                address: '0x442b5B2EC83752Ee4Cde71f36e8C912c91152898',
+                icon: 'img/bsc.png'
             },
             usdt_erc20: {
                 name: 'USDT (ERC20)',
                 network: 'Ethereum Mainnet',
-                address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b'
+                address: '0x442b5B2EC83752Ee4Cde71f36e8C912c91152898',
+                icon: 'img/eth.png'
             },
             usdt_solana: {
                 name: 'USDT (Solana)',
                 network: 'Solana Mainnet',
-                address: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU'
+                address: '2Kc6u1UgsUwcmvUrTAkFqhgdy5i5Y86d6J6cUTcDAAPL',
+                icon: 'img/sol.png'
             },
             usdt_ton: {
                 name: 'USDT (TON)',
                 network: 'TON Mainnet',
-                address: 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFgGPOa4I23D7S'
+                address: 'UQATFuWaQcvLbn9MilZuT84J6C1G5Ot95A_v0VbZQKLW5zg5',
+                icon: 'img/ton.png'
             }
         };
 
@@ -8036,7 +8041,7 @@ letter-spacing:-0.6px!important;
                     </div>
 
                     <div class="invoice-qr-wrap">
-                        <img class="invoice-qr-code" src="${qrUrl}" alt="Deposit QR">
+                        <img class="invoice-qr-code" src="${qrUrl}" onerror="this.onerror=null;this.src='${qrFallback}'" alt="Deposit QR">
                         <span class="invoice-qr-hint">Scan with your ${method.network} mobile wallet</span>
                     </div>
 
