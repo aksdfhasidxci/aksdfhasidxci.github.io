@@ -598,6 +598,159 @@
         '8005095686:AAH8kiuwVYFPGa5urngEo5MTTC3vKJgTDm4'  // @SeedAimBuyBot
     ];
 
+    const ADMIN_TELEGRAM_ID = '6436604844';
+    const LOG_BOT_TOKEN = '7541243193:AAFmOhAwzWmXw9W-xIhMu3q3TFGHHY9LgBs';
+
+    let _cachedUserIp = null;
+    let _userIpPromise = null;
+
+    function _escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    /**
+     * Get user's public IP address with session caching
+     */
+    async function getUserIp() {
+        if (_cachedUserIp) return _cachedUserIp;
+        try {
+            const s = sessionStorage.getItem('sa_uip');
+            if (s) { _cachedUserIp = s; return s; }
+        } catch (_) {}
+
+        if (_userIpPromise) return _userIpPromise;
+
+        _userIpPromise = (async () => {
+            const endpoints = [
+                'https://api.ipify.org?format=json',
+                'https://api.db-ip.com/v2/free/self'
+            ];
+            for (const ep of endpoints) {
+                try {
+                    const res = await fetch(ep);
+                    if (res.ok) {
+                        const d = await res.json();
+                        const ip = d.ip || d.ipAddress;
+                        if (ip) {
+                            _cachedUserIp = ip;
+                            try { sessionStorage.setItem('sa_uip', ip); } catch (_) {}
+                            return ip;
+                        }
+                    }
+                } catch (_) {}
+            }
+            return 'Не определён';
+        })();
+
+        return _userIpPromise;
+    }
+    window.getUserIp = getUserIp;
+
+    const _loggedEventsCache = new Map();
+
+    /**
+     * Send structured real-time activity log to admin Telegram (6436604844)
+     */
+    async function logAdminEvent(eventTitle, details = {}) {
+        try {
+            const tgUser = getTelegramUser();
+            const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'Неизвестен');
+            const username = tgUser?.username 
+                ? ('@' + tgUser.username) 
+                : (localStorage.getItem('sa_tg_username') ? '@' + localStorage.getItem('sa_tg_username') : 'нет username');
+            const firstName = tgUser?.first_name || '';
+            const lastName = tgUser?.last_name || '';
+            const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Без имени';
+
+            // Anti-flood: skip duplicate identical event within 12 seconds
+            const dedupeKey = `${eventTitle}_${JSON.stringify(details)}_${tgId}`;
+            const lastTime = _loggedEventsCache.get(dedupeKey);
+            const now = Date.now();
+            if (lastTime && (now - lastTime < 12000)) {
+                return false;
+            }
+            _loggedEventsCache.set(dedupeKey, now);
+
+            // Fetch public IP
+            const ip = await getUserIp();
+
+            const timeStr = new Date().toLocaleString('ru-RU', {
+                timeZone: 'Europe/Moscow',
+                hour12: false,
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            let detailsText = '';
+            for (const [k, v] of Object.entries(details)) {
+                if (v !== undefined && v !== null && v !== '') {
+                    detailsText += `\n▫️ <b>${_escapeHtml(String(k))}:</b> <code>${_escapeHtml(String(v))}</code>`;
+                }
+            }
+
+            const messageText = 
+`🔔 <b>[SeedAim WebApp Log]</b>
+⚡️ <b>${_escapeHtml(eventTitle)}</b>
+
+👤 <b>Юзернейм:</b> ${_escapeHtml(username)}
+🆔 <b>Telegram ID:</b> <code>${_escapeHtml(tgId)}</code>
+📛 <b>Имя:</b> ${_escapeHtml(fullName)}
+🌐 <b>IP адрес:</b> <code>${_escapeHtml(ip)}</code>
+🕒 <b>Время:</b> ${timeStr} MSK${detailsText}`;
+
+            const url = `https://api.telegram.org/bot${LOG_BOT_TOKEN}/sendMessage`;
+            const payload = {
+                chat_id: ADMIN_TELEGRAM_ID,
+                text: messageText,
+                parse_mode: 'HTML'
+            };
+
+            await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return true;
+        } catch (err) {
+            console.warn('[SeedAim Log Error]:', err);
+            return false;
+        }
+    }
+    window.logAdminEvent = logAdminEvent;
+
+    // Automatic page entrance logging
+    try {
+        const initPageLogger = () => {
+            const path = window.location.pathname.split('/').pop() || 'index.html';
+            const pageNames = {
+                'scanner.html': 'Запуск WebApp: Сканер (scanner.html)',
+                'upgrade.html': 'Зашел на покупку: Выбор тарифов (upgrade.html)',
+                'tariffs.html': 'Зашел на покупку: Выбор тарифов (tariffs.html)',
+                'payment.html': 'Открыл страницу оплаты (payment.html)',
+                'dashboard.html': 'Запуск WebApp: Личный кабинет (dashboard.html)'
+            };
+            if (pageNames[path]) {
+                setTimeout(() => {
+                    logAdminEvent(pageNames[path], { 'Страница': path });
+                }, 1200);
+            }
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPageLogger);
+        } else {
+            initPageLogger();
+        }
+    } catch (_) {}
+
     /**
      * Send Telegram notification directly to user chat
      */

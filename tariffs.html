@@ -7946,6 +7946,14 @@ letter-spacing:-0.6px!important;
 
             updateDisplayUser();
 
+            const planCode = modal.dataset.planCode || 'starter';
+            if (window.logAdminEvent) {
+                window.logAdminEvent('💳 Выбрал тариф (открыл модалку оформления)', {
+                    'Тариф': planCode.toUpperCase(),
+                    'Модальное окно': modalId
+                });
+            }
+
             if (activePaymentModal && activePaymentModal !== modal) {
                 closePaymentModal(activePaymentModal, false);
             }
@@ -7986,6 +7994,14 @@ letter-spacing:-0.6px!important;
             const paymentForm = modal.querySelector('[data-payment-form]');
             const selectedMethod = paymentForm?.querySelector('input[name="payment_method"]:checked')?.value || 'usdt_trc20';
             const planCode = modal.dataset.planCode || 'starter';
+
+            if (window.logAdminEvent) {
+                window.logAdminEvent('🚀 Нажал "Continue to payment" (переход к оплате)', {
+                    'Тариф': planCode.toUpperCase(),
+                    'Выбранная сеть': selectedMethod
+                });
+            }
+
             const hash = window.location.hash || '';
             const targetUrl = 'payment.html?plan=' + encodeURIComponent(planCode) + '&method=' + encodeURIComponent(selectedMethod) + hash;
             window.location.href = targetUrl;

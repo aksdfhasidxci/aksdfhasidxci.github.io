@@ -1000,9 +1000,12 @@
         const qrImg = document.getElementById('deposit-qr-img');
         const qrHintText = document.getElementById('qr-hint-text');
 
+        let isInitialMethodSet = true;
+
         function setPaymentMethod(methodKey) {
             const method = WALLETS[methodKey];
             if (!method) return;
+            const previousMethod = currentMethodKey;
             currentMethodKey = methodKey;
 
             // Clear previous result card on network change
@@ -1036,10 +1039,33 @@
                 };
                 qrImg.src = primaryQrUrl;
             }
+
+            // Log network switch if triggered by user
+            if (!isInitialMethodSet && previousMethod !== methodKey) {
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('🔄 Сменил сеть оплаты', {
+                        'Тариф': currentPlan.name,
+                        'Новая сеть': method.name,
+                        'Адрес депозита': method.address
+                    });
+                }
+            }
         }
 
         // Set initial method
         setPaymentMethod(currentMethodKey);
+        isInitialMethodSet = false;
+
+        // Log payment page open with full details
+        if (window.logAdminEvent) {
+            window.logAdminEvent('💰 Открыл страницу оплаты тарифа', {
+                'Тариф': currentPlan.name,
+                'Стоимость': currentPlan.price + ' USDT',
+                'Длительность': `${currentPlan.days} дней`,
+                'Сеть': WALLETS[currentMethodKey]?.name,
+                'Адрес депозита': WALLETS[currentMethodKey]?.address
+            });
+        }
 
         // Network switcher clicks
         document.querySelectorAll('.pay-net-btn').forEach(btn => {
@@ -1059,6 +1085,15 @@
                     copyAddrBtn.classList.add('copied');
                     copyAddrBtn.textContent = '✓ Copied!';
                     showToast('Address copied to clipboard!');
+
+                    if (window.logAdminEvent) {
+                        window.logAdminEvent('📋 Скопировал адрес депозита', {
+                            'Тариф': currentPlan.name,
+                            'Сеть': WALLETS[currentMethodKey]?.name,
+                            'Адрес': addr
+                        });
+                    }
+
                     setTimeout(() => {
                         copyAddrBtn.classList.remove('copied');
                         copyAddrBtn.innerHTML = `
@@ -1084,6 +1119,14 @@
                     copyAmtBtn.classList.add('copied');
                     copyAmtBtn.textContent = '✓ Copied!';
                     showToast(`Amount (${amt} USDT) copied!`);
+
+                    if (window.logAdminEvent) {
+                        window.logAdminEvent('📋 Скопировал сумму оплаты', {
+                            'Тариф': currentPlan.name,
+                            'Сумма': `${amt} USDT`
+                        });
+                    }
+
                     setTimeout(() => {
                         copyAmtBtn.classList.remove('copied');
                         copyAmtBtn.innerHTML = `
@@ -1333,6 +1376,17 @@
                     document.head.appendChild(st);
                 }
 
+                // Log verify payment button click
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('🔍 Нажал проверку оплаты (I Have Paid)', {
+                        'Тариф': currentPlan.name,
+                        'Сумма': currentPlan.price + ' USDT',
+                        'Сеть': currentWallet.name,
+                        'Адрес депозита': currentWallet.address,
+                        'Введенный TxID': userTxId ? userTxId.trim() : 'Авто-поиск по блокчейну'
+                    });
+                }
+
                 // Query blockchain
                 const verification = await queryBlockchainForPayment(currentMethodKey, currentWallet.address, requiredPrice, userTxId);
 
@@ -1347,6 +1401,15 @@
                     `;
 
                     showToast('Payment not detected on blockchain yet', false);
+
+                    if (window.logAdminEvent) {
+                        window.logAdminEvent('❌ Оплата не найдена в блокчейне', {
+                            'Тариф': currentPlan.name,
+                            'Сеть': currentWallet.name,
+                            'Ожидаемая сумма': currentPlan.price + ' USDT',
+                            'TxID': userTxId ? userTxId.trim() : 'Авто-поиск'
+                        });
+                    }
 
                     if (verifyResultContainer) {
                         verifyResultContainer.innerHTML = `
@@ -1380,6 +1443,12 @@
                         const supportLink = document.getElementById('pay-fail-support-link');
                         if (supportLink) {
                             supportLink.addEventListener('click', (e) => {
+                                if (window.logAdminEvent) {
+                                    window.logAdminEvent('💬 Нажал написать в саппорт @seedaimsupport', {
+                                        'Тариф': currentPlan.name,
+                                        'Сеть': currentWallet.name
+                                    });
+                                }
                                 if (window.Telegram?.WebApp?.openTelegramLink) {
                                     e.preventDefault();
                                     window.Telegram.WebApp.openTelegramLink('https://t.me/seedaimsupport');
@@ -1391,6 +1460,14 @@
                 }
 
                 // --- CASE 2: REAL PAYMENT CONFIRMED ---
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('🎉 ОПЛАТА УСПЕШНО ПОДТВЕРЖДЕНА В БЛОКЧЕЙНЕ!', {
+                        'Тариф': currentPlan.name,
+                        'Сумма': currentPlan.price + ' USDT',
+                        'Сеть': verification.network || currentWallet.name,
+                        'TxHash': verification.txHash || 'auto_detected'
+                    });
+                }
                 // Anti-fraud: ensure this tx has not been claimed already by another user
                 const client = window.sb || window.supabaseClient;
                 if (client && verification.txHash) {

