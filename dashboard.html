@@ -4764,8 +4764,9 @@ main.app.sd-dashboard {
 
         // --- Update plan display if profile loaded ---
         if (profile) {
-            const isTrial = profile.plan === 'trial';
-            const isActive = window.isTrialActive(profile);
+            const pCode = String(profile.plan || 'trial').toLowerCase();
+            const isTrial = pCode === 'trial';
+            const isActive = window.isTrialActive ? window.isTrialActive(profile) : true;
 
             // Find plan-related elements and update them
             const planSection = document.querySelector('.sd-premium-account-card');
@@ -4775,9 +4776,10 @@ main.app.sd-dashboard {
                     'sd-account-plan-starter',
                     'sd-account-plan-pro',
                     'sd-account-plan-ultra',
+                    'sd-account-plan-lifetime',
                     'sd-account-plan-inactive'
                 );
-                planSection.classList.add(isActive ? 'sd-account-plan-' + (profile.plan || 'trial') : 'sd-account-plan-inactive');
+                planSection.classList.add(isActive ? 'sd-account-plan-' + pCode : 'sd-account-plan-inactive');
             }
 
             // Update plan title & description
@@ -4787,10 +4789,11 @@ main.app.sd-dashboard {
                     trial: 'Free Trial (3 Days)',
                     starter: 'Starter Plan',
                     pro: 'Pro Plan',
-                    ultra: 'Ultra Plan'
+                    ultra: 'Ultra Plan',
+                    lifetime: 'Lifetime Access'
                 };
                 planTitle.textContent = isActive 
-                    ? (planLabels[profile.plan] || 'Free Trial (3 Days)')
+                    ? (planLabels[pCode] || (pCode.charAt(0).toUpperCase() + pCode.slice(1) + ' Plan'))
                     : 'Plan Expired';
             }
 
@@ -4798,14 +4801,35 @@ main.app.sd-dashboard {
             if (planDesc && isActive) {
                 planDesc.textContent = isTrial 
                     ? '3-Day Free Trial unlocked. Automated cloud scanning enabled.'
-                    : 'Cloud processing active. All networks unlocked.';
+                    : 'Cloud processing active. All networks unlocked with maximum priority.';
             }
 
             // Update access period and speed
             const statsDivs = document.querySelectorAll('.sd-premium-plan-stats > div strong');
             if (statsDivs.length >= 2) {
                 statsDivs[0].textContent = isActive ? window.getTrialRemainingText(profile) : 'Expired';
-                statsDivs[1].textContent = isActive ? (isTrial ? '5,833 keys/sec' : (profile.plan === 'ultra' ? '25,000 keys/sec' : '15,000 keys/sec')) : 'Locked';
+
+                let speedText = '5,833 keys/sec';
+                if (!isActive) {
+                    speedText = 'Locked';
+                } else if (pCode === 'starter') {
+                    speedText = '10,000 keys/sec';
+                } else if (pCode === 'pro') {
+                    speedText = '15,000 keys/sec';
+                } else if (pCode === 'ultra') {
+                    speedText = '25,000 keys/sec';
+                } else if (pCode === 'lifetime') {
+                    speedText = '50,000 keys/sec';
+                }
+                statsDivs[1].textContent = speedText;
+            }
+
+            // Upgrade/Action button in card
+            const planCta = document.querySelector('.sd-premium-plan-action');
+            if (planCta && isActive && !isTrial) {
+                if (planCta.childNodes && planCta.childNodes.length > 0) {
+                    planCta.childNodes[0].nodeValue = 'Active Subscription ';
+                }
             }
 
             // Scanner status

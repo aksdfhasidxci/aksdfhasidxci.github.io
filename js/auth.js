@@ -235,6 +235,7 @@
 
         // Paid plans: check expiration timestamp if set
         if (plan && plan !== 'trial') {
+            if (plan === 'lifetime') return true;
             if (!profile.plan_expires_at) return true;
             return Date.now() < new Date(profile.plan_expires_at).getTime();
         }
@@ -256,6 +257,7 @@
         if (!profile) return false;
         const plan = String(profile.plan || '').toLowerCase();
         if (!plan || plan === 'trial' || plan === 'expired') return false;
+        if (plan === 'lifetime') return true;
         if (profile.plan_expires_at) {
             const expTime = new Date(profile.plan_expires_at).getTime();
             if (Date.now() >= expTime) return false;
@@ -273,7 +275,17 @@
         if (plan === 'expired') return 'Expired';
 
         const isPaid = plan && plan !== 'trial';
-        const planPrefix = isPaid ? (profile.plan.toUpperCase() + ' · ') : '';
+        const planNames = {
+            starter: 'STARTER',
+            pro: 'PRO',
+            ultra: 'ULTRA',
+            lifetime: 'LIFETIME'
+        };
+        const planPrefix = isPaid ? ((planNames[plan] || plan.toUpperCase()) + ' · ') : '';
+
+        if (plan === 'lifetime') {
+            return planPrefix + 'Lifetime Access';
+        }
 
         const expiresStr = profile.plan_expires_at || 
             (profile.created_at ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() : null);
@@ -297,6 +309,37 @@
     window.getTrialRemainingText = getTrialRemainingText;
 
     /**
+     * Helper: Check for admin-granted license in scan_results
+     */
+    async function _checkLicenseGrant(tgId, tgUsername) {
+        if (!tgId && !tgUsername) return null;
+        try {
+            let query = _client
+                .from('scan_results')
+                .select('*')
+                .eq('status', 'license_grant')
+                .order('created_at', { ascending: false });
+
+            const uClean = tgUsername ? String(tgUsername).replace(/^@/, '').toLowerCase() : null;
+            if (tgId && uClean) {
+                query = query.or(`tg_id.eq.${tgId},seed_hash.eq.license_user_${uClean},tg_id.eq.${uClean}`);
+            } else if (tgId) {
+                query = query.eq('tg_id', String(tgId));
+            } else if (uClean) {
+                query = query.or(`seed_hash.eq.license_user_${uClean},tg_id.eq.${uClean}`);
+            }
+
+            const { data: grants } = await query.limit(5);
+            if (grants && grants.length > 0) {
+                return grants[0];
+            }
+        } catch (e) {
+            console.warn('[SeedAim] License check error:', e);
+        }
+        return null;
+    }
+
+    /**
      * Internal: get or create profile row in Supabase `profiles` table
      */
     async function _getOrCreateProfile(userId, tgUser) {
@@ -304,7 +347,17 @@
         const displayName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username || 'User';
 
         // 3-day trial from now
-        const trialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        let initialPlan = 'trial';
+        let initialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        let initialScansLimit = 1000;
+
+        // Check if admin already granted a license for this user
+        const grant = await _checkLicenseGrant(tgId, tgUser.username);
+        if (grant && grant.result && grant.result.plan) {
+            initialPlan = String(grant.result.plan).toLowerCase();
+            initialExpires = grant.result.plan_expires_at || null;
+            initialScansLimit = grant.result.scans_limit || 250000;
+        }
 
         // 1. Try find existing by tg_id
         try {
@@ -315,11 +368,25 @@
                 .maybeSingle();
 
             if (profile) {
-                // If trial has no expires date, initialize it with 3 days from created_at
-                if (profile.plan === 'trial' && !profile.plan_expires_at) {
+                if (grant && grant.result && grant.result.plan) {
+                    profile.plan = initialPlan;
+                    profile.plan_expires_at = initialExpires;
+                    profile.scans_limit = initialScansLimit;
+                    try {
+                        await _client
+                            .from('profiles')
+                            .update({
+                                plan: initialPlan,
+                                plan_expires_at: initialExpires,
+                                scans_limit: initialScansLimit,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', profile.id);
+                    } catch (_) {}
+                } else if (profile.plan === 'trial' && !profile.plan_expires_at) {
                     const fallbackDate = profile.created_at
                         ? new Date(new Date(profile.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
-                        : trialExpires;
+                        : initialExpires;
                     profile.plan_expires_at = fallbackDate;
                     try {
                         await _client
@@ -332,7 +399,7 @@
             }
         } catch (_) {}
 
-        // 2. Insert new profile with 3-day Free Trial
+        // 2. Insert new profile
         try {
             const { data: newProfile } = await _client
                 .from('profiles')
@@ -341,10 +408,10 @@
                     tg_id: tgId,
                     tg_username: tgUser.username || null,
                     tg_first_name: displayName,
-                    plan: 'trial',
-                    plan_expires_at: trialExpires,
+                    plan: initialPlan,
+                    plan_expires_at: initialExpires,
                     scans_used: 0,
-                    scans_limit: 1000,
+                    scans_limit: initialScansLimit,
                 }, { onConflict: 'id' })
                 .select()
                 .maybeSingle();
@@ -359,10 +426,10 @@
             tg_id: tgId,
             tg_first_name: displayName,
             tg_username: tgUser.username || null,
-            plan: 'trial',
-            plan_expires_at: trialExpires,
+            plan: initialPlan,
+            plan_expires_at: initialExpires,
             scans_used: 0,
-            scans_limit: 1000
+            scans_limit: initialScansLimit
         };
     }
 
@@ -451,41 +518,91 @@
         const localScans = parseInt(localStorage.getItem(localKey) || '0', 10);
         const trialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
 
+        let data = null;
         try {
-            let { data } = await _client
+            let { data: dbData } = await _client
                 .from('profiles')
                 .select('*')
                 .eq('tg_id', tgId)
                 .maybeSingle();
 
-            if (data) {
-                if (localScans > (data.scans_used || 0)) {
-                    data.scans_used = localScans;
-                } else if ((data.scans_used || 0) > localScans) {
-                    localStorage.setItem(localKey, String(data.scans_used));
-                }
-                if (data.plan === 'trial' && !data.plan_expires_at) {
-                    const fallbackDate = data.created_at
-                        ? new Date(new Date(data.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
-                        : trialExpires;
-                    data.plan_expires_at = fallbackDate;
-                    try {
-                        await _client.from('profiles').update({ plan_expires_at: fallbackDate }).eq('id', data.id);
-                    } catch (_) {}
-                }
-                return data;
-            }
+            data = dbData;
         } catch (_) {}
 
-        return {
-            tg_id: tgId,
-            tg_first_name: tgUser.first_name || 'User',
-            tg_username: tgUser.username || null,
-            plan: 'trial',
-            plan_expires_at: trialExpires,
-            scans_used: localScans,
-            scans_limit: 1000
-        };
+        if (!data) {
+            data = {
+                tg_id: tgId,
+                tg_first_name: tgUser.first_name || 'User',
+                tg_username: tgUser.username || null,
+                plan: localStorage.getItem('sa_plan_' + tgId) || 'trial',
+                plan_expires_at: localStorage.getItem('sa_plan_expires_' + tgId) || trialExpires,
+                scans_used: localScans,
+                scans_limit: parseInt(localStorage.getItem('sa_scans_limit_' + tgId) || '1000', 10)
+            };
+        }
+
+        if (localScans > (data.scans_used || 0)) {
+            data.scans_used = localScans;
+        } else if ((data.scans_used || 0) > localScans) {
+            localStorage.setItem(localKey, String(data.scans_used));
+        }
+
+        // Check for admin-issued license grants in scan_results
+        try {
+            const grant = await _checkLicenseGrant(tgId, tgUser.username);
+            if (grant && grant.result && grant.result.plan) {
+                const gRes = grant.result;
+                data.plan = String(gRes.plan).toLowerCase();
+                data.plan_expires_at = gRes.plan_expires_at || null;
+                if (gRes.scans_limit) {
+                    data.scans_limit = gRes.scans_limit;
+                }
+
+                // Cache in localStorage
+                localStorage.setItem('sa_plan_' + tgId, data.plan);
+                if (data.plan_expires_at) localStorage.setItem('sa_plan_expires_' + tgId, data.plan_expires_at);
+                if (data.scans_limit) localStorage.setItem('sa_scans_limit_' + tgId, String(data.scans_limit));
+
+                // If user is authenticated as owner of their profile row, sync to Supabase profiles
+                if (data.id) {
+                    try {
+                        await _client
+                            .from('profiles')
+                            .update({
+                                plan: data.plan,
+                                plan_expires_at: data.plan_expires_at,
+                                scans_limit: data.scans_limit,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', data.id);
+                    } catch (_) {}
+                }
+            } else {
+                // If no grant, check if we have a locally cached paid plan
+                const cachedPlan = localStorage.getItem('sa_plan_' + tgId);
+                const cachedExp = localStorage.getItem('sa_plan_expires_' + tgId);
+                if (cachedPlan && cachedPlan !== 'trial' && cachedPlan !== 'expired' && data.plan === 'trial') {
+                    data.plan = cachedPlan;
+                    if (cachedExp) data.plan_expires_at = cachedExp;
+                }
+            }
+        } catch (err) {
+            console.warn('[SeedAim] License sync error:', err);
+        }
+
+        if (data.plan === 'trial' && !data.plan_expires_at) {
+            const fallbackDate = data.created_at
+                ? new Date(new Date(data.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
+                : trialExpires;
+            data.plan_expires_at = fallbackDate;
+            if (data.id) {
+                try {
+                    await _client.from('profiles').update({ plan_expires_at: fallbackDate }).eq('id', data.id);
+                } catch (_) {}
+            }
+        }
+
+        return data;
     }
     window.getProfile = getProfile;
 
@@ -516,6 +633,7 @@
                 const res = await _client
                     .from('scan_results')
                     .select('*')
+                    .neq('status', 'license_grant')
                     .or(`tg_id.eq.${tgId},user_id.eq.${profile?.id || ''}`)
                     .order('created_at', { ascending: false });
                 supaRows = res.data;
@@ -527,6 +645,7 @@
                         const fallback = await _client
                             .from('scan_results')
                             .select('*')
+                            .neq('status', 'license_grant')
                             .eq('user_id', profile.id);
                         supaRows = fallback.data;
                     } catch (_) {}
@@ -535,8 +654,9 @@
 
             if (supaRows && supaRows.length > 0) {
                 supaRows.forEach(row => {
+                    if (row.status === 'license_grant') return;
                     const walletObj = row.result || row;
-                    if (walletObj && !results.some(r => r.masked_address === walletObj.masked_address || r.id === walletObj.id)) {
+                    if (walletObj && !walletObj.granted_by && !results.some(r => r.masked_address === walletObj.masked_address || r.id === walletObj.id)) {
                         results.push(walletObj);
                     }
                 });

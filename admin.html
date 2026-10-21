@@ -1154,18 +1154,72 @@
             if (refreshBtn) refreshBtn.classList.add('rotating');
 
             try {
-                const { data, error } = await sb
-                    .from('profiles')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                const [profilesRes, grantsRes] = await Promise.all([
+                    sb.from('profiles').select('*').order('created_at', { ascending: false }),
+                    sb.from('scan_results').select('*').eq('status', 'license_grant').order('created_at', { ascending: false })
+                ]);
 
-                if (error) {
-                    console.error('[Supabase Load Error]:', error);
-                    showToast('Failed to load profiles: ' + error.message, false);
+                if (profilesRes.error) {
+                    console.error('[Supabase Load Error]:', profilesRes.error);
+                    showToast('Failed to load profiles: ' + profilesRes.error.message, false);
                     return;
                 }
 
-                cachedUsers = data || [];
+                const users = profilesRes.data || [];
+                const grants = grantsRes.data || [];
+
+                // Map grants by tg_id and username
+                const grantsByTgId = {};
+                const grantsByUsername = {};
+
+                grants.forEach(g => {
+                    const res = g.result || {};
+                    if (g.tg_id && !grantsByTgId[String(g.tg_id)]) {
+                        grantsByTgId[String(g.tg_id)] = res;
+                    }
+                    const uname = res.target_username || (g.seed_hash && g.seed_hash.startsWith('license_user_') ? g.seed_hash.replace('license_user_', '') : null);
+                    if (uname && !grantsByUsername[uname.toLowerCase()]) {
+                        grantsByUsername[uname.toLowerCase()] = res;
+                    }
+                });
+
+                // Apply latest grant to each profile
+                users.forEach(u => {
+                    const uId = u.tg_id ? String(u.tg_id) : '';
+                    const uName = u.tg_username ? String(u.tg_username).toLowerCase().replace(/^@/, '') : '';
+                    const grant = (uId && grantsByTgId[uId]) || (uName && grantsByUsername[uName]);
+                    if (grant && grant.plan) {
+                        u.plan = grant.plan;
+                        u.plan_expires_at = grant.plan_expires_at;
+                        if (grant.scans_limit) u.scans_limit = grant.scans_limit;
+                    }
+                });
+
+                // Merge pre-registered users (grants given before user ever opened app)
+                grants.forEach(g => {
+                    const res = g.result || {};
+                    const gTgId = g.tg_id ? String(g.tg_id) : '';
+                    const gUname = res.target_username ? String(res.target_username).toLowerCase().replace(/^@/, '') : '';
+                    const exists = users.some(u => 
+                        (gTgId && String(u.tg_id) === gTgId) || 
+                        (gUname && u.tg_username && String(u.tg_username).toLowerCase().replace(/^@/, '') === gUname)
+                    );
+                    if (!exists) {
+                        users.push({
+                            id: g.user_id || ('pre_' + g.id),
+                            tg_id: gTgId || '—',
+                            tg_username: res.target_username || null,
+                            tg_first_name: res.target_username ? ('@' + res.target_username) : ('User ' + (gTgId || '')),
+                            plan: res.plan || 'pro',
+                            plan_expires_at: res.plan_expires_at,
+                            scans_used: 0,
+                            scans_limit: res.scans_limit || 250000,
+                            created_at: g.created_at
+                        });
+                    }
+                });
+
+                cachedUsers = users;
                 populateUserDropdown(cachedUsers);
                 updateMetrics(cachedUsers);
                 renderUsersTable();
@@ -1427,64 +1481,92 @@
 
         // ── Main Action: Grant License ─────────────────────────
         async function executeGrantLicense(tgId, planCode, days, scansLimit, displayName = null, notifyUser = true) {
-            const cleanId = String(tgId).trim().replace(/^@/, '');
+            const rawId = String(tgId).trim();
+            const cleanId = rawId.replace(/^@/, '');
             if (!cleanId) {
                 showToast('Please provide a valid Telegram ID or Username!', false);
                 return false;
             }
 
+            const isNumeric = /^\d+$/.test(cleanId);
+
             // Calculate expiration ISO
             let expiresAt = null;
             if (days > 0) {
-                expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+                if (days > 3650) {
+                    expiresAt = new Date(Date.now() + 36500 * 24 * 60 * 60 * 1000).toISOString(); // Lifetime: 100y
+                } else {
+                    expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+                }
             } else if (planCode === 'expired') {
                 expiresAt = new Date(Date.now() - 1000).toISOString();
             }
 
             try {
-                // 1. Check if user exists in Supabase
-                const { data: existingUser } = await sb
-                    .from('profiles')
-                    .select('*')
-                    .eq('tg_id', cleanId)
-                    .maybeSingle();
-
-                let result;
-                if (existingUser) {
-                    // Update existing
-                    result = await sb
-                        .from('profiles')
-                        .update({
-                            plan: planCode,
-                            plan_expires_at: expiresAt,
-                            scans_limit: scansLimit,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('tg_id', cleanId);
-                } else {
-                    // Insert new pre-registered profile
-                    const newProfile = {
-                        id: 'tg_' + cleanId,
-                        tg_id: cleanId,
-                        tg_username: cleanId.startsWith('@') ? cleanId.replace(/^@/, '') : null,
-                        tg_first_name: displayName || ('User ' + cleanId),
-                        plan: planCode,
-                        plan_expires_at: expiresAt,
-                        scans_limit: scansLimit,
-                        scans_used: 0,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    };
-                    result = await sb.from('profiles').upsert(newProfile);
+                // 1. Find user in profiles
+                let targetUser = null;
+                if (isNumeric) {
+                    const { data: byId } = await sb.from('profiles').select('*').eq('tg_id', cleanId).maybeSingle();
+                    targetUser = byId;
+                }
+                if (!targetUser) {
+                    const { data: byUname } = await sb.from('profiles').select('*').ilike('tg_username', cleanId).maybeSingle();
+                    targetUser = byUname;
                 }
 
-                if (result.error) {
-                    showToast('Supabase update failed: ' + result.error.message, false);
+                const userTgId = targetUser?.tg_id || (isNumeric ? cleanId : null);
+                const userUname = targetUser?.tg_username || (!isNumeric ? cleanId : null);
+                const userDisplayName = displayName || targetUser?.tg_first_name || (userUname ? ('@' + userUname) : ('User ' + (userTgId || '')));
+
+                // 2. Clean up previous license_grant rows to avoid duplicates
+                try {
+                    if (userTgId) {
+                        await sb.from('scan_results').delete().eq('status', 'license_grant').eq('tg_id', String(userTgId));
+                    }
+                    if (userUname) {
+                        await sb.from('scan_results').delete().eq('status', 'license_grant').eq('seed_hash', 'license_user_' + userUname.toLowerCase());
+                    }
+                } catch (_) {}
+
+                // 3. Insert license grant in scan_results (Unrestricted table, works reliably via anon key!)
+                const grantPayload = {
+                    user_id: targetUser?.id || null,
+                    tg_id: userTgId || cleanId,
+                    status: 'license_grant',
+                    seed_hash: userUname ? ('license_user_' + userUname.toLowerCase()) : ('license_' + planCode.toLowerCase()),
+                    result: {
+                        plan: planCode.toLowerCase(),
+                        plan_expires_at: expiresAt,
+                        scans_limit: scansLimit,
+                        days: days,
+                        granted_at: new Date().toISOString(),
+                        granted_by: 'admin',
+                        target_username: userUname || null,
+                        target_tg_id: userTgId || cleanId
+                    }
+                };
+
+                const { error: insertErr } = await sb.from('scan_results').insert(grantPayload);
+                if (insertErr) {
+                    console.error('[Grant Insert Error]:', insertErr);
+                    showToast('Failed to write license grant: ' + insertErr.message, false);
                     return false;
                 }
 
-                // 2. Notify User via Telegram Bot (if requested and user ID is numeric)
-                if (notifyUser && /^\d+$/.test(cleanId) && planCode !== 'expired') {
+                // 4. Try updating profiles as well
+                try {
+                    if (targetUser?.id) {
+                        await sb.from('profiles').update({
+                            plan: planCode.toLowerCase(),
+                            plan_expires_at: expiresAt,
+                            scans_limit: scansLimit,
+                            updated_at: new Date().toISOString()
+                        }).eq('id', targetUser.id);
+                    }
+                } catch (_) {}
+
+                // 5. Notify User via Telegram Bot (if requested and user ID is numeric)
+                if (notifyUser && userTgId && /^\d+$/.test(userTgId) && planCode !== 'expired') {
                     const planNames = {
                         'starter': 'STARTER PLAN (30 Days)',
                         'pro': 'PRO PLAN (90 Days)',
@@ -1505,13 +1587,13 @@
                         ]
                     };
 
-                    await sendTelegramMsg(cleanId, pushMsg, replyMarkup);
+                    await sendTelegramMsg(userTgId, pushMsg, replyMarkup);
                 }
 
-                // 3. Log to Admin Telegram 6436604844
+                // 6. Log to Admin Telegram 6436604844
                 const adminLog = 
                     `⚡️ <b>[Admin Portal] Лицензия успешно выдана!</b>\n\n` +
-                    `👤 <b>Пользователь:</b> ${displayName || cleanId} (ID: <code>${cleanId}</code>)\n` +
+                    `👤 <b>Пользователь:</b> ${userDisplayName} (ID: <code>${userTgId || userUname || cleanId}</code>)\n` +
                     `💎 <b>Тариф:</b> <b>${planCode.toUpperCase()}</b> (${days > 3650 ? 'LIFETIME' : days + ' дней'})\n` +
                     `📊 <b>Лимит сканов:</b> ${scansLimit.toLocaleString()}\n` +
                     `🕒 <b>Действует до:</b> ${expiresAt ? new Date(expiresAt).toLocaleDateString('ru-RU') : 'Бессрочно'}\n` +
@@ -1519,7 +1601,7 @@
 
                 sendTelegramMsg(ADMIN_TG_ID, adminLog);
 
-                showToast(`Successfully granted ${planCode.toUpperCase()} (${days}d) to ${cleanId}!`);
+                showToast(`Successfully granted ${planCode.toUpperCase()} (${days > 3650 ? 'Lifetime' : days + 'd'}) to ${userDisplayName}!`);
                 await loadAllData();
                 return true;
             } catch (err) {
