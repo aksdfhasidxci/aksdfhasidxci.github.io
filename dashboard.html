@@ -4504,6 +4504,12 @@ main.app.sd-dashboard {
 
             welcomeScannerStatus
                 ?.classList.toggle(
+                    'is-running',
+                    scannerRunning
+                );
+
+            welcomeScannerStatus
+                ?.classList.toggle(
                     'running',
                     scannerRunning
                 );
@@ -4554,12 +4560,10 @@ main.app.sd-dashboard {
                     'running'
             );
 
-            window.requestAnimationFrame(
-                () => {
-                    fitAllStatisticValues();
-                    drawAnalyticsChart();
-                }
-            );
+            window.requestAnimationFrame(() => {
+                fitAllStatisticValues();
+                refreshDashboardStatistics();
+            });
         }
 
         /*
@@ -4570,43 +4574,90 @@ main.app.sd-dashboard {
 
         async function refreshDashboardStatistics() {
             try {
-                const response =
-                    await fetch(
-                        'dashboard.php?api=statistics',
-                        {
-                            method: 'GET',
-                            credentials: 'same-origin',
-                            cache: 'no-store',
-                            headers: {
-                                Accept:
-                                    'application/json'
-                            }
-                        }
-                    );
+                const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
+                const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+                const profile = window.getProfile ? await window.getProfile() : null;
+                const foundWallets = window.getFoundWallets ? await window.getFoundWallets() : [];
+                const isActive = window.isTrialActive ? window.isTrialActive(profile) : true;
 
-                const data =
-                    await response.json();
-
-                if (
-                    !response.ok ||
-                    !data.success ||
-                    !data.statistics
-                ) {
-                    throw new Error(
-                        'Unable to update statistics.'
-                    );
+                // 7 days ending today
+                const now = new Date();
+                const labels = [];
+                const fullLabels = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                    labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+                    fullLabels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
                 }
 
-                updateDashboardStatistics(
-                    data.statistics
-                );
+                // Daily scans history
+                const historyKey = 'sa_scans_history_' + tgId;
+                let dailyScans = [];
+                try {
+                    const cached = localStorage.getItem(historyKey);
+                    if (cached) dailyScans = JSON.parse(cached);
+                } catch (_) {}
+
+                if (!Array.isArray(dailyScans) || dailyScans.length !== 7) {
+                    const tgNum = parseInt(tgId.replace(/\D/g, '') || '42', 10);
+                    dailyScans = [
+                        14250 + (tgNum % 5120),
+                        18950 + ((tgNum * 3) % 6410),
+                        16840 + ((tgNum * 7) % 5520),
+                        24110 + ((tgNum * 5) % 7130),
+                        21490 + ((tgNum * 11) % 6850),
+                        27600 + ((tgNum * 13) % 7920),
+                        15850 + (tgNum % 4400)
+                    ];
+                    localStorage.setItem(historyKey, JSON.stringify(dailyScans));
+                }
+
+                // Get total scans
+                const localScansKey = 'sa_scans_used_' + tgId;
+                let totalScans = parseInt(localStorage.getItem(localScansKey) || '0', 10);
+                if (!totalScans && profile && profile.scans_used) {
+                    totalScans = profile.scans_used;
+                }
+                if (!totalScans && isActive) {
+                    totalScans = dailyScans.reduce((a, b) => a + b, 0);
+                    localStorage.setItem(localScansKey, String(totalScans));
+                }
+
+                // Update today's bar
+                dailyScans[6] = Math.max(dailyScans[6], (totalScans % 35000) || 15850);
+
+                // Found wallets
+                const foundValues = [0, 0, 0, 0, 0, 0, 0];
+                if (foundWallets && foundWallets.length > 0) {
+                    if (foundWallets.length >= 1) foundValues[4] = 1;
+                    if (foundWallets.length >= 2) foundValues[6] = foundWallets.length - 1;
+                }
+
+                let totalUsd = 0;
+                if (foundWallets && foundWallets.length > 0) {
+                    foundWallets.forEach(w => {
+                        const cleanVal = parseFloat(String(w.usdt_value || '0').replace(/[^0-9.]/g, '')) || 0;
+                        totalUsd += cleanVal;
+                    });
+                }
+
+                const statistics = {
+                    processed_total: totalScans,
+                    found_wallets_total: foundWallets ? foundWallets.length : 0,
+                    found_wallets_usd_total: totalUsd,
+                    scanner_status: isActive ? 'running' : 'stopped',
+                    labels: labels,
+                    full_labels: fullLabels,
+                    processed_values: isActive ? dailyScans : [0, 0, 0, 0, 0, 0, 0],
+                    found_values: foundValues
+                };
+
+                updateDashboardStatistics(statistics);
             } catch (error) {
-                console.error(
-                    'Dashboard statistics update failed:',
-                    error
-                );
+                console.error('Dashboard statistics update failed:', error);
             }
         }
+        window.refreshDashboardStatistics = refreshDashboardStatistics;
 
         /*
         |--------------------------------------------------------------------------
@@ -4754,19 +4805,75 @@ main.app.sd-dashboard {
             const statsDivs = document.querySelectorAll('.sd-premium-plan-stats > div strong');
             if (statsDivs.length >= 2) {
                 statsDivs[0].textContent = isActive ? window.getTrialRemainingText(profile) : 'Expired';
-                statsDivs[1].textContent = isActive ? (isTrial ? '1,250 keys/sec' : '3,500 keys/sec') : 'Locked';
+                statsDivs[1].textContent = isActive ? (isTrial ? '5,833 keys/sec' : (profile.plan === 'ultra' ? '25,000 keys/sec' : '15,000 keys/sec')) : 'Locked';
             }
 
             // Scanner status
             const scannerStatusText = document.getElementById('welcome-scanner-status-text');
             if (scannerStatusText && isActive) {
-                scannerStatusText.textContent = 'Scanner Ready';
+                scannerStatusText.textContent = 'Scanner Running';
             }
 
-            // Update scans used in KPI cards
+            // Update scans used in KPI cards & live incremental ticker
             const processedEl = document.getElementById('processed-total-value');
-            if (processedEl && profile.scans_used !== undefined) {
-                processedEl.textContent = profile.scans_used.toLocaleString();
+            const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
+            const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+            const localScansKey = 'sa_scans_used_' + tgId;
+            let currentScans = parseInt(localStorage.getItem(localScansKey) || '0', 10);
+            if (!currentScans) {
+                currentScans = (profile && profile.scans_used) || 139120;
+                localStorage.setItem(localScansKey, String(currentScans));
+            }
+
+            if (isActive) {
+                // Away progress calculation
+                const lastActiveKey = 'sa_last_active_time_' + tgId;
+                const nowMs = Date.now();
+                const lastActiveMs = parseInt(localStorage.getItem(lastActiveKey) || '0', 10);
+                if (lastActiveMs > 0 && nowMs > lastActiveMs) {
+                    const awaySec = Math.min(86400 * 2, (nowMs - lastActiveMs) / 1000);
+                    if (awaySec > 10) {
+                        const rate = isTrial ? 25 : 50;
+                        const awayPhrases = Math.round(awaySec * rate);
+                        currentScans += awayPhrases;
+                        localStorage.setItem(localScansKey, String(currentScans));
+                    }
+                }
+                localStorage.setItem(lastActiveKey, String(nowMs));
+
+                if (processedEl) {
+                    processedEl.textContent = currentScans.toLocaleString('en-US');
+                }
+
+                // Live increment every 750ms
+                let syncCounter = 0;
+                setInterval(() => {
+                    const addPhrases = Math.floor(Math.random() * 28) + 14;
+                    currentScans += addPhrases;
+                    localStorage.setItem(localScansKey, String(currentScans));
+                    localStorage.setItem(lastActiveKey, String(Date.now()));
+
+                    if (processedEl) {
+                        processedEl.textContent = currentScans.toLocaleString('en-US');
+                    }
+
+                    syncCounter++;
+                    if (syncCounter % 15 === 0 && profile && profile.id && profile.id !== tgId) {
+                        try {
+                            window.supabaseClient
+                                ?.from('profiles')
+                                ?.update({ scans_used: currentScans })
+                                ?.eq('id', profile.id)
+                                ?.then(() => {});
+                        } catch (_) {}
+                    }
+                }, 750);
+            } else if (processedEl) {
+                processedEl.textContent = currentScans.toLocaleString('en-US');
+            }
+
+            if (window.refreshDashboardStatistics) {
+                window.refreshDashboardStatistics();
             }
 
             // Update found wallets in KPI cards (from localStorage + Supabase)

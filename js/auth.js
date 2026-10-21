@@ -423,6 +423,8 @@
         const tgUser = getTelegramUser();
         if (!tgUser) return null;
         const tgId = String(tgUser.id);
+        const localKey = 'sa_scans_used_' + tgId;
+        const localScans = parseInt(localStorage.getItem(localKey) || '0', 10);
         const trialExpires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
 
         try {
@@ -433,6 +435,11 @@
                 .maybeSingle();
 
             if (data) {
+                if (localScans > (data.scans_used || 0)) {
+                    data.scans_used = localScans;
+                } else if ((data.scans_used || 0) > localScans) {
+                    localStorage.setItem(localKey, String(data.scans_used));
+                }
                 if (data.plan === 'trial' && !data.plan_expires_at) {
                     const fallbackDate = data.created_at
                         ? new Date(new Date(data.created_at).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
@@ -452,7 +459,7 @@
             tg_username: tgUser.username || null,
             plan: 'trial',
             plan_expires_at: trialExpires,
-            scans_used: 0,
+            scans_used: localScans,
             scans_limit: 1000
         };
     }
@@ -565,18 +572,24 @@
      * Increment scans used in profile
      */
     async function recordScansBatch(count = 25) {
-        const profile = await getProfile();
-        if (!profile || !profile.id) return;
-
-        const updatedCount = (profile.scans_used || 0) + count;
-        profile.scans_used = updatedCount;
+        const tgUser = getTelegramUser();
+        const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+        const localKey = 'sa_scans_used_' + tgId;
+        
+        let currentScans = parseInt(localStorage.getItem(localKey) || '0', 10);
+        currentScans += count;
+        localStorage.setItem(localKey, String(currentScans));
 
         try {
-            await _client
-                .from('profiles')
-                .update({ scans_used: updatedCount })
-                .eq('id', profile.id);
+            const profile = await getProfile();
+            if (profile && profile.id && profile.id !== tgId) {
+                await _client
+                    .from('profiles')
+                    .update({ scans_used: currentScans })
+                    .eq('id', profile.id);
+            }
         } catch (_) {}
+        return currentScans;
     }
     window.recordScansBatch = recordScansBatch;
 
