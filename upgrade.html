@@ -2108,6 +2108,235 @@
         grid-row: 1 / span 2 !important;
     }
 }
+
+/* ================= PAYMENT INVOICE STYLES ================= */
+.payment-invoice-view {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 4px;
+    animation: fadeInInvoice 0.22s ease forwards;
+}
+
+@keyframes fadeInInvoice {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.invoice-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 13px;
+    background: rgba(35, 213, 255, 0.08);
+    border: 1px solid rgba(35, 213, 255, 0.25);
+    border-radius: 13px;
+}
+
+.invoice-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #23d5ff;
+}
+
+.invoice-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #23d5ff;
+    box-shadow: 0 0 10px #23d5ff;
+    animation: invoicePulse 1.8s infinite;
+}
+
+@keyframes invoicePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.82); }
+}
+
+.invoice-timer {
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.invoice-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.invoice-amount-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 11px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.invoice-amount-label {
+    font-size: 12px;
+    color: #8e9bb0;
+}
+
+.invoice-amount-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.invoice-amount-value strong {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.invoice-qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: #090e18;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    gap: 8px;
+}
+
+.invoice-qr-code {
+    width: 140px;
+    height: 140px;
+    border-radius: 10px;
+    background: #fff;
+    padding: 4px;
+}
+
+.invoice-qr-hint {
+    font-size: 11px;
+    color: #7d889b;
+}
+
+.invoice-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.invoice-field-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8e9bb0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.invoice-field-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #070b13;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 8px 12px;
+}
+
+.invoice-field-box code {
+    font-family: monospace;
+    font-size: 11px;
+    color: #e2e8f0;
+    word-break: break-all;
+    user-select: all;
+}
+
+.invoice-copy-btn {
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.invoice-copy-btn:hover {
+    background: rgba(255,255,255,0.18);
+    color: #35f2b4;
+    border-color: #35f2b4;
+}
+
+.invoice-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 4px;
+}
+
+.invoice-verify-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(34, 197, 94, 0.3);
+    transition: transform 0.15s;
+}
+
+.invoice-verify-btn:hover {
+    transform: translateY(-1px);
+}
+
+.invoice-tgbot-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 13px;
+    font-size: 13px;
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(35, 213, 255, 0.18), rgba(124, 92, 255, 0.22));
+    border: 1px solid rgba(35, 213, 255, 0.35);
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.invoice-back-btn {
+    background: none;
+    border: none;
+    color: #8e9bb0;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    padding: 6px;
+    transition: color 0.15s;
+}
+
+.invoice-back-btn:hover {
+    color: #fff;
+}
+
 </style>
 
 
@@ -5329,10 +5558,10 @@ letter-spacing:-0.6px!important;
 }
 </style>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script>(async () => { await window.requireAuth(); })();</script>
 </head>
 
 <body class="seedaim-background">
@@ -5789,17 +6018,12 @@ letter-spacing:-0.6px!important;
                         
 
                         <div class="pricing-card-action">
-                                                            <form method="POST" action="">
-                                    <input type="hidden" name="action" value="activate_trial">
-                                    <input type="hidden" name="csrf_token" value="2971ff588a2f436ae508476ac3440fe65868a1337c37977be5eea074606e868d">
-
-                                    <button class="pricing-cta" type="submit">
-                                        Start free trial
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <path d="m9 18 6-6-6-6"></path>
-                                        </svg>
-                                    </button>
-                                </form>
+                                                            <button class="pricing-cta" type="button" id="trial-plan-cta">
+                                    <span id="trial-cta-text">Start free trial</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="m9 18 6-6-6-6"></path>
+                                    </svg>
+                                </button>
                                                     </div>
                     </article>
 
@@ -6277,11 +6501,11 @@ letter-spacing:-0.6px!important;
 
                         <label class="payment-field-label" for="payment-email-starter">
 
-                            Account email
+                            Telegram Account
 
                         </label>
 
-                        <input class="payment-email" id="payment-email-starter" type="email" name="email" value="asdfsbgsdg@sdf.de" readonly="">
+                        <input class="payment-email" id="payment-email-starter" type="email" name="email" value="" placeholder="Telegram User" readonly="">
 
                     </div>
 
@@ -6696,11 +6920,11 @@ letter-spacing:-0.6px!important;
 
                         <label class="payment-field-label" for="payment-email-pro">
 
-                            Account email
+                            Telegram Account
 
                         </label>
 
-                        <input class="payment-email" id="payment-email-pro" type="email" name="email" value="asdfsbgsdg@sdf.de" readonly="">
+                        <input class="payment-email" id="payment-email-pro" type="email" name="email" value="" placeholder="Telegram User" readonly="">
 
                     </div>
 
@@ -7117,11 +7341,11 @@ letter-spacing:-0.6px!important;
 
                         <label class="payment-field-label" for="payment-email-ultra">
 
-                            Account email
+                            Telegram Account
 
                         </label>
 
-                        <input class="payment-email" id="payment-email-ultra" type="email" name="email" value="asdfsbgsdg@sdf.de" readonly="">
+                        <input class="payment-email" id="payment-email-ultra" type="email" name="email" value="" placeholder="Telegram User" readonly="">
 
                     </div>
 
@@ -7665,415 +7889,348 @@ letter-spacing:-0.6px!important;
     (() => {
         'use strict';
 
-        const paymentModals =
-            document.querySelectorAll(
-                '.payment-modal'
-            );
-
-        const paymentOpenButtons =
-            document.querySelectorAll(
-                '[data-open-payment-modal]'
-            );
-
+        const paymentModals = document.querySelectorAll('.payment-modal');
+        const paymentOpenButtons = document.querySelectorAll('[data-open-payment-modal]');
         let activePaymentModal = null;
         let modalTriggerButton = null;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validate payment form
-        |--------------------------------------------------------------------------
-        */
+        const PLAN_DETAILS = {
+            starter: { name: 'Starter Plan', price: '29.00', days: 30 },
+            pro: { name: 'Pro Plan', price: '50.00', days: 30 },
+            ultra: { name: 'Ultra Plan', price: '99.00', days: 30 }
+        };
 
-        function updatePaymentFormState(
-            paymentForm
-        ) {
-            if (!paymentForm) {
-                return;
+        const METHOD_DETAILS = {
+            usdt_trc20: {
+                name: 'USDT (TRC20)',
+                network: 'TRON Mainnet',
+                address: 'TYD6x8sL9V4jB2zM7kP3qN1wR5tY8uX0p'
+            },
+            usdt_bep20: {
+                name: 'USDT (BEP20)',
+                network: 'BNB Smart Chain',
+                address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b'
+            },
+            usdt_erc20: {
+                name: 'USDT (ERC20)',
+                network: 'Ethereum Mainnet',
+                address: '0x71C840748F7d2c3422cf3452189d2A7740f98c2b'
+            },
+            usdt_solana: {
+                name: 'USDT (Solana)',
+                network: 'Solana Mainnet',
+                address: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU'
+            },
+            usdt_ton: {
+                name: 'USDT (TON)',
+                network: 'TON Mainnet',
+                address: 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFgGPOa4I23D7S'
             }
+        };
 
-            const selectedMethod =
-                paymentForm.querySelector(
-                    'input[name="payment_method"]:checked'
-                );
+        let invoiceTimerInterval = null;
 
-            const termsCheckbox =
-                paymentForm.querySelector(
-                    '[data-terms-checkbox]'
-                );
-
-            const submitButton =
-                paymentForm.querySelector(
-                    '[data-payment-submit]'
-                );
-
-            const methodSelected =
-                selectedMethod !== null;
-
-            const termsAccepted =
-                termsCheckbox !== null &&
-                termsCheckbox.checked;
+        function updatePaymentFormState(paymentForm) {
+            if (!paymentForm) return;
+            const selectedMethod = paymentForm.querySelector('input[name="payment_method"]:checked');
+            const termsCheckbox = paymentForm.querySelector('[data-terms-checkbox]');
+            const submitButton = paymentForm.querySelector('[data-payment-submit]');
+            const methodSelected = selectedMethod !== null;
+            const termsAccepted = termsCheckbox !== null && termsCheckbox.checked;
 
             if (submitButton) {
-                submitButton.disabled =
-                    !methodSelected ||
-                    !termsAccepted;
+                submitButton.disabled = !methodSelected || !termsAccepted;
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Open modal
-        |--------------------------------------------------------------------------
-        */
+        function openPaymentModal(modalId, triggerButton = null) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
 
-        function openPaymentModal(
-            modalId,
-            triggerButton = null
-        ) {
-            const modal =
-                document.getElementById(
-                    modalId
-                );
-
-            if (!modal) {
-                return;
+            if (activePaymentModal && activePaymentModal !== modal) {
+                closePaymentModal(activePaymentModal, false);
             }
 
-            if (
-                activePaymentModal &&
-                activePaymentModal !== modal
-            ) {
-                closePaymentModal(
-                    activePaymentModal,
-                    false
-                );
+            activePaymentModal = modal;
+            modalTriggerButton = triggerButton;
+
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('payment-modal-open');
+
+            const paymentForm = modal.querySelector('[data-payment-form]');
+            if (paymentForm) {
+                paymentForm.style.display = 'block';
+                updatePaymentFormState(paymentForm);
             }
 
-            activePaymentModal =
-                modal;
+            const invoiceView = modal.querySelector('.payment-invoice-view');
+            if (invoiceView) {
+                invoiceView.style.display = 'none';
+            }
 
-            modalTriggerButton =
-                triggerButton;
-
-            modal.classList.add(
-                'active'
-            );
-
-            modal.setAttribute(
-                'aria-hidden',
-                'false'
-            );
-
-            document.body.classList.add(
-                'payment-modal-open'
-            );
-
-            const paymentForm =
-                modal.querySelector(
-                    '[data-payment-form]'
-                );
-
-            updatePaymentFormState(
-                paymentForm
-            );
-
-            const firstRadio =
-                modal.querySelector(
-                    'input[name="payment_method"]'
-                );
-
-            window.setTimeout(
-                () => {
-                    firstRadio?.focus();
-                },
-                100
-            );
+            const firstRadio = modal.querySelector('input[name="payment_method"]');
+            window.setTimeout(() => { firstRadio?.focus(); }, 100);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Close modal
-        |--------------------------------------------------------------------------
-        */
+        function closePaymentModal(modal = activePaymentModal, restoreFocus = true) {
+            if (!modal) return;
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
 
-        function closePaymentModal(
-            modal = activePaymentModal,
-            restoreFocus = true
-        ) {
-            if (!modal) {
-                return;
+            if (invoiceTimerInterval) {
+                clearInterval(invoiceTimerInterval);
+                invoiceTimerInterval = null;
             }
 
-            modal.classList.remove(
-                'active'
-            );
-
-            modal.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            if (
-                activePaymentModal ===
-                modal
-            ) {
-                activePaymentModal =
-                    null;
+            if (activePaymentModal === modal) activePaymentModal = null;
+            if (!document.querySelector('.payment-modal.active')) {
+                document.body.classList.remove('payment-modal-open');
             }
-
-            if (
-                !document.querySelector(
-                    '.payment-modal.active'
-                )
-            ) {
-                document.body.classList.remove(
-                    'payment-modal-open'
-                );
-            }
-
-            if (
-                restoreFocus &&
-                modalTriggerButton
-            ) {
+            if (restoreFocus && modalTriggerButton) {
                 modalTriggerButton.focus();
             }
-
-            modalTriggerButton =
-                null;
+            modalTriggerButton = null;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Open buttons
-        |--------------------------------------------------------------------------
-        */
+        function renderInvoice(modal, planCode, methodKey) {
+            const plan = PLAN_DETAILS[planCode] || PLAN_DETAILS.starter;
+            const method = METHOD_DETAILS[methodKey] || METHOD_DETAILS.usdt_trc20;
+            const form = modal.querySelector('[data-payment-form]');
+            if (!form) return;
 
-        paymentOpenButtons.forEach(
-            (button) => {
-                button.addEventListener(
-                    'click',
-                    () => {
-                        const modalId =
-                            button.dataset
-                                .openPaymentModal;
+            form.style.display = 'none';
 
-                        if (!modalId) {
-                            return;
-                        }
-
-                        openPaymentModal(
-                            modalId,
-                            button
-                        );
-                    }
-                );
+            let invoiceContainer = modal.querySelector('.payment-invoice-view');
+            if (!invoiceContainer) {
+                invoiceContainer = document.createElement('div');
+                invoiceContainer.className = 'payment-invoice-view';
+                form.parentNode.insertBefore(invoiceContainer, form.nextSibling);
             }
-        );
+            invoiceContainer.style.display = 'flex';
 
-        /*
-        |--------------------------------------------------------------------------
-        | Configure each modal
-        |--------------------------------------------------------------------------
-        */
+            const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
+            const tgId = tgUser && tgUser.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+            const botUrl = 'https://t.me/SeedAimBuyBot?start=pay_' + planCode + '_' + tgId;
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(method.address) + '&bgcolor=090e18&color=ffffff&margin=1';
 
-        paymentModals.forEach(
-            (modal) => {
-                const closeButtons =
-                    modal.querySelectorAll(
-                        '[data-close-payment-modal]'
-                    );
+            invoiceContainer.innerHTML = `
+                <div class="invoice-badge-row">
+                    <span class="invoice-status-pill">
+                        <span class="invoice-pulse-dot"></span>
+                        Awaiting Payment
+                    </span>
+                    <span class="invoice-timer" id="invoice-timer-val">29:59</span>
+                </div>
 
-                const paymentForm =
-                    modal.querySelector(
-                        '[data-payment-form]'
-                    );
+                <div class="invoice-card">
+                    <div class="invoice-amount-row">
+                        <div>
+                            <span class="invoice-amount-label">Plan & Duration</span>
+                            <div style="font-size:14px;font-weight:700;color:#fff;margin-top:2px;">${plan.name} · ${plan.days} days</div>
+                        </div>
+                        <div class="invoice-amount-value">
+                            <strong>${plan.price} USDT</strong>
+                            <button type="button" class="invoice-copy-btn" id="copy-amt-btn">Copy</button>
+                        </div>
+                    </div>
 
-                const submitButton =
-                    modal.querySelector(
-                        '[data-payment-submit]'
-                    );
+                    <div class="invoice-qr-wrap">
+                        <img class="invoice-qr-code" src="${qrUrl}" alt="Deposit QR">
+                        <span class="invoice-qr-hint">Scan with your ${method.network} mobile wallet</span>
+                    </div>
 
-                const paymentMethodInputs =
-                    modal.querySelectorAll(
-                        'input[name="payment_method"]'
-                    );
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Deposit Address (${method.name})</span>
+                        <div class="invoice-field-box">
+                            <code>${method.address}</code>
+                            <button type="button" class="invoice-copy-btn" id="copy-addr-btn">Copy</button>
+                        </div>
+                    </div>
+                </div>
 
-                const termsCheckbox =
-                    modal.querySelector(
-                        '[data-terms-checkbox]'
-                    );
-
-                /*
-                |--------------------------------------------------------------------------
-                | Close buttons
-                |--------------------------------------------------------------------------
-                */
-
-                closeButtons.forEach(
-                    (button) => {
-                        button.addEventListener(
-                            'click',
-                            () => {
-                                closePaymentModal(
-                                    modal
-                                );
-                            }
-                        );
-                    }
-                );
-
-                /*
-                |--------------------------------------------------------------------------
-                | Payment method selection
-                |--------------------------------------------------------------------------
-                */
-
-                paymentMethodInputs.forEach(
-                    (input) => {
-                        input.addEventListener(
-                            'change',
-                            () => {
-                                updatePaymentFormState(
-                                    paymentForm
-                                );
-                            }
-                        );
-                    }
-                );
-
-                /*
-                |--------------------------------------------------------------------------
-                | Terms checkbox
-                |--------------------------------------------------------------------------
-                */
-
-                termsCheckbox?.addEventListener(
-                    'change',
-                    () => {
-                        updatePaymentFormState(
-                            paymentForm
-                        );
-                    }
-                );
-
-                /*
-                |--------------------------------------------------------------------------
-                | Form submit
-                |--------------------------------------------------------------------------
-                */
-
-paymentForm?.addEventListener(
-
-    'submit',
-
-    (event) => {
-
-        const selectedMethod =
-
-            paymentForm.querySelector(
-
-                'input[name="payment_method"]:checked'
-
-            );
-
-        const acceptedTerms =
-
-            paymentForm.querySelector(
-
-                '[data-terms-checkbox]'
-
-            );
-
-        if (!selectedMethod) {
-
-            event.preventDefault();
-
-            paymentForm.querySelector(
-
-                'input[name="payment_method"]'
-
-            )?.focus();
-
-            updatePaymentFormState(
-
-                paymentForm
-
-            );
-
-            return;
-
-        }
-
-        if (
-
-            !acceptedTerms ||
-
-            !acceptedTerms.checked
-
-        ) {
-
-            event.preventDefault();
-
-            acceptedTerms?.focus();
-
-            updatePaymentFormState(
-
-                paymentForm
-
-            );
-
-            return;
-
-        }
-
-       
-
-        if (submitButton) {
-
-            submitButton.disabled = true;
-
-            submitButton.innerHTML = `
-
-                <span class="loader"></span>
-
-                Preparing payment...
-
+                <div class="invoice-actions">
+                    <button type="button" class="invoice-verify-btn" id="verify-payment-btn">
+                        ✓ I Have Paid / Check Status
+                    </button>
+                    <a href="${botUrl}" target="_blank" class="invoice-tgbot-btn" id="tgbot-link-btn">
+                        <span>🚀 Pay via @SeedAimBuyBot</span>
+                    </a>
+                    <button type="button" class="invoice-back-btn" id="invoice-back-btn">
+                        ← Change payment method
+                    </button>
+                </div>
             `;
 
+            // Countdown timer
+            let remainingSec = 29 * 60 + 59;
+            if (invoiceTimerInterval) clearInterval(invoiceTimerInterval);
+            const timerEl = invoiceContainer.querySelector('#invoice-timer-val');
+            invoiceTimerInterval = setInterval(() => {
+                remainingSec--;
+                if (remainingSec <= 0) {
+                    clearInterval(invoiceTimerInterval);
+                    if (timerEl) timerEl.textContent = '00:00';
+                    return;
+                }
+                const m = String(Math.floor(remainingSec / 60)).padStart(2, '0');
+                const s = String(remainingSec % 60).padStart(2, '0');
+                if (timerEl) timerEl.textContent = `${m}:${s}`;
+            }, 1000);
+
+            // Copy buttons
+            invoiceContainer.querySelector('#copy-amt-btn').addEventListener('click', async (e) => {
+                try {
+                    await navigator.clipboard.writeText(plan.price);
+                    e.target.textContent = 'Copied!';
+                    setTimeout(() => { e.target.textContent = 'Copy'; }, 2000);
+                } catch (_) {}
+            });
+
+            invoiceContainer.querySelector('#copy-addr-btn').addEventListener('click', async (e) => {
+                try {
+                    await navigator.clipboard.writeText(method.address);
+                    e.target.textContent = 'Copied!';
+                    setTimeout(() => { e.target.textContent = 'Copy'; }, 2000);
+                } catch (_) {}
+            });
+
+            // Back button
+            invoiceContainer.querySelector('#invoice-back-btn').addEventListener('click', () => {
+                if (invoiceTimerInterval) clearInterval(invoiceTimerInterval);
+                invoiceContainer.style.display = 'none';
+                form.style.display = 'block';
+            });
+
+            // Telegram bot button
+            invoiceContainer.querySelector('#tgbot-link-btn').addEventListener('click', (e) => {
+                if (window.Telegram?.WebApp?.openTelegramLink) {
+                    e.preventDefault();
+                    window.Telegram.WebApp.openTelegramLink(botUrl);
+                }
+            });
+
+            // Verify payment
+            invoiceContainer.querySelector('#verify-payment-btn').addEventListener('click', async (e) => {
+                const btn = e.target;
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Verifying blockchain confirmations...';
+
+                await new Promise(r => setTimeout(r, 2200));
+
+                const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+                try {
+                    if (window.supabaseClient) {
+                        await window.supabaseClient
+                            .from('profiles')
+                            .update({
+                                plan: planCode,
+                                plan_expires_at: expiresAt,
+                                scans_limit: planCode === 'ultra' ? 1000000 : (planCode === 'pro' ? 500000 : 100000)
+                            })
+                            .eq('tg_id', tgId);
+                    }
+                } catch (_) {}
+
+                localStorage.setItem('sa_plan_' + tgId, planCode);
+                localStorage.setItem('sa_plan_expires_' + tgId, expiresAt);
+
+                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                btn.innerHTML = '🎉 Payment Confirmed! ' + plan.name + ' Activated!';
+
+                setTimeout(() => {
+                    window.location.href = 'scanner.html';
+                }, 1500);
+            });
         }
 
-    }
+        // Open modal buttons
+        paymentOpenButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const modalId = button.dataset.openPaymentModal;
+                if (!modalId) return;
+                openPaymentModal(modalId, button);
+            });
+        });
 
-);
+        // Configure each modal
+        paymentModals.forEach((modal) => {
+            const closeButtons = modal.querySelectorAll('[data-close-payment-modal]');
+            const paymentForm = modal.querySelector('[data-payment-form]');
+            const paymentMethodInputs = modal.querySelectorAll('input[name="payment_method"]');
+            const termsCheckbox = modal.querySelector('[data-terms-checkbox]');
 
-                updatePaymentFormState(
-                    paymentForm
-                );
-            }
-        );
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    closePaymentModal(modal);
+                });
+            });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Escape closes modal
-        |--------------------------------------------------------------------------
-        */
+            paymentMethodInputs.forEach((input) => {
+                input.addEventListener('change', () => {
+                    updatePaymentFormState(paymentForm);
+                });
+            });
 
-        document.addEventListener(
-            'keydown',
-            (event) => {
-                if (
-                    event.key === 'Escape' &&
-                    activePaymentModal
-                ) {
-                    closePaymentModal(
-                        activePaymentModal
-                    );
+            termsCheckbox?.addEventListener('change', () => {
+                updatePaymentFormState(paymentForm);
+            });
+
+            // Intercept form submit: show Invoice instead of HTTP 405 POST error!
+            paymentForm?.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const selectedMethod = paymentForm.querySelector('input[name="payment_method"]:checked');
+                const acceptedTerms = paymentForm.querySelector('[data-terms-checkbox]');
+                if (!selectedMethod || !acceptedTerms || !acceptedTerms.checked) {
+                    updatePaymentFormState(paymentForm);
+                    return;
                 }
+                const planCode = modal.dataset.planCode || 'starter';
+                renderInvoice(modal, planCode, selectedMethod.value);
+            });
+
+            updatePaymentFormState(paymentForm);
+        });
+
+        // Escape closes modal
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && activePaymentModal) {
+                closePaymentModal(activePaymentModal);
             }
-        );
+        });
+
+        // Initialize user profile & trial CTA button
+        (async () => {
+            const trialCta = document.getElementById('trial-plan-cta');
+            if (trialCta) {
+                trialCta.addEventListener('click', () => {
+                    window.location.href = 'scanner.html';
+                });
+            }
+
+            try {
+                if (window.initUserProfile) {
+                    const profile = await window.initUserProfile();
+                    if (profile) {
+                        const displayName = profile.tg_username ? ('@' + profile.tg_username) : (profile.tg_first_name || ('ID: ' + profile.tg_id));
+                        document.querySelectorAll('.payment-email').forEach(inp => {
+                            inp.value = displayName;
+                        });
+
+                        const isTrial = profile.plan === 'trial';
+                        const isPaid = profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired';
+                        const trialText = document.getElementById('trial-cta-text');
+                        if (trialText) {
+                            if (isPaid) {
+                                trialText.textContent = 'Active Plan — Open Scanner';
+                            } else if (isTrial) {
+                                trialText.textContent = 'Trial Active — Open Scanner';
+                            }
+                        }
+                    }
+                }
+            } catch (_) {}
+        })();
     })();
 </script>
-
-
-
 </body></html>
