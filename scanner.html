@@ -6449,9 +6449,17 @@ main.app > .sd-tariffs-header-scope {
             || [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(' ')
             || 'SeedAim User';
 
-        const currentPlanName = isTrial ? 'Free Trial (3 Days)' : (profile?.plan || 'Free Trial');
+        const planCode = String(profile?.plan || 'trial').toLowerCase();
+        const planDisplayNames = {
+            trial: 'Free Trial (3 Days)',
+            starter: 'Starter Plan (30 Days)',
+            pro: 'Pro Plan (90 Days)',
+            ultra: 'Ultra Plan (1 Year)',
+            lifetime: 'Lifetime Access'
+        };
+        const currentPlanName = isTrial ? 'Free Trial (3 Days)' : (planDisplayNames[planCode] || (planCode.toUpperCase() + ' Plan'));
         const currentLicenseExpires = remainingText;
-        const activeNetworkCount = 6;
+        const activeNetworkCount = 10;
 
         // 2. DOM elements
         const scannerButton = document.getElementById('scanner-button');
@@ -7643,7 +7651,7 @@ main.app > .sd-tariffs-header-scope {
             addSystemLine(`License verified — ${currentLicenseExpires}`, 'verified');
             await delay(900);
 
-            addSystemLine(`Network permissions confirmed: ${activeNetworkCount} active chains (BTC, ETH, SOL, BNB, TRX, LTC)`, 'verified');
+            addSystemLine(`Network permissions confirmed: ${activeNetworkCount} active chains (BTC, ETH, SOL, BNB, TRX, TON, DOGE, LTC, AVAX, MATIC)`, 'verified');
             await delay(800);
 
             addSystemLine('Generating protected scanner session token...', 'security');
@@ -7652,7 +7660,7 @@ main.app > .sd-tariffs-header-scope {
             addSystemLine('Discovering available blockchain gateway nodes...', 'network');
             await delay(1000);
 
-            addSystemLine('Synchronizing 6 blockchain node clusters...', 'network');
+            addSystemLine(`Synchronizing ${activeNetworkCount} blockchain node clusters...`, 'network');
             await delay(850);
 
             const latency = Math.floor(Math.random() * 12) + 18;

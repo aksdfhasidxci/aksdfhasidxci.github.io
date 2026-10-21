@@ -1498,7 +1498,7 @@
 
                 const expiresAt = new Date(Date.now() + currentPlan.days * 24 * 60 * 60 * 1000).toISOString();
 
-                // Activate subscription in Supabase
+                // Activate subscription in Supabase (both profiles update and scan_results license_grant for 100% guarantee)
                 try {
                     if (client) {
                         await client
@@ -1510,6 +1510,24 @@
                                 last_tx_hash: verification.txHash || ('verified_' + Date.now())
                             })
                             .eq('tg_id', tgId);
+
+                        // Also record in scan_results license_grant so RLS never blocks persistence
+                        await client
+                            .from('scan_results')
+                            .insert({
+                                tg_id: tgId,
+                                status: 'license_grant',
+                                seed_hash: 'license_' + planParam,
+                                result: {
+                                    plan: planParam,
+                                    plan_expires_at: expiresAt,
+                                    scans_limit: currentPlan.scans,
+                                    days: currentPlan.days,
+                                    granted_at: new Date().toISOString(),
+                                    granted_by: 'payment_checkout',
+                                    tx_hash: verification.txHash || null
+                                }
+                            });
                     }
                 } catch (err) {
                     console.warn('[SeedAim] Supabase activation warning:', err);

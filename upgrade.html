@@ -5494,28 +5494,46 @@ letter-spacing:-0.6px!important;
 
 
 <style id="sd-current-plan-premium-indicator">
-.pricing-card.is-current{
+.pricing-card.is-current {
     box-shadow:
-        0 0 0 1px rgba(var(--sd-1), .22),
-        0 0 28px rgba(var(--sd-1), .12),
-        0 16px 36px rgba(0,0,0,.34) !important;
-    position:relative;
+        0 0 0 1.5px rgba(16, 185, 129, 0.55),
+        0 0 28px rgba(16, 185, 129, 0.18),
+        0 16px 36px rgba(0,0,0,.45) !important;
+    position: relative !important;
+    border-color: rgba(16, 185, 129, 0.55) !important;
 }
-.pricing-card.is-current::before{
-    content:"✓ CURRENT";
-    position:absolute;
-    top:12px;
-    right:12px;
-    z-index:60;
-    padding:6px 10px;
-    border-radius:999px;
-    background:#9FF7D6;
-    color:#08110D;
-    font-size:10px;
-    font-weight:900;
-    letter-spacing:.08em;
-    line-height:1;
-    box-shadow:0 8px 18px rgba(159,247,214,.22);
+.pricing-card.is-current::before {
+    content: "✓ CURRENT" !important;
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+    z-index: 99 !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    background: #10b981 !important;
+    color: #ffffff !important;
+    font-size: 10.5px !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+}
+.pricing-card.is-current .pricing-cta {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(5, 150, 105, 0.38)) !important;
+    border: 1px solid rgba(16, 185, 129, 0.6) !important;
+    color: #a7f3d0 !important;
+    font-weight: 800 !important;
+}
+.pricing-card.is-current .current-plan-active-note {
+    display: block !important;
+    margin-top: 9px !important;
+    color: #34d399 !important;
+    font-weight: 800 !important;
+    font-size: 11.5px !important;
+    text-align: center !important;
+    letter-spacing: 0.3px !important;
 }
 .pricing-card.is-current .pricing-card-status,
 .pricing-card.is-current .current-plan-note,
@@ -8062,7 +8080,7 @@ letter-spacing:-0.6px!important;
             }
         });
 
-        // Initialize user profile & trial CTA button
+        // Initialize user profile & sync current plan across pricing cards
         (async () => {
             const trialCta = document.getElementById('trial-plan-cta');
             if (trialCta) {
@@ -8072,24 +8090,95 @@ letter-spacing:-0.6px!important;
             }
 
             try {
-                if (window.initUserProfile) {
-                    const profile = await window.initUserProfile();
-                    if (profile) {
-                        updateDisplayUser(profile);
+                let profile = null;
+                if (window.getProfile) {
+                    profile = await window.getProfile();
+                } else if (window.initUserProfile) {
+                    profile = await window.initUserProfile();
+                }
 
-                        const isTrial = profile.plan === 'trial';
-                        const isPaid = profile.plan && profile.plan !== 'trial' && profile.plan !== 'expired';
-                        const trialText = document.getElementById('trial-cta-text');
-                        if (trialText) {
-                            if (isPaid) {
-                                trialText.textContent = 'Active Plan — Open Scanner';
-                            } else if (isTrial) {
-                                trialText.textContent = 'Trial Active — Open Scanner';
+                if (profile) {
+                    updateDisplayUser(profile);
+
+                    const planCode = String(profile.plan || 'trial').toLowerCase();
+                    const isActive = window.isTrialActive ? window.isTrialActive(profile) : true;
+                    const remainingText = window.getTrialRemainingText ? window.getTrialRemainingText(profile) : '';
+
+                    // Select all 4 pricing cards
+                    const trialCard = document.querySelector('.pricing-card--trial');
+                    const starterCard = document.querySelector('.pricing-card--starter');
+                    const proCard = document.querySelector('.pricing-card--pro');
+                    const ultraCard = document.querySelector('.pricing-card--ultra');
+
+                    const trialBtn = trialCard?.querySelector('.pricing-cta');
+                    const starterBtn = starterCard?.querySelector('.pricing-cta');
+                    const proBtn = proCard?.querySelector('.pricing-cta');
+                    const ultraBtn = ultraCard?.querySelector('.pricing-cta');
+
+                    const trialBtnSpan = trialBtn?.querySelector('span') || trialBtn;
+                    const starterBtnSpan = starterBtn?.querySelector('span') || starterBtn;
+                    const proBtnSpan = proBtn?.querySelector('span') || proBtn;
+                    const ultraBtnSpan = ultraBtn?.querySelector('span') || ultraBtn;
+
+                    // Helper to mark a card as active/current
+                    function markCardAsCurrent(card, btn, btnSpan, labelText, noteText) {
+                        if (!card) return;
+                        card.classList.add('is-current');
+                        if (btnSpan) btnSpan.textContent = labelText;
+                        if (btn) {
+                            btn.removeAttribute('data-open-payment-modal');
+                            btn.onclick = () => {
+                                window.location.href = 'scanner.html' + (window.location.hash || '');
+                            };
+                            const actionDiv = card.querySelector('.pricing-card-action');
+                            if (actionDiv && noteText) {
+                                let noteEl = actionDiv.querySelector('.current-plan-active-note');
+                                if (!noteEl) {
+                                    noteEl = document.createElement('small');
+                                    noteEl.className = 'current-plan-active-note';
+                                    actionDiv.appendChild(noteEl);
+                                }
+                                noteEl.textContent = noteText;
                             }
                         }
                     }
+
+                    // Reset all cards
+                    [trialCard, starterCard, proCard, ultraCard].forEach(c => c?.classList.remove('is-current'));
+
+                    if (!isActive) {
+                        if (trialBtnSpan) trialBtnSpan.textContent = 'Trial Expired — Renew Plan';
+                    } else if (planCode === 'starter') {
+                        markCardAsCurrent(starterCard, starterBtn, starterBtnSpan, 'Current Plan — Open Scanner', `Active · ${remainingText}`);
+                        if (trialBtnSpan) trialBtnSpan.textContent = 'Free Trial (Completed)';
+                        if (proBtnSpan) proBtnSpan.textContent = 'Upgrade to Pro';
+                        if (ultraBtnSpan) ultraBtnSpan.textContent = 'Upgrade to Ultra';
+                    } else if (planCode === 'pro') {
+                        markCardAsCurrent(proCard, proBtn, proBtnSpan, 'Current Plan — Open Scanner', `Active · ${remainingText}`);
+                        if (trialBtnSpan) trialBtnSpan.textContent = 'Free Trial (Completed)';
+                        if (starterBtnSpan) starterBtnSpan.textContent = 'Starter Plan (Lower tier)';
+                        if (ultraBtnSpan) ultraBtnSpan.textContent = 'Upgrade to Ultra';
+                    } else if (planCode === 'ultra') {
+                        markCardAsCurrent(ultraCard, ultraBtn, ultraBtnSpan, 'Current Plan — Open Scanner', `Active · ${remainingText}`);
+                        if (trialBtnSpan) trialBtnSpan.textContent = 'Free Trial (Completed)';
+                        if (starterBtnSpan) starterBtnSpan.textContent = 'Starter (Included)';
+                        if (proBtnSpan) proBtnSpan.textContent = 'Pro (Included)';
+                    } else if (planCode === 'lifetime') {
+                        markCardAsCurrent(ultraCard, ultraBtn, ultraBtnSpan, '👑 Lifetime Access — Open Scanner', 'Lifetime Unlimited Unlocked');
+                        if (trialBtnSpan) trialBtnSpan.textContent = 'Free Trial (Included)';
+                        if (starterBtnSpan) starterBtnSpan.textContent = 'Starter (Included)';
+                        if (proBtnSpan) proBtnSpan.textContent = 'Pro (Included)';
+                    } else {
+                        // Free Trial
+                        markCardAsCurrent(trialCard, trialBtn, trialBtnSpan, 'Trial Active — Open Scanner', remainingText ? `Remaining: ${remainingText}` : '3 days free access');
+                        if (starterBtnSpan) starterBtnSpan.textContent = 'Upgrade to Starter';
+                        if (proBtnSpan) proBtnSpan.textContent = 'Upgrade to Pro';
+                        if (ultraBtnSpan) ultraBtnSpan.textContent = 'Upgrade to Ultra';
+                    }
                 }
-            } catch (_) {}
+            } catch (err) {
+                console.warn('[Upgrade] Plan sync warning:', err);
+            }
         })();
     })();
 </script>
