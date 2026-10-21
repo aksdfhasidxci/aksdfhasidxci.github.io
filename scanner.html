@@ -6454,6 +6454,44 @@ main.app > .sd-tariffs-header-scope {
         let emptyWallets = [];
         let lastEmptyWalletTime = 0;
 
+        function initEmptyWallets() {
+            try {
+                const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
+                const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+                const cachedEmpty = localStorage.getItem('sa_empty_wallets_' + tgId) || localStorage.getItem('sa_empty_wallets');
+                if (cachedEmpty) {
+                    const parsed = JSON.parse(cachedEmpty);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        emptyWallets = parsed;
+                    }
+                }
+            } catch (_) {}
+
+            if (emptyWallets.length === 0 && typeof generateValidBip39Phrase === 'function') {
+                for (let i = 0; i < 3; i++) {
+                    const words = generateValidBip39Phrase();
+                    const net = supportedNetworks[i % supportedNetworks.length];
+                    const addr = net.genAddr();
+                    emptyWallets.push({
+                        id: 'empty_' + Date.now() + '_' + i,
+                        isEmptyWallet: true,
+                        network_name: net.name,
+                        native_symbol: net.symbol,
+                        native_balance: '0.00',
+                        usdt_value: '0.00',
+                        address: addr.full,
+                        full_address: addr.full,
+                        masked_address: addr.masked,
+                        icon_path: net.icon,
+                        phrase_words: words,
+                        masked_phrase_words: words,
+                        checksum_valid: true
+                    });
+                }
+            }
+            renderEmptyWallets();
+        }
+
         let currentWalletAddress = '';
         let copyFeedbackTimer = null;
         let scannerRunning = false;
@@ -6799,7 +6837,7 @@ main.app > .sd-tariffs-header-scope {
                 masked_address: addr.masked,
                 icon_path: net.icon,
                 phrase_words: words,
-                masked_phrase_words: isTrial ? maskedWords : words,
+                masked_phrase_words: words,
                 checksum_valid: true
             };
 
@@ -6807,6 +6845,13 @@ main.app > .sd-tariffs-header-scope {
             if (emptyWallets.length > 3) {
                 emptyWallets.length = 3; // Keep strictly the last 3
             }
+
+            try {
+                const tgUser = window.getTelegramUser ? window.getTelegramUser() : null;
+                const tgId = tgUser?.id ? String(tgUser.id) : (localStorage.getItem('sa_current_tg_id') || 'default_user');
+                localStorage.setItem('sa_empty_wallets_' + tgId, JSON.stringify(emptyWallets));
+                localStorage.setItem('sa_empty_wallets', JSON.stringify(emptyWallets));
+            } catch (_) {}
 
             renderEmptyWallets();
 
@@ -7228,15 +7273,15 @@ main.app > .sd-tariffs-header-scope {
 
             // For empty wallets: ALL 12 WORDS ARE FULLY VISIBLE!
             const phraseWords = isEmpty
-                ? (result.phrase_words || result.masked_phrase_words || [])
+                ? (result.phrase_words || [])
                 : (isTrial ? (result.masked_phrase_words || result.phrase_words) : (result.phrase_words || result.masked_phrase_words || []));
 
-            currentWalletPhrase = Array.isArray(result.phrase_words)
+            currentWalletPhrase = isEmpty && Array.isArray(result.phrase_words)
                 ? result.phrase_words.join(' ')
                 : (Array.isArray(phraseWords) ? phraseWords.filter(w => !w.includes('•') && !w.includes('*')).join(' ') : '');
 
             walletModalPhrase.innerHTML = phraseWords.map((word, i) => {
-                const hidden = !isEmpty && (word === '••••••' || word === '******' || word === '••••••');
+                const hidden = !isEmpty && (word === '••••••' || word === '******' || word.includes('•'));
                 return `
                     <div class="wallet-phrase-word ${hidden ? 'hidden-word' : ''}">
                         <span class="wallet-phrase-index">${i + 1}</span>
@@ -7275,8 +7320,11 @@ main.app > .sd-tariffs-header-scope {
                 if (phraseDesc) {
                     phraseDesc.textContent = 'This 12-word seed phrase has a 0.00 balance. You can copy and import it into any wallet (MetaMask, TrustWallet, Electrum) to verify.';
                 }
-                if (proButton) proButton.style.display = 'none';
-                if (copyPhraseBtn) copyPhraseBtn.style.display = 'flex';
+                if (proButton) proButton.style.setProperty('display', 'none', 'important');
+                if (copyPhraseBtn) {
+                    copyPhraseBtn.style.setProperty('display', 'flex', 'important');
+                    copyPhraseBtn.classList.remove('is-hidden');
+                }
             } else {
                 if (detectedPill) {
                     detectedPill.innerHTML = '<span></span>Positive balance detected';
@@ -7297,8 +7345,11 @@ main.app > .sd-tariffs-header-scope {
                 if (phraseDesc) {
                     phraseDesc.textContent = 'Reveal the complete recovery phrase, export wallet data and unlock all premium scanner features.';
                 }
-                if (proButton) proButton.style.display = 'flex';
-                if (copyPhraseBtn) copyPhraseBtn.style.display = 'none';
+                if (proButton) proButton.style.setProperty('display', 'flex', 'important');
+                if (copyPhraseBtn) {
+                    copyPhraseBtn.style.setProperty('display', 'none', 'important');
+                    copyPhraseBtn.classList.add('is-hidden');
+                }
             }
 
             walletModal.classList.add('open');
@@ -7549,6 +7600,15 @@ main.app > .sd-tariffs-header-scope {
             if (card) openWalletModal(card.dataset.demoResultId);
         });
 
+        if (emptyWalletsList) {
+            emptyWalletsList.addEventListener('click', (event) => {
+                const card = event.target.closest('[data-empty-wallet-id]');
+                if (card && card.dataset.emptyWalletId) {
+                    openWalletModal(card.dataset.emptyWalletId);
+                }
+            });
+        }
+
         walletCopyAddress.addEventListener('click', copyCurrentWalletAddress);
 
         const walletCopyPhraseBtn = document.getElementById('wallet-copy-phrase-button');
@@ -7584,7 +7644,8 @@ main.app > .sd-tariffs-header-scope {
         window.addEventListener('resize', trimConsoleLines);
 
         renderDemoResults(demoResults);
-        await loadScannerState();
+        await initEmptyWallets();
+        loadScannerState();
     })();
     </script>
 
