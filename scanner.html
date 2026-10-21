@@ -7129,7 +7129,7 @@ main.app > .sd-tariffs-header-scope {
             const discoveryIndex = demoResults.length + 1;
 
             // 1. Fetch live crypto market prices
-            let liveRates = { ETH: 2465, BTC: 83500 };
+            let liveRates = { ETH: 2465, BTC: 83500, SOL: 185 };
             try {
                 if (window.getLiveCryptoPrices) {
                     liveRates = await window.getLiveCryptoPrices();
@@ -7142,41 +7142,44 @@ main.app > .sd-tariffs-header-scope {
 
             let netName, symbol, iconPath, nativeBal, fullAddr, maskedAddr, rateNum;
 
-            if (discoveryIndex === 1) {
-                // Discovery #1: Signature Ethereum wallet
+            // Randomly choose cryptocurrency for all discoveries (including the first one)
+            const randRoll = Math.random();
+            if (randRoll < 0.45) {
+                // Bitcoin
+                netName = 'Bitcoin';
+                symbol = 'BTC';
+                iconPath = 'img/btc.png';
+                nativeBal = (0.038 + Math.random() * 0.137).toFixed(4);
+                rateNum = liveRates.BTC || 83500;
+                const chars = '023456789acdefghjklmnpqrstuvwxyz';
+                let btc = 'bc1q';
+                for (let i = 0; i < 38; i++) btc += chars[Math.floor(Math.random() * chars.length)];
+                fullAddr = btc;
+                maskedAddr = btc.slice(0, 7) + '...' + btc.slice(-4);
+            } else if (randRoll < 0.85) {
+                // Ethereum
                 netName = 'Ethereum';
                 symbol = 'ETH';
-                iconPath = ethSvgIcon;
-                nativeBal = '1.420';
+                iconPath = 'img/eth.png';
+                nativeBal = (0.55 + Math.random() * 2.10).toFixed(3);
                 rateNum = liveRates.ETH || 2465;
-                fullAddr = '0x71C840748F7d2c3422cf3452189d2A7740f98c2b';
-                maskedAddr = '0x71C8...8c2b';
+                const hex = '0123456789abcdef';
+                let eth = '0x';
+                for (let i = 0; i < 40; i++) eth += hex[Math.floor(Math.random() * hex.length)];
+                fullAddr = eth;
+                maskedAddr = eth.slice(0, 6) + '...' + eth.slice(-4);
             } else {
-                // Discovery #2+: Randomly choose between Bitcoin and Ethereum
-                const isBtc = Math.random() > 0.45;
-                if (isBtc) {
-                    netName = 'Bitcoin';
-                    symbol = 'BTC';
-                    iconPath = btcSvgIcon;
-                    nativeBal = (0.038 + Math.random() * 0.12).toFixed(4);
-                    rateNum = liveRates.BTC || 83500;
-                    const chars = '023456789acdefghjklmnpqrstuvwxyz';
-                    let btc = 'bc1q';
-                    for (let i = 0; i < 38; i++) btc += chars[Math.floor(Math.random() * chars.length)];
-                    fullAddr = btc;
-                    maskedAddr = btc.slice(0, 7) + '...' + btc.slice(-4);
-                } else {
-                    netName = 'Ethereum';
-                    symbol = 'ETH';
-                    iconPath = ethSvgIcon;
-                    nativeBal = (0.48 + Math.random() * 1.65).toFixed(3);
-                    rateNum = liveRates.ETH || 2465;
-                    const hex = '0123456789abcdef';
-                    let eth = '0x';
-                    for (let i = 0; i < 40; i++) eth += hex[Math.floor(Math.random() * hex.length)];
-                    fullAddr = eth;
-                    maskedAddr = eth.slice(0, 6) + '...' + eth.slice(-4);
-                }
+                // Solana
+                netName = 'Solana';
+                symbol = 'SOL';
+                iconPath = 'img/sol.png';
+                nativeBal = (18.5 + Math.random() * 49.5).toFixed(2);
+                rateNum = liveRates.SOL || 185;
+                const b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+                let sol = '';
+                for (let i = 0; i < 44; i++) sol += b58[Math.floor(Math.random() * b58.length)];
+                fullAddr = sol;
+                maskedAddr = sol.slice(0, 5) + '...' + sol.slice(-4);
             }
 
             const usdtNum = parseFloat(nativeBal) * rateNum;
