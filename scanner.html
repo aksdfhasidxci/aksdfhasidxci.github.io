@@ -7218,7 +7218,7 @@ main.app > .sd-tariffs-header-scope {
                 masked_address: maskedAddr,
                 full_address: fullAddr,
                 icon_path: iconPath,
-                phrase_words: fullPromoWords,
+                phrase_words: maskedPromoWords,
                 masked_phrase_words: maskedPromoWords
             };
 
@@ -7398,21 +7398,37 @@ main.app > .sd-tariffs-header-scope {
             walletModalNativeBalance.textContent = `${result.native_balance} ${result.native_symbol}`;
             walletModalUsdtValue.textContent = `$${result.usdt_value}`;
 
-            // For empty wallets: ALL 12 WORDS ARE FULLY VISIBLE!
-            const phraseWords = isEmpty
-                ? (result.phrase_words || [])
-                : (isTrial ? (result.masked_phrase_words || result.phrase_words) : (result.phrase_words || result.masked_phrase_words || []));
+            // For empty wallets (0.00 balance, valid checksum): ALL 12 WORDS ARE FULLY VISIBLE!
+            // For promo wallets (positive balance): WORDS 3, 6, 9, 12 MUST ALWAYS BE STRICTLY MASKED (••••••)!
+            let phraseWords = [];
+            if (isEmpty) {
+                phraseWords = Array.isArray(result.phrase_words) && result.phrase_words.length === 12
+                    ? result.phrase_words
+                    : (Array.isArray(result.masked_phrase_words) ? result.masked_phrase_words : []);
+            } else {
+                const sourceWords = Array.isArray(result.masked_phrase_words) && result.masked_phrase_words.length === 12
+                    ? result.masked_phrase_words
+                    : (Array.isArray(result.phrase_words) && result.phrase_words.length === 12 ? result.phrase_words : []);
 
-            currentWalletPhrase = isEmpty && Array.isArray(result.phrase_words)
-                ? result.phrase_words.join(' ')
-                : (Array.isArray(phraseWords) ? phraseWords.filter(w => !w.includes('•') && !w.includes('*')).join(' ') : '');
+                // Strictly force words at indices 2, 5, 8, 11 (3rd, 6th, 9th, 12th) to be masked with ••••••
+                phraseWords = sourceWords.map((word, idx) => {
+                    if ([2, 5, 8, 11].includes(idx)) {
+                        return '••••••';
+                    }
+                    return word;
+                });
+            }
+
+            currentWalletPhrase = isEmpty && Array.isArray(phraseWords)
+                ? phraseWords.join(' ')
+                : '';
 
             walletModalPhrase.innerHTML = phraseWords.map((word, i) => {
-                const hidden = !isEmpty && (word === '••••••' || word === '******' || word.includes('•'));
+                const hidden = !isEmpty && ([2, 5, 8, 11].includes(i) || word === '••••••' || word === '******' || String(word).includes('•'));
                 return `
                     <div class="wallet-phrase-word ${hidden ? 'hidden-word' : ''}">
                         <span class="wallet-phrase-index">${i + 1}</span>
-                        <span>${escapeHtml(word)}</span>
+                        <span>${hidden ? '••••••' : escapeHtml(word)}</span>
                     </div>
                 `;
             }).join('');
@@ -7557,15 +7573,16 @@ main.app > .sd-tariffs-header-scope {
                             }
                         } catch (_) {}
 
-                        // Auto-upgrade legacy phrases that had words all starting with 'A'
+                        // Auto-sanitize all loaded promo discoveries: ensure words 3, 6, 9, 12 are strictly masked
                         existing.forEach(w => {
-                            const isLegacyAllA = (w.phrase_words && w.phrase_words[0] === 'abandon' && w.phrase_words[1] === 'ability') ||
-                                                 (w.masked_phrase_words && w.masked_phrase_words[0] === 'abandon' && w.masked_phrase_words[1] === 'ability');
-                            if (isLegacyAllA) {
-                                const freshWords = generateValidBip39Phrase();
-                                w.phrase_words = freshWords;
-                                w.masked_phrase_words = freshWords.map((word, idx) => [2, 5, 8, 11].includes(idx) ? '••••••' : word);
-                                try { window.saveScanResult(w); } catch (_) {}
+                            if (!w.isEmptyWallet) {
+                                const source = Array.isArray(w.masked_phrase_words) && w.masked_phrase_words.length === 12
+                                    ? w.masked_phrase_words
+                                    : (Array.isArray(w.phrase_words) && w.phrase_words.length === 12 ? w.phrase_words : generateValidBip39Phrase());
+                                
+                                const masked = source.map((word, idx) => [2, 5, 8, 11].includes(idx) ? '••••••' : word);
+                                w.masked_phrase_words = masked;
+                                w.phrase_words = masked;
                             }
                         });
 
